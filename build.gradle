@@ -1,5 +1,6 @@
 plugins {
   id 'java'
+  id 'com.github.johnrengelman.shadow' version '2.0.1'
   id 'net.minecrell.licenser' version '0.3'
 }
 
@@ -24,4 +25,47 @@ license {
 repositories {
   mavenLocal()
   mavenCentral()
+  maven {
+    url 'https://oss.sonatype.org/content/groups/public/'
+  }
+  maven {
+    url 'https://repo.eclipse.org/content/repositories/egit-releases/'
+  }
+}
+
+dependencies {
+  compile 'com.sparkjava:spark-core:2.7.1'
+  compile 'net.kyori:event:1.0.0-SNAPSHOT'
+  compile 'net.kyori:igloo:1.0.0-SNAPSHOT'
+  compile 'net.kyori:membrane:1.0.5'
+  compile 'net.kyori:violet:1.0.0'
+  compile('ninja.leaping.configurate:configurate-gson:3.3') {
+    exclude group: 'com.google.code.gson', module: 'gson'
+  }
+  compile 'org.apache.commons:commons-text:1.2'
+  compile 'org.apache.logging.log4j:log4j-api:2.10.0'
+  compile 'org.apache.logging.log4j:log4j-core:2.10.0'
+  compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.10.0'
+}
+
+jar {
+  exclude 'log4j2-test.xml'
+  manifest.attributes(
+    'Implementation-Version': project.version + getGitHash(),
+    'Main-Class': 'net.kyori.limbo.Limbo'
+  )
+}
+
+shadowJar {
+  exclude 'log4j2-test.xml'
+}
+
+artifacts {
+  archives shadowJar
+}
+
+def getGitHash() {
+  def process = 'git rev-parse --short HEAD'.execute(null as String[], projectDir)
+  process.waitFor()
+  return '-' + (process.exitValue() ? 'unknown' : process.text.trim())
 }
