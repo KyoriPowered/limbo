@@ -55,8 +55,8 @@ final class IssueMoveConfiguration {
   IssueMoveConfiguration(@Named("identity") final User identity, @Named("github_feature") final Path path) throws IOException {
     final ConfigurationNode config = Configurations.readJson(path.resolve("issue_move.json"));
     this.pattern = Pattern.compile(String.format(config.getNode("pattern").getString(), identity.login));
-    this.source = ActionPackage.parse(path.resolve("message"), config.getNode("actions", "source"));
-    this.target = ActionPackage.parse(path.resolve("message"), config.getNode("actions", "target"));
+    this.source = ActionPackage.parse(path, config.getNode("actions", "source"));
+    this.target = ActionPackage.parse(path, config.getNode("actions", "target"));
     this.map = this.readMap(config);
   }
 

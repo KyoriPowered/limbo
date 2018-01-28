@@ -31,6 +31,9 @@ import net.kyori.igloo.v3.Users;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.feature.github.cache.RepositoryPermissionCacheImpl;
+import net.kyori.limbo.feature.github.component.action.ActionParser;
+import net.kyori.limbo.feature.github.component.action.ActionParserImpl;
+import net.kyori.limbo.feature.github.feature.analyze.AnalyzeFeature;
 import net.kyori.limbo.feature.github.feature.move.MoveIssueFeature;
 import net.kyori.limbo.util.Configurations;
 import net.kyori.membrane.facet.FacetBinder;
@@ -46,9 +49,11 @@ import javax.inject.Singleton;
 public final class GitHubModule extends AbstractModule {
   @Override
   protected void configure() {
+    this.bind(ActionParser.class).to(ActionParserImpl.class);
     this.bind(RepositoryPermissionCache.class).to(RepositoryPermissionCacheImpl.class);
     FacetBinder.create(this)
       .add(GitHubEndpoint.class)
+      .add(AnalyzeFeature.class)
       .add(MoveIssueFeature.class);
   }
 

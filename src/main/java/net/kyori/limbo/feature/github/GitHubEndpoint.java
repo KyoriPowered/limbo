@@ -85,7 +85,7 @@ public final class GitHubEndpoint implements Enableable {
         if(event != null) {
           this.bus.post(this.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(payload)), event));
         } else {
-          LOGGER.error("Couldn't find an event for '{}'", type);
+          LOGGER.info("Couldn't find an event for '{}'", type);
         }
         return HttpResponse.noContent(response);
       } else {

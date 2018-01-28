@@ -74,8 +74,7 @@ public final class MoveIssueFeature implements Feature, Listener {
       return;
     }
 
-    final net.kyori.limbo.feature.github.api.model.Issue sourceIssue = event.issue;
-    LOGGER.info("Trying to move issue '{}#{}' to '{}'", sourceRepository.asString(), sourceIssue.number, targetRepository.asString());
+    LOGGER.info("Trying to move issue '{}#{}' to '{}'", sourceRepository.asString(), event.issue.number, targetRepository.asString());
     if(!this.permission.get(sourceRepository, event.comment.user).write() && !this.permission.get(targetRepository, event.comment.user).write()) {
       LOGGER.error("Could not move issue - '{}' is not a collaborator", event.comment.user.login);
       return;
@@ -84,10 +83,11 @@ public final class MoveIssueFeature implements Feature, Listener {
     final net.kyori.igloo.v3.Repository sourceRepo = this.repositories.get(sourceRepository);
     final net.kyori.igloo.v3.Repository targetRepo = this.repositories.get(targetRepository);
 
+    final Issue sourceIssue = sourceRepo.issues().get(event.issue.number);
     final Issue targetIssue = targetRepo.issues().create(new Issue.Create.Full() {
       @Override
       public String title() {
-        return sourceIssue.title;
+        return event.issue.title;
       }
 
       @Override
@@ -95,25 +95,25 @@ public final class MoveIssueFeature implements Feature, Listener {
         return Tokens.format(
           MoveIssueFeature.this.configuration.target.comment,
           ImmutableMap.of(
-            IssueMoveToken.AUTHOR, sourceIssue.user.login,
-            IssueMoveToken.CONTENT, sourceIssue.body,
+            IssueMoveToken.AUTHOR, event.issue.user.login,
+            IssueMoveToken.CONTENT, event.issue.body,
             IssueMoveToken.SOURCE, sourceRepository.asString(),
-            IssueMoveToken.SOURCE_ID, sourceIssue.number,
-            IssueMoveToken.SOURCE_URL, sourceIssue.html_url
+            IssueMoveToken.SOURCE_ID, event.issue.number,
+            IssueMoveToken.SOURCE_URL, event.issue.html_url
           )
         );
       }
 
       @Override
       public Collection<String> assignees() {
-        return sourceIssue.assignees.stream().map(user -> user.login).collect(Collectors.toSet());
+        return event.issue.assignees.stream().map(user -> user.login).collect(Collectors.toSet());
       }
 
       @Override
       public Collection<String> labels() {
         return Stream.concat(
-          sourceIssue.labels.stream().map(label -> label.name),
-          MoveIssueFeature.this.configuration.target.labels.stream()
+          event.issue.labels.stream().map(label -> label.name),
+          MoveIssueFeature.this.configuration.target.addLabels.stream()
         ).collect(Collectors.toSet());
       }
 
@@ -124,21 +124,21 @@ public final class MoveIssueFeature implements Feature, Listener {
       }
     });
 
-    sourceRepo.issues().get(sourceIssue.number).comments().post(Tokens.format(
+    sourceIssue.comments().post(() -> Tokens.format(
       this.configuration.source.comment,
       ImmutableMap.of(
-        IssueMoveToken.AUTHOR, sourceIssue.user.login,
+        IssueMoveToken.AUTHOR, event.issue.user.login,
         IssueMoveToken.TARGET, targetRepository.asString(),
         IssueMoveToken.TARGET_ID, targetIssue.number(),
         IssueMoveToken.TARGET_URL, targetIssue.html_url()
       )
     ));
 
-    if(sourceIssue.locked) {
+    if(event.issue.locked) {
       targetIssue.lock();
     } else {
       if(this.configuration.source.lock) {
-        sourceRepo.issues().get(sourceIssue.number).lock();
+        sourceIssue.lock();
       }
 
       if(this.configuration.target.lock) {
@@ -146,7 +146,7 @@ public final class MoveIssueFeature implements Feature, Listener {
       }
     }
 
-    this.configuration.source.apply(sourceRepo.issues().get(sourceIssue.number));
+    this.configuration.source.apply(sourceIssue);
     this.configuration.target.apply(targetIssue);
   }
 }
