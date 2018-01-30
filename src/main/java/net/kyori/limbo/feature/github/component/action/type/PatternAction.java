@@ -28,14 +28,22 @@ import net.kyori.limbo.feature.github.component.action.Action;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 abstract class PatternAction extends Action.Impl {
+  private static final char ESCAPE_CHARACTER = '`';
   final Pattern pattern;
 
   PatternAction(final Set<On> on, final Who who, final Pattern pattern) {
     super(on, who);
     this.pattern = pattern;
+  }
+
+  boolean escaped(final Matcher matcher, final String string) {
+    return matcher.start() != 0
+      && string.charAt(matcher.start() - 1) == ESCAPE_CHARACTER
+      && string.charAt(matcher.end()) == ESCAPE_CHARACTER;
   }
 
   static abstract class Parser<A extends Action> extends Action.Parser.Impl<A> {

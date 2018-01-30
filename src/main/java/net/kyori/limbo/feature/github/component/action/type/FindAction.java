@@ -45,7 +45,7 @@ public final class FindAction extends PatternAction {
   @Override
   public void collect(final String string, final List<ActionPackage> applicators) {
     final Matcher matcher = this.pattern.matcher(string);
-    if(!matcher.find()) {
+    if(!matcher.find() || this.escaped(matcher, string)) {
       return;
     }
     applicators.add(this.apply);

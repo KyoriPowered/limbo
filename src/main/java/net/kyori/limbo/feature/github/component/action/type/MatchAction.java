@@ -49,7 +49,7 @@ public final class MatchAction extends PatternAction {
   @Override
   public void collect(final String string, final List<ActionPackage> applicators) {
     final Matcher matcher = this.pattern.matcher(string);
-    if(!matcher.find()) {
+    if(!matcher.find() || this.escaped(matcher, string)) {
       return;
     }
     for(final Where where : this.where) {
