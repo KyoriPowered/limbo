@@ -31,6 +31,9 @@ import net.kyori.limbo.core.event.Listener;
 import net.kyori.limbo.feature.Feature;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
+import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
+import net.kyori.limbo.feature.github.api.model.Repository;
+import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.feature.github.component.action.Action;
 import net.kyori.lunar.exception.Exceptions;
@@ -65,9 +68,21 @@ public final class AnalyzeFeature implements Feature, Listener {
   }
 
   @Subscribe
+  public void open(final PullRequestEvent event) {
+    if(event.action != PullRequestEvent.Action.OPENED) {
+      return;
+    }
+    final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
+    this.configuration.applicators(Action.On.PULL_REQUEST_OPEN, event.repository, this.allowed(
+      true,
+      Suppliers.memoize(() -> this.permission.get(event.repository, event.pull_request.user).write())
+    ), event.pull_request.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
+  }
+
+  @Subscribe
   public void comment(final IssueCommentEvent event) {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    this.configuration.applicators(Action.On.ISSUE_COMMENT, event.repository, this.allowed(
+    this.configuration.applicators(event.issue.pull_request != null ? Action.On.PULL_REQUEST_COMMENT : Action.On.ISSUE_COMMENT, event.repository, this.allowed(
       event.issue.user.equals(event.comment.user),
       Suppliers.memoize(() -> this.permission.get(event.repository, event.comment.user).write())
     ), event.comment.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));

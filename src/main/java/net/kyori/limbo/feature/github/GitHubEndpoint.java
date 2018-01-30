@@ -32,6 +32,7 @@ import net.kyori.limbo.feature.github.api.event.Event;
 import net.kyori.limbo.feature.github.api.event.Events;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
+import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
 import net.kyori.limbo.util.Crypt;
 import net.kyori.limbo.util.HttpResponse;
 import net.kyori.membrane.facet.Enableable;
@@ -101,6 +102,8 @@ public final class GitHubEndpoint implements Enableable {
         return IssueCommentEvent.class;
       case Events.ISSUES:
         return IssuesEvent.class;
+      case Events.PULL_REQUEST:
+        return PullRequestEvent.class;
     }
     return null;
   }

@@ -85,7 +85,9 @@ public interface Action {
 
   enum On {
     ISSUE_OPEN,
-    ISSUE_COMMENT;
+    ISSUE_COMMENT,
+    PULL_REQUEST_OPEN,
+    PULL_REQUEST_COMMENT;
   }
 
   enum Who {
