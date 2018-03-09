@@ -33,7 +33,7 @@ import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.feature.github.cache.RepositoryPermissionCacheImpl;
 import net.kyori.limbo.feature.github.component.action.ActionParser;
 import net.kyori.limbo.feature.github.component.action.ActionParserImpl;
-import net.kyori.limbo.feature.github.feature.analyze.AnalyzeFeature;
+import net.kyori.limbo.feature.github.feature.apply.ApplyFeature;
 import net.kyori.limbo.feature.github.feature.move.MoveIssueFeature;
 import net.kyori.limbo.util.Configurations;
 import net.kyori.membrane.facet.FacetBinder;
@@ -53,7 +53,7 @@ public final class GitHubModule extends AbstractModule {
     this.bind(RepositoryPermissionCache.class).to(RepositoryPermissionCacheImpl.class);
     FacetBinder.create(this)
       .add(GitHubEndpoint.class)
-      .add(AnalyzeFeature.class)
+      .add(ApplyFeature.class)
       .add(MoveIssueFeature.class);
   }
 

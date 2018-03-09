@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.analyze;
+package net.kyori.limbo.feature.github.feature.apply;
 
 import com.google.common.base.Suppliers;
 import net.kyori.event.Subscribe;
@@ -32,8 +32,6 @@ import net.kyori.limbo.feature.Feature;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
 import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
-import net.kyori.limbo.feature.github.api.model.Repository;
-import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.feature.github.component.action.Action;
 import net.kyori.lunar.exception.Exceptions;
@@ -43,13 +41,13 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-public final class AnalyzeFeature implements Feature, Listener {
-  private final AnalyzeFeatureConfiguration configuration;
+public final class ApplyFeature implements Feature, Listener {
+  private final ApplyFeatureConfiguration configuration;
   private final Repositories repositories;
   private final RepositoryPermissionCache permission;
 
   @Inject
-  private AnalyzeFeature(final AnalyzeFeatureConfiguration configuration, final Repositories repositories, final RepositoryPermissionCache permission) {
+  private ApplyFeature(final ApplyFeatureConfiguration configuration, final Repositories repositories, final RepositoryPermissionCache permission) {
     this.configuration = configuration;
     this.repositories = repositories;
     this.permission = permission;

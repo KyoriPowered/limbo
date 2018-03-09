@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.analyze;
+package net.kyori.limbo.feature.github.feature.apply;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -42,12 +42,12 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-final class AnalyzeFeatureConfiguration {
+final class ApplyFeatureConfiguration {
   private final Multimap<Repository, Action> entries = ArrayListMultimap.create();
 
   @Inject
-  AnalyzeFeatureConfiguration(@Named("github_feature") final Path path, final ActionParser parser) throws IOException {
-    final ConfigurationNode config = Configurations.readJson(path.resolve("analyze.json"));
+  ApplyFeatureConfiguration(@Named("github_feature") final Path path, final ActionParser parser) throws IOException {
+    final ConfigurationNode config = Configurations.readJson(path.resolve("apply.json"));
 
     for(final ConfigurationNode entry : config.getChildrenList()) {
       final List<Repository> repositories = new ArrayList<>();
