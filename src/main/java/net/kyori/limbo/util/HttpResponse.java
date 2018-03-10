@@ -23,39 +23,39 @@
  */
 package net.kyori.limbo.util;
 
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.gson.JsonObject;
+import net.kyori.lunar.EvenMoreObjects;
 import spark.Response;
 
 public final class HttpResponse {
-  private static final JsonObject SUCCESS = new JsonObject();
-  private static final JsonObject FOUR_OH_FOUR = new JsonObject();
-  private static final JsonObject ERROR_UNAUTHORIZED = new JsonObject();
-
-  static {
-    SUCCESS.addProperty("success", true);
-    FOUR_OH_FOUR.addProperty("success", false);
-    FOUR_OH_FOUR.addProperty("error", "four_oh_four");
-    ERROR_UNAUTHORIZED.addProperty("success", false);
-    ERROR_UNAUTHORIZED.addProperty("error", "unauthorized");
-  }
+  private static final String JSON_CONTENT_TYPE = "application/json";
+  private static final JsonObject FOUR_OH_FOUR = EvenMoreObjects.make(new JsonObject(), object -> {
+    object.addProperty("success", false);
+    object.addProperty("error", "four_oh_four");
+  });
+  private static final JsonObject ERROR_UNAUTHORIZED = EvenMoreObjects.make(new JsonObject(), object -> {
+    object.addProperty("success", false);
+    object.addProperty("error", "unauthorized");
+  });
 
   private HttpResponse() {
   }
 
   public static String noContent(final Response response) {
-    response.status(204);
+    response.status(HttpStatusCodes.STATUS_CODE_NO_CONTENT);
     return "";
   }
 
   public static JsonObject fourOhFour(final Response response) {
-    response.type("application/json");
-    response.status(404);
+    response.type(JSON_CONTENT_TYPE);
+    response.status(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
     return FOUR_OH_FOUR;
   }
 
   public static JsonObject unauthorized(final Response response) {
-    response.type("application/json");
-    response.status(401);
+    response.type(JSON_CONTENT_TYPE);
+    response.status(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
     return ERROR_UNAUTHORIZED;
   }
 }
