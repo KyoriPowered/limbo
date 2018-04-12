@@ -25,7 +25,6 @@ package net.kyori.limbo.feature.github;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
-import net.kyori.blizzard.Nullable;
 import net.kyori.event.EventBus;
 import net.kyori.limbo.core.event.Listener;
 import net.kyori.limbo.feature.github.api.event.Event;
@@ -39,6 +38,7 @@ import net.kyori.membrane.facet.Enableable;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import spark.Spark;
 
 import java.io.ByteArrayInputStream;
@@ -82,7 +82,7 @@ public final class GitHubEndpoint implements Enableable {
       }
       if(this.verifySignature(signature, payload)) {
         final String type = request.headers(X_GITHUB_EVENT);
-        @Nullable final Class<? extends Event> event = this.event(request.headers(X_GITHUB_EVENT));
+        final @Nullable Class<? extends Event> event = this.event(request.headers(X_GITHUB_EVENT));
         if(event != null) {
           this.bus.post(this.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(payload)), event));
         } else {
@@ -95,8 +95,7 @@ public final class GitHubEndpoint implements Enableable {
     });
   }
 
-  @Nullable
-  private Class<? extends Event> event(final String type) {
+  private @Nullable Class<? extends Event> event(final String type) {
     switch(type) {
       case Events.ISSUE_COMMENT:
         return IssueCommentEvent.class;
@@ -112,7 +111,7 @@ public final class GitHubEndpoint implements Enableable {
   public void disable() {
   }
 
-  private boolean verifySignature(@Nullable final String signature, final byte[] payload) {
+  private boolean verifySignature(final @Nullable String signature, final byte[] payload) {
     if(signature == null) {
       return false;
     }

@@ -24,7 +24,6 @@
 package net.kyori.limbo.feature.github.feature.move;
 
 import com.google.common.collect.ImmutableMap;
-import net.kyori.blizzard.Nullable;
 import net.kyori.event.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
@@ -37,6 +36,7 @@ import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -68,7 +68,7 @@ public final class MoveIssueFeature implements Feature, Listener {
 
     final Repository sourceRepository = event.repository;
     final String tag = matcher.group(1);
-    @Nullable final RepositoryId targetRepository = this.configuration.target(sourceRepository, tag);
+    final @Nullable RepositoryId targetRepository = this.configuration.target(sourceRepository, tag);
     if(targetRepository == null) {
       LOGGER.error("Could not find target for '{}' from '{}'", tag, sourceRepository);
       return;

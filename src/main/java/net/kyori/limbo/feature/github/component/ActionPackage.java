@@ -24,11 +24,11 @@
 package net.kyori.limbo.feature.github.component;
 
 import com.google.common.base.Joiner;
-import net.kyori.blizzard.Nullable;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Label;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.Types;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,12 +43,12 @@ import java.util.stream.StreamSupport;
 public final class ActionPackage {
   private static final Joiner JOINER = Joiner.on('\n');
   private final boolean close;
-  @Nullable public final String comment;
+  public final @Nullable String comment;
   public final Set<String> addLabels;
   private final Set<String> removeLabels;
   public final boolean lock;
 
-  private ActionPackage(final boolean close, @Nullable final String comment, final Set<String> addLabels, final Set<String> removeLabels, final boolean lock) {
+  private ActionPackage(final boolean close, final @Nullable String comment, final Set<String> addLabels, final Set<String> removeLabels, final boolean lock) {
     this.close = close;
     this.comment = comment;
     this.addLabels = addLabels;
@@ -74,7 +74,7 @@ public final class ActionPackage {
 
   public static ActionPackage parse(final Path featureRoot, final ConfigurationNode config) throws IOException {
     final boolean close = config.getNode("close").getBoolean();
-    @Nullable final String comment = config.getNode("comment").isVirtual() ? null : readMessage(featureRoot.resolve("message").resolve(config.getNode("comment").getString()));
+    final @Nullable String comment = config.getNode("comment").isVirtual() ? null : readMessage(featureRoot.resolve("message").resolve(config.getNode("comment").getString()));
     final Set<String> addLabels;
     final Set<String> removeLabels;
     if(config.getNode("label").isVirtual()) {

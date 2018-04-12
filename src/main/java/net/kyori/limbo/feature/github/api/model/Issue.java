@@ -24,7 +24,7 @@
 package net.kyori.limbo.feature.github.api.model;
 
 import com.google.gson.annotations.SerializedName;
-import net.kyori.blizzard.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public final class Issue {
   public boolean locked;
   public List<User> assignees;
 
-  @Nullable public PullRequest pull_request;
+  public @Nullable PullRequest pull_request;
 
   public static class Comment {
     public User user;

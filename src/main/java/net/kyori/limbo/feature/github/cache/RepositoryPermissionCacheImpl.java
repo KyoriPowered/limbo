@@ -25,12 +25,12 @@ package net.kyori.limbo.feature.github.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import net.kyori.blizzard.NonNull;
 import net.kyori.igloo.v3.Collaborator;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.igloo.v3.Users;
 import net.kyori.limbo.feature.github.api.model.User;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -49,9 +49,8 @@ public final class RepositoryPermissionCacheImpl implements RepositoryPermission
       .build(key -> repositories.get(key.repository).collaborators().get(users.get(key.user.login)).permission());
   }
 
-  @NonNull
   @Override
-  public Collaborator.Permission get(@NonNull final RepositoryId repository, @NonNull final User user) {
+  public Collaborator.@NonNull Permission get(final @NonNull RepositoryId repository, final @NonNull User user) {
     return this.cache.get(new Key(repository, user));
   }
 

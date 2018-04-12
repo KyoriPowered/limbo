@@ -23,11 +23,11 @@
  */
 package net.kyori.limbo.feature.github.component.action;
 
-import net.kyori.blizzard.Nullable;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.action.type.FindAction;
 import net.kyori.limbo.feature.github.component.action.type.MatchAction;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -62,7 +62,7 @@ public final class ActionParserImpl implements ActionParser {
 
   @Override
   public Optional<Action> parseOne(final Path featureRoot, final ConfigurationNode config) throws IOException {
-    @Nullable final Action.Parser<?> parser = this.parsers.get(config.getNode("type").getString());
+    final Action.@Nullable Parser<?> parser = this.parsers.get(config.getNode("type").getString());
     if(parser != null) {
       return Optional.ofNullable(parser.parse(featureRoot, config));
     }

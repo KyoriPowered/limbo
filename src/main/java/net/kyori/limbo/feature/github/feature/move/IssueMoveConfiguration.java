@@ -25,13 +25,13 @@ package net.kyori.limbo.feature.github.feature.move;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import net.kyori.blizzard.Nullable;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.ActionPackage;
 import net.kyori.limbo.util.Configurations;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.Types;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -64,8 +64,7 @@ final class IssueMoveConfiguration {
     return this.pattern.matcher(string);
   }
 
-  @Nullable
-  RepositoryId target(final RepositoryId source, final String tag) {
+  @Nullable RepositoryId target(final RepositoryId source, final String tag) {
     return this.map.get(source, tag);
   }
 

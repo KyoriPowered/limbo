@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo.feature.github.cache;
 
-import net.kyori.blizzard.NonNull;
 import net.kyori.igloo.v3.Collaborator;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.limbo.feature.github.api.model.User;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface RepositoryPermissionCache {
-  @NonNull
-  Collaborator.Permission get(@NonNull final RepositoryId repository, @NonNull final User user);
+  Collaborator.@NonNull Permission get(final @NonNull RepositoryId repository, final @NonNull User user);
 }
