@@ -23,18 +23,15 @@
  */
 package net.kyori.limbo.util;
 
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.gson.GsonConfigurationLoader;
+import net.kyori.xml.node.Node;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public interface Configurations {
-  static ConfigurationNode readJson(final Path path) throws IOException {
-    return GsonConfigurationLoader.builder()
-      .setIndent(2)
-      .setPath(path)
-      .build()
-      .load();
+public interface Documents {
+  static Node read(final Path path) throws IOException, JDOMException {
+    return Node.of(new SAXBuilder().build(path.toFile()).getRootElement());
   }
 }

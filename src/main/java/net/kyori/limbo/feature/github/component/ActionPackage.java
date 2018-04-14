@@ -25,16 +25,15 @@ package net.kyori.limbo.feature.github.component;
 
 import com.google.common.base.Joiner;
 import net.kyori.igloo.v3.Issue;
+import net.kyori.igloo.v3.IssuePartial;
 import net.kyori.igloo.v3.Label;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.Types;
+import net.kyori.lunar.exception.Exceptions;
+import net.kyori.xml.node.Node;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,23 +67,16 @@ public final class ActionPackage {
       }
     }
     if(this.close) {
-      issue.edit((Issue.Partial.State) () -> Issue.State.CLOSED);
+      issue.edit((IssuePartial.StatePartial) () -> Issue.State.CLOSED);
     }
   }
 
-  public static ActionPackage parse(final Path featureRoot, final ConfigurationNode config) throws IOException {
-    final boolean close = config.getNode("close").getBoolean();
-    final @Nullable String comment = config.getNode("comment").isVirtual() ? null : readMessage(featureRoot.resolve("message").resolve(config.getNode("comment").getString()));
-    final Set<String> addLabels;
-    final Set<String> removeLabels;
-    if(config.getNode("label").isVirtual()) {
-      addLabels = Collections.emptySet();
-      removeLabels = Collections.emptySet();
-    } else {
-      addLabels = new HashSet<>(config.getNode("label", "add").getList(Types::asString));
-      removeLabels = new HashSet<>(config.getNode("label", "remove").getList(Types::asString));
-    }
-    final boolean lock = config.getNode("lock").getBoolean();
+  public static ActionPackage parse(final Path featureRoot, final Node node) {
+    final boolean close = node.attribute("close").map(Node::value).map(Boolean::valueOf).orElse(false);
+    final @Nullable String comment = node.elements("comment").flatMap(Node::attributes).named("content").one().map(Exceptions.rethrowFunction(content -> readMessage(featureRoot.resolve("message").resolve(content.value())))).want().orElse(null);
+    final Set<String> addLabels = node.elements("label").flatMap(label -> label.elements("add")).map(Node::value).collect(Collectors.toSet());
+    final Set<String> removeLabels = node.elements("label").flatMap(label -> label.elements("remove")).map(Node::value).collect(Collectors.toSet());
+    final boolean lock = node.attribute("lock").map(Node::value).map(Boolean::valueOf).orElse(false);
     return new ActionPackage(close, comment, addLabels, removeLabels, lock);
   }
 

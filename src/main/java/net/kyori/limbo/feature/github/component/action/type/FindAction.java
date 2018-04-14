@@ -23,11 +23,12 @@
  */
 package net.kyori.limbo.feature.github.component.action.type;
 
+import com.google.common.collect.MoreCollectors;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.ActionPackage;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -37,8 +38,8 @@ import java.util.regex.Pattern;
 public final class FindAction extends PatternAction {
   private final ActionPackage apply;
 
-  FindAction(final Set<On> on, final Who who, final Pattern pattern, final ActionPackage apply) {
-    super(on, who, pattern);
+  FindAction(final Set<On> on, final Set<Who> by, final Pattern pattern, final ActionPackage apply) {
+    super(on, by, pattern);
     this.apply = apply;
   }
 
@@ -57,10 +58,10 @@ public final class FindAction extends PatternAction {
     }
 
     @Override
-    public FindAction parse(final Path featureRoot, final ConfigurationNode config) throws IOException {
-      final Pattern pattern = this.pattern(config);
-      final ActionPackage apply = ActionPackage.parse(featureRoot, config.getNode("apply"));
-      return new FindAction(this.on(config), this.who(config), pattern, apply);
+    public FindAction parse(final Path featureRoot, final Node node) throws XMLException {
+      final Pattern pattern = this.pattern(node);
+      final ActionPackage apply = ActionPackage.parse(featureRoot, node.elements("then").collect(MoreCollectors.onlyElement()));
+      return new FindAction(this.on(node), this.by(node), pattern, apply);
     }
   }
 }

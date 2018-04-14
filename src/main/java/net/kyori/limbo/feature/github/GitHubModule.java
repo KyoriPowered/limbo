@@ -35,10 +35,12 @@ import net.kyori.limbo.feature.github.component.action.ActionParser;
 import net.kyori.limbo.feature.github.component.action.ActionParserImpl;
 import net.kyori.limbo.feature.github.feature.apply.ApplyFeature;
 import net.kyori.limbo.feature.github.feature.move.MoveIssueFeature;
-import net.kyori.limbo.util.Configurations;
+import net.kyori.limbo.util.Documents;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
+import org.jdom2.JDOMException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -74,23 +76,23 @@ public final class GitHubModule extends AbstractModule {
   @Named("identity")
   @Provides
   @Singleton
-  ConfigurationNode identityConfiguration(@Named("github") final Path path) throws IOException {
-    return Configurations.readJson(path.resolve("identity.json"));
+  Node identityConfiguration(@Named("github") final Path path) throws IOException, JDOMException {
+    return Documents.read(path.resolve("identity.xml"));
   }
 
   @Named("identity")
   @Provides
   @Singleton
-  User identity(@Named("identity") final ConfigurationNode config) {
-    return new User(config.getNode("login").getString());
+  User identity(@Named("identity") final Node node) throws XMLException {
+    return new User(node.requireAttribute("login").value());
   }
 
   @Provides
   @Singleton
-  GitHub github(final Gson gson, @Named("identity") final ConfigurationNode config) {
+  GitHub github(final Gson gson, @Named("identity") final Node config) throws XMLException {
     return GitHub.builder()
       .gson(gson)
-      .token(config.getNode("token").getString())
+      .token(config.requireAttribute("token").value())
       .build();
   }
 

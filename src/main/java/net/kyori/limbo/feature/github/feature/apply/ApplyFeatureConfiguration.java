@@ -30,14 +30,20 @@ import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.ActionPackage;
 import net.kyori.limbo.feature.github.component.action.Action;
 import net.kyori.limbo.feature.github.component.action.ActionParser;
-import net.kyori.limbo.util.Configurations;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.limbo.util.Documents;
+import net.kyori.lunar.exception.Exceptions;
+import net.kyori.xml.flattener.BranchLeafNodeFlattener;
+import net.kyori.xml.node.Node;
+import org.jdom2.JDOMException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,22 +52,22 @@ final class ApplyFeatureConfiguration {
   private final Multimap<Repository, Action> entries = ArrayListMultimap.create();
 
   @Inject
-  ApplyFeatureConfiguration(@Named("github_feature") final Path path, final ActionParser parser) throws IOException {
-    final ConfigurationNode config = Configurations.readJson(path.resolve("apply.json"));
-
-    for(final ConfigurationNode entry : config.getChildrenList()) {
-      final List<Repository> repositories = new ArrayList<>();
-      for(final ConfigurationNode repository : entry.getNode("targets").getChildrenList()) {
-        repositories.add(new Repository(new User(repository.getNode("user").getString()), repository.getNode("repo").getString()));
-      }
-      final List<Action> actions = parser.parseAll(path, entry.getNode("actions"));
-      for(final Repository repository : repositories) {
-        this.entries.putAll(repository, actions);
-      }
-    }
+  ApplyFeatureConfiguration(@Named("github_feature") final Path path, final ActionParser parser) throws IOException, JDOMException {
+    Documents.read(path.resolve("apply.xml"))
+      .elements("apply")
+      .forEach(entry -> {
+        final List<Repository> repositories = entry.elements()
+          .flatMap(new BranchLeafNodeFlattener(Collections.singleton("targets"), Collections.singleton("target")))
+          .map(Exceptions.rethrowFunction(target -> new Repository(new User(target.requireAttribute("user").value()), target.requireAttribute("repo").value())))
+          .collect(Collectors.toList());
+        final List<Action> actions = parser.parseAll(path, entry.elements("actions").flatMap(Node::elements));
+        for(final Repository repository : repositories) {
+          this.entries.putAll(repository, actions);
+        }
+      });
   }
 
-  List<ActionPackage> applicators(final Action.On on, final Repository repository, final Function<Action.Who, Boolean> allowed, final String string) {
+  List<ActionPackage> applicators(final Action.On on, final Repository repository, final Function<Set<Action.Who>, Boolean> allowed, final String string) {
     final List<ActionPackage> applicators = new ArrayList<>();
     for(final Action action : this.entries.get(repository)) {
       if(!action.on(on) || !allowed.apply(action.who())) {

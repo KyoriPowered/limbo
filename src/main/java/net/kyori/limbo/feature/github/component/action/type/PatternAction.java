@@ -25,7 +25,8 @@ package net.kyori.limbo.feature.github.component.action.type;
 
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.action.Action;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
 
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -35,8 +36,8 @@ abstract class PatternAction extends Action.Impl {
   private static final char ESCAPE_CHARACTER = '`';
   final Pattern pattern;
 
-  PatternAction(final Set<On> on, final Who who, final Pattern pattern) {
-    super(on, who);
+  PatternAction(final Set<On> on, final Set<Who> by, final Pattern pattern) {
+    super(on, by);
     this.pattern = pattern;
   }
 
@@ -53,8 +54,8 @@ abstract class PatternAction extends Action.Impl {
       this.identity = identity;
     }
 
-    Pattern pattern(final ConfigurationNode config) {
-      return Pattern.compile(String.format(config.getNode("pattern").getString(), this.identity.login));
+    Pattern pattern(final Node node) throws XMLException {
+      return Pattern.compile(String.format(node.requireAttribute("pattern").value(), this.identity.login));
     }
   }
 }

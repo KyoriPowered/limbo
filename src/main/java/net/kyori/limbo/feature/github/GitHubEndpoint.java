@@ -35,7 +35,8 @@ import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
 import net.kyori.limbo.util.Crypt;
 import net.kyori.limbo.util.HttpResponse;
 import net.kyori.membrane.facet.Enableable;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -65,8 +66,8 @@ public final class GitHubEndpoint implements Enableable {
   private final EventBus<Object, Listener> bus;
 
   @Inject
-  private GitHubEndpoint(@Named("identity") final ConfigurationNode config, final Gson gson, final EventBus<Object, Listener> bus) {
-    this.key = config.getNode("key").getString().getBytes(StandardCharsets.UTF_8);
+  private GitHubEndpoint(@Named("identity") final Node node, final Gson gson, final EventBus<Object, Listener> bus) throws XMLException {
+    this.key = node.requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
     this.gson = gson;
     this.bus = bus;
   }

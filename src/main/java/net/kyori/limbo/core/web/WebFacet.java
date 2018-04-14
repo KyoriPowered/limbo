@@ -23,10 +23,12 @@
  */
 package net.kyori.limbo.core.web;
 
-import net.kyori.limbo.util.Configurations;
+import net.kyori.limbo.util.Documents;
 import net.kyori.limbo.util.HttpResponse;
 import net.kyori.membrane.facet.Enableable;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
+import org.jdom2.JDOMException;
 import spark.Spark;
 
 import java.io.IOException;
@@ -42,10 +44,10 @@ public final class WebFacet implements Enableable {
   private final int port;
 
   @Inject
-  private WebFacet(@Named("config") final Path path) throws IOException {
-    final ConfigurationNode config = Configurations.readJson(path.resolve("web.json"));
-    this.host = config.getNode("host").getString();
-    this.port = config.getNode("port").getInt();
+  private WebFacet(@Named("config") final Path path) throws IOException, JDOMException, XMLException {
+    final Node config = Documents.read(path.resolve("web.xml"));
+    this.host = config.requireAttribute("host").value();
+    this.port = Integer.parseInt(config.requireAttribute("port").value());
   }
 
   @Override

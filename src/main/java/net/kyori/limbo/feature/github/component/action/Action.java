@@ -24,13 +24,11 @@
 package net.kyori.limbo.feature.github.component.action;
 
 import net.kyori.limbo.feature.github.component.ActionPackage;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.Types;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -39,37 +37,37 @@ import java.util.stream.Collectors;
 public interface Action {
   boolean on(final On on);
 
-  Who who();
+  Set<Who> who();
 
   void collect(final String string, final List<ActionPackage> applicators);
 
   interface Parser<A extends Action> {
-    A parse(final Path featureRoot, final ConfigurationNode config) throws IOException;
+    A parse(final Path featureRoot, final Node node) throws IOException, XMLException;
 
     abstract class Impl<A extends Action> implements Parser<A> {
-      protected Set<On> on(final ConfigurationNode config) {
-        final Set<On> on = EnumSet.noneOf(On.class);
-        on.addAll(config.getNode("on").getList(Types::asString, Collections.emptyList())
-          .stream()
-          .map(entry -> entry.replace(' ', '_').toUpperCase(Locale.ENGLISH))
+      protected Set<On> on(final Node node) {
+        return node.nodes("on")
+          .map(on -> on.value().replace(' ', '_').toUpperCase(Locale.ENGLISH))
           .map(On::valueOf)
-          .collect(Collectors.toSet()));
-        return on;
+          .collect(Collectors.toSet());
       }
 
-      protected Who who(final ConfigurationNode config) {
-        return Who.valueOf(config.getNode("who").getString().toUpperCase(Locale.ENGLISH));
+      protected Set<Who> by(final Node node) {
+        return node.nodes("by")
+          .map(by -> by.value().replace(' ', '_').toUpperCase(Locale.ENGLISH))
+          .map(Who::valueOf)
+          .collect(Collectors.toSet());
       }
     }
   }
 
   abstract class Impl implements Action {
     protected final Set<On> on;
-    protected final Who who;
+    protected final Set<Who> by;
 
-    public Impl(final Set<On> on, final Who who) {
+    public Impl(final Set<On> on, final Set<Who> by) {
       this.on = on;
-      this.who = who;
+      this.by = by;
     }
 
     @Override
@@ -78,8 +76,8 @@ public interface Action {
     }
 
     @Override
-    public Who who() {
-      return this.who;
+    public Set<Who> who() {
+      return this.by;
     }
   }
 

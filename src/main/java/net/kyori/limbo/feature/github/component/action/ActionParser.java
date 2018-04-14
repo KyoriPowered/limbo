@@ -23,7 +23,9 @@
  */
 package net.kyori.limbo.feature.github.component.action;
 
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.stream.NodeStream;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ActionParser {
-  List<Action> parseAll(final Path featureRoot, final ConfigurationNode config) throws IOException;
+  List<Action> parseAll(final Path featureRoot, final NodeStream nodes);
 
-  Optional<Action> parseOne(final Path featureRoot, final ConfigurationNode config) throws IOException;
+  Optional<Action> parseOne(final Path featureRoot, final Node node) throws IOException, XMLException;
 }

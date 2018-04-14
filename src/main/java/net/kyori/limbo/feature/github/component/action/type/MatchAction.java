@@ -25,24 +25,25 @@ package net.kyori.limbo.feature.github.component.action.type;
 
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.ActionPackage;
-import ninja.leaping.configurate.ConfigurationNode;
+import net.kyori.lunar.exception.Exceptions;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.AbstractMap;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class MatchAction extends PatternAction {
   private final List<Where> where;
 
-  MatchAction(final Set<On> on, final Who who, final Pattern pattern, final List<Where> where) {
-    super(on, who, pattern);
+  MatchAction(final Set<On> on, final Set<Who> by, final Pattern pattern, final List<Where> where) {
+    super(on, by, pattern);
     this.where = where;
   }
 
@@ -74,18 +75,18 @@ public final class MatchAction extends PatternAction {
     }
 
     @Override
-    public MatchAction parse(final Path featureRoot, final ConfigurationNode config) throws IOException {
-      final Pattern pattern = this.pattern(config);
-      final List<MatchAction.Where> where = new ArrayList<>();
-      for(final Map.Entry<Object, ? extends ConfigurationNode> group : config.getNode("where").getChildrenMap().entrySet()) {
-        final int id = Integer.parseInt(String.valueOf(group.getKey()));
-        final Map<String, ActionPackage> applicators = new HashMap<>();
-        for(final Map.Entry<Object, ? extends ConfigurationNode> entry : group.getValue().getChildrenMap().entrySet()) {
-          applicators.put((String) entry.getKey(), ActionPackage.parse(featureRoot, entry.getValue()));
-        }
-        where.add(new MatchAction.Where(id, applicators));
-      }
-      return new MatchAction(this.on(config), this.who(config), pattern, where);
+    public MatchAction parse(final Path featureRoot, final Node node) throws XMLException {
+      final Pattern pattern = this.pattern(node);
+      final List<MatchAction.Where> where = node.elements("where")
+        .map(Exceptions.rethrowFunction(group -> {
+          final int id = Integer.parseInt(group.requireAttribute("group").value());
+          final Map<String, ActionPackage> applicators = group.elements("match")
+            .map(Exceptions.rethrowFunction(match -> new AbstractMap.SimpleImmutableEntry<>(match.requireAttribute("value").value(), ActionPackage.parse(featureRoot, match))))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+          return new MatchAction.Where(id, applicators);
+        }))
+        .collect(Collectors.toList());
+      return new MatchAction(this.on(node), this.by(node), pattern, where);
     }
   }
 }

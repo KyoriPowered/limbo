@@ -40,6 +40,7 @@ dependencies {
   compile 'net.kyori:lunar:1.0.6-SNAPSHOT'
   compile 'net.kyori:membrane:1.0.5'
   compile 'net.kyori:violet:1.0.0'
+  compile 'net.kyori:xml:1.0.0-SNAPSHOT'
   compile('ninja.leaping.configurate:configurate-gson:3.3') {
     exclude group: 'com.google.code.gson', module: 'gson'
   }

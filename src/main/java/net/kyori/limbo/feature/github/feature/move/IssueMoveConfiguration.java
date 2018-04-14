@@ -24,23 +24,28 @@
 package net.kyori.limbo.feature.github.feature.move;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.MoreCollectors;
 import com.google.common.collect.Table;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.component.ActionPackage;
-import net.kyori.limbo.util.Configurations;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.Types;
+import net.kyori.limbo.util.Documents;
+import net.kyori.lunar.exception.Exceptions;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.flattener.BranchLeafNodeFlattener;
+import net.kyori.xml.node.Node;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jdom2.JDOMException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -52,11 +57,11 @@ final class IssueMoveConfiguration {
   private final Table<RepositoryId, String, RepositoryId> map;
 
   @Inject
-  IssueMoveConfiguration(@Named("identity") final User identity, @Named("github_feature") final Path path) throws IOException {
-    final ConfigurationNode config = Configurations.readJson(path.resolve("issue_move.json"));
-    this.pattern = Pattern.compile(String.format(config.getNode("pattern").getString(), identity.login));
-    this.source = ActionPackage.parse(path, config.getNode("actions", "source"));
-    this.target = ActionPackage.parse(path, config.getNode("actions", "target"));
+  IssueMoveConfiguration(@Named("identity") final User identity, @Named("github_feature") final Path path) throws IOException, JDOMException, XMLException {
+    final Node config = Documents.read(path.resolve("issue_move.xml"));
+    this.pattern = Pattern.compile(String.format(config.requireAttribute("pattern").value(), identity.login));
+    this.source = ActionPackage.parse(path, config.elements("actions").flatMap(actions -> actions.elements("source")).collect(MoreCollectors.onlyElement()));
+    this.target = ActionPackage.parse(path, config.elements("actions").flatMap(actions -> actions.elements("target")).collect(MoreCollectors.onlyElement()));
     this.map = this.readMap(config);
   }
 
@@ -68,33 +73,37 @@ final class IssueMoveConfiguration {
     return this.map.get(source, tag);
   }
 
-  private Table<RepositoryId, String, RepositoryId> readMap(final ConfigurationNode config) {
+  private Table<RepositoryId, String, RepositoryId> readMap(final Node node) {
+    final Map<String, Entry> definitions = node.elements("definitions")
+      .flatMap(n -> n.elements("definition"))
+      .map(Exceptions.rethrowFunction(entry -> new AbstractMap.SimpleImmutableEntry<>(
+        entry.requireAttribute("id").value(),
+        new Entry(
+          RepositoryId.of(
+            entry.nodes("target").flatMap(target -> target.nodes("user")).collect(MoreCollectors.onlyElement()).value(),
+            entry.nodes("target").flatMap(target -> target.nodes("repo")).collect(MoreCollectors.onlyElement()).value()
+          ),
+          entry.elements().flatMap(new BranchLeafNodeFlattener(Collections.singleton("tags"), Collections.singleton("tag"))).map(Node::value).collect(Collectors.toSet()))
+      )))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     final Table<RepositoryId, String, RepositoryId> map = HashBasedTable.create();
-    final Map<String, Entry> definitions = new HashMap<>();
-    for(final Map.Entry<Object, ? extends ConfigurationNode> entry : config.getNode("definitions").getChildrenMap().entrySet()) {
-      definitions.put(String.valueOf(entry.getKey()), new Entry(
-        RepositoryId.of(
-          entry.getValue().getNode("target", "user").getString(),
-          entry.getValue().getNode("target", "repo").getString()
-        ),
-        new HashSet<>(entry.getValue().getNode("tags").getList(Types::asString))
-      ));
-    }
-    for(final Map.Entry<Object, ? extends ConfigurationNode> entry : config.getNode("map").getChildrenMap().entrySet()) {
-      final Entry source = definitions.get(String.valueOf(entry.getKey()));
-      if(source == null) {
-        throw new IllegalArgumentException("no definition for source '" + entry.getKey() + '\'');
-      }
-      for(final String target : entry.getValue().getList(Types::asString)) {
-        final Entry definition = definitions.get(target);
-        if(definition == null) {
-          throw new IllegalArgumentException("no definition for target '" + entry.getKey() + '\'');
+
+    node.elements().flatMap(new BranchLeafNodeFlattener(Collections.singleton("targets"), Collections.singleton("source")))
+      .forEach(Exceptions.rethrowConsumer(sourceNode -> {
+        final Entry source = definitions.get(String.valueOf(sourceNode.requireAttribute("id").value()));
+        if(source == null) {
+          throw new IllegalArgumentException("no definition for source '" + sourceNode.requireAttribute("id").value() + '\'');
         }
-        for(final String tag : definition.tags) {
-          map.put(source.repository, tag, definition.repository);
-        }
-      }
-    }
+        sourceNode.elements("target").map(Node::value).forEach(target -> {
+          final Entry definition = definitions.get(target);
+          if(definition == null) {
+            throw new IllegalArgumentException("no definition for target '" + target + '\'');
+          }
+          for(final String tag : definition.tags) {
+            map.put(source.repository, tag, definition.repository);
+          }
+        });
+      }));
     return map;
   }
 

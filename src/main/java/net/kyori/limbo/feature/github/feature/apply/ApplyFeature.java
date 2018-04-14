@@ -36,6 +36,7 @@ import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
 import net.kyori.limbo.feature.github.component.action.Action;
 import net.kyori.lunar.exception.Exceptions;
 
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -86,13 +87,11 @@ public final class ApplyFeature implements Feature, Listener {
     ), event.comment.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
   }
 
-  private Function<Action.Who, Boolean> allowed(final boolean author, final Supplier<Boolean> collaborator) {
+  private Function<Set<Action.Who>, Boolean> allowed(final boolean author, final Supplier<Boolean> collaborator) {
     return who -> {
-      switch(who) {
-        case ANY: return true;
-        case AUTHOR: return author || collaborator.get();
-        case COLLABORATOR: return collaborator.get();
-      }
+      if(who.contains(Action.Who.ANY)) return true;
+      if(who.contains(Action.Who.AUTHOR) && author) return true;
+      if(who.contains(Action.Who.COLLABORATOR) && collaborator.get()) return true;
       return false;
     };
   }
