@@ -73,7 +73,7 @@ public final class GitHubModule extends AbstractModule {
     return path.resolve("feature");
   }
 
-  @Named("identity")
+  @Named("github_identity")
   @Provides
   @Singleton
   Node identityConfiguration(@Named("github") final Path path) throws IOException, JDOMException {
@@ -83,13 +83,13 @@ public final class GitHubModule extends AbstractModule {
   @Named("identity")
   @Provides
   @Singleton
-  User identity(@Named("identity") final Node node) throws XMLException {
+  User identity(@Named("github_identity") final Node node) throws XMLException {
     return new User(node.requireAttribute("login").value());
   }
 
   @Provides
   @Singleton
-  GitHub github(final Gson gson, @Named("identity") final Node config) throws XMLException {
+  GitHub github(final Gson gson, @Named("github_identity") final Node config) throws XMLException {
     return GitHub.builder()
       .gson(gson)
       .token(config.requireAttribute("token").value())

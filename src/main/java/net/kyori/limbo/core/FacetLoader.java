@@ -21,14 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.core.web;
+package net.kyori.limbo.core;
 
-import net.kyori.membrane.facet.FacetBinder;
-import net.kyori.violet.AbstractModule;
+import net.kyori.membrane.facet.internal.Facets;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public final class WebModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    FacetBinder.create(this).add(WebFacet.class);
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+@Component
+final class FacetLoader {
+  private final Facets facets;
+
+  @Autowired
+  public FacetLoader(final Facets facets) {
+    this.facets = facets;
+  }
+
+  @PostConstruct
+  private void enable() {
+    this.facets.enable();
+  }
+
+  @PreDestroy
+  private void disable() {
+    this.facets.disable();
   }
 }

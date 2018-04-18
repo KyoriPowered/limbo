@@ -21,27 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo;
+package net.kyori.limbo.core.web;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.guice.annotation.EnableGuiceModules;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
-@EnableAutoConfiguration(exclude = {
-  GsonAutoConfiguration.class
-})
-@EnableGuiceModules
-@SpringBootApplication
-public class Limbo {
-  public static void main(final String... args) {
-    SpringApplication.run(Limbo.class, args);
+@ControllerAdvice
+public class UhOh {
+  @ExceptionHandler(NoHandlerFoundException.class)
+  @ResponseBody
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public SimpleError fourOhFour() {
+    return new SimpleError("not_found", "not found");
   }
 
-  @Bean
-  LimboModule module() {
-    return new LimboModule();
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  @ResponseBody
+  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+  public SimpleError wrong() {
+    return new SimpleError("method_not_allowed", "method not allowed");
   }
 }

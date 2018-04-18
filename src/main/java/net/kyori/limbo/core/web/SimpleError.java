@@ -23,43 +23,15 @@
  */
 package net.kyori.limbo.core.web;
 
-import net.kyori.limbo.util.Documents;
-import net.kyori.limbo.util.HttpResponse;
-import net.kyori.membrane.facet.Enableable;
-import net.kyori.xml.XMLException;
-import net.kyori.xml.node.Node;
-import org.jdom2.JDOMException;
-import spark.Spark;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import java.io.IOException;
-import java.nio.file.Path;
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class SimpleError {
+  private final String error;
+  private final String message;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-@Singleton
-public final class WebFacet implements Enableable {
-  private final String host;
-  private final int port;
-
-  @Inject
-  private WebFacet(@Named("config") final Path path) throws IOException, JDOMException, XMLException {
-    final Node config = Documents.read(path.resolve("web.xml"));
-    this.host = config.requireAttribute("host").value();
-    this.port = Integer.parseInt(config.requireAttribute("port").value());
-  }
-
-  @Override
-  public void enable() {
-    Spark.ipAddress(this.host);
-    Spark.port(this.port);
-    Spark.get("/", (request, response) -> HttpResponse.noContent(response));
-    Spark.notFound((request, response) -> HttpResponse.fourOhFour(response));
-  }
-
-  @Override
-  public void disable() {
-    Spark.stop();
+  public SimpleError(final String error, final String message) {
+    this.error = error;
+    this.message = message;
   }
 }

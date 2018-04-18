@@ -23,27 +23,30 @@
  */
 package net.kyori.limbo.feature.github;
 
-import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import net.kyori.event.EventBus;
 import net.kyori.limbo.core.event.Listener;
+import net.kyori.limbo.core.web.SimpleError;
 import net.kyori.limbo.feature.github.api.event.Event;
 import net.kyori.limbo.feature.github.api.event.Events;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
 import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
 import net.kyori.limbo.util.Crypt;
-import net.kyori.limbo.util.HttpResponse;
-import net.kyori.membrane.facet.Enableable;
+import net.kyori.membrane.facet.Facet;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import spark.Spark;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -56,8 +59,9 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.xml.bind.DatatypeConverter;
 
+@Controller
 @Singleton
-public final class GitHubEndpoint implements Enableable {
+public final class GitHubEndpoint implements Facet {
   private static final Logger LOGGER = LogManager.getLogger();
   private static final String X_GITHUB_EVENT = "X-GitHub-Event";
   private static final String X_HUB_SIGNATURE = "X-Hub-Signature";
@@ -65,35 +69,32 @@ public final class GitHubEndpoint implements Enableable {
   private final Gson gson;
   private final EventBus<Object, Listener> bus;
 
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Inject
-  private GitHubEndpoint(@Named("identity") final Node node, final Gson gson, final EventBus<Object, Listener> bus) throws XMLException {
+  private GitHubEndpoint(@Named("github_identity") final Node node, final Gson gson, final EventBus<Object, Listener> bus) throws XMLException {
     this.key = node.requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
     this.gson = gson;
     this.bus = bus;
   }
 
-  @Override
-  public void enable() {
-    LOGGER.info("Registering endpoint");
-    Spark.post("/endpoint/github/", (request, response) -> {
-      final String signature = request.headers(X_HUB_SIGNATURE);
-      final byte[] payload;
-      try(final InputStream is = request.raw().getInputStream()) {
-        payload = ByteStreams.toByteArray(is);
-      }
-      if(this.verifySignature(signature, payload)) {
-        final String type = request.headers(X_GITHUB_EVENT);
-        final @Nullable Class<? extends Event> event = this.event(request.headers(X_GITHUB_EVENT));
-        if(event != null) {
-          this.bus.post(this.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(payload)), event));
-        } else {
-          LOGGER.info("Couldn't find an event for '{}'", type);
-        }
-        return HttpResponse.noContent(response);
+  @PostMapping("/endpoint/github/")
+  public ResponseEntity<?> endpoint(
+    @RequestBody String body,
+    @RequestHeader(X_HUB_SIGNATURE) final String xHubSignature,
+    @RequestHeader(X_GITHUB_EVENT) final String xGitHubEvent
+  ) {
+    final byte[] payload = body.getBytes(StandardCharsets.UTF_8);
+    if(this.verifySignature(xHubSignature, payload)) {
+      final @Nullable Class<? extends Event> event = this.event(xGitHubEvent);
+      if(event != null) {
+        this.bus.post(this.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(payload)), event));
       } else {
-        return HttpResponse.unauthorized(response);
+        LOGGER.info("Couldn't find an event for '{}'", xGitHubEvent);
       }
-    });
+      return ResponseEntity.ok().build();
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleError("unauthorized.bad_signature", "could not verify signature"));
+    }
   }
 
   private @Nullable Class<? extends Event> event(final String type) {
@@ -106,10 +107,6 @@ public final class GitHubEndpoint implements Enableable {
         return PullRequestEvent.class;
     }
     return null;
-  }
-
-  @Override
-  public void disable() {
   }
 
   private boolean verifySignature(final @Nullable String signature, final byte[] payload) {

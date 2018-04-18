@@ -25,7 +25,6 @@ package net.kyori.limbo.core;
 
 import net.kyori.limbo.core.event.EventModule;
 import net.kyori.limbo.core.gson.GsonModule;
-import net.kyori.limbo.core.web.WebModule;
 import net.kyori.violet.AbstractModule;
 
 public final class CoreModule extends AbstractModule {
@@ -33,6 +32,5 @@ public final class CoreModule extends AbstractModule {
   protected void configure() {
     this.install(new EventModule());
     this.install(new GsonModule());
-    this.install(new WebModule());
   }
 }

@@ -1,8 +1,21 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.1.RELEASE'
+  }
+}
+
 plugins {
   id 'java'
-  id 'com.github.johnrengelman.shadow' version '2.0.1'
   id 'net.minecrell.licenser' version '0.3'
 }
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
 
 group 'net.kyori'
 version '1.0.0-SNAPSHOT'
@@ -28,42 +41,27 @@ repositories {
   maven {
     url 'https://oss.sonatype.org/content/groups/public/'
   }
-  maven {
-    url 'https://repo.eclipse.org/content/repositories/egit-releases/'
-  }
 }
 
 dependencies {
-  compile 'com.sparkjava:spark-core:2.7.1'
   compile 'net.kyori:event:1.0.0-SNAPSHOT'
   compile 'net.kyori:igloo:1.0.0-SNAPSHOT'
   compile 'net.kyori:lunar:1.0.6-SNAPSHOT'
   compile 'net.kyori:membrane:1.0.5'
   compile 'net.kyori:violet:1.0.0'
   compile 'net.kyori:xml:1.0.0-SNAPSHOT'
-  compile('ninja.leaping.configurate:configurate-gson:3.3') {
-    exclude group: 'com.google.code.gson', module: 'gson'
-  }
   compile 'org.apache.commons:commons-text:1.2'
-  compile 'org.apache.logging.log4j:log4j-api:2.10.0'
-  compile 'org.apache.logging.log4j:log4j-core:2.10.0'
-  compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.10.0'
+  compile 'org.springframework.boot:spring-boot-starter-undertow'
+  compile('org.springframework.boot:spring-boot-starter-web') {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+  }
+  compile 'org.springframework.guice:spring-guice:1.1.2.RELEASE'
 }
 
-jar {
-  exclude 'log4j2-test.xml'
+bootJar {
   manifest.attributes(
-    'Implementation-Version': project.version + getGitHash(),
-    'Main-Class': 'net.kyori.limbo.Limbo'
+    'Implementation-Version': project.version + getGitHash()
   )
-}
-
-shadowJar {
-  exclude 'log4j2-test.xml'
-}
-
-artifacts {
-  archives shadowJar
 }
 
 def getGitHash() {
