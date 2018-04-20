@@ -21,25 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.core.config;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.Parser;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import javax.inject.Inject;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+public final class FiltersProcessor implements Processor {
+  private final Parser<Filter> parser;
+
+  @Inject
+  private FiltersProcessor(final Parser<Filter> parser) {
+    this.parser = parser;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public void process(final Node node) {
+    node.elements("filters")
+      .flatMap(Node::elements)
+      .forEach(this.parser::parse); // filter parser adds to context
   }
 }

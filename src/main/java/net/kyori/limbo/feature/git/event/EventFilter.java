@@ -21,25 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.git.event;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.fragment.filter.FilterResponse;
+import net.kyori.fragment.filter.TypedFilter;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+public final class EventFilter implements TypedFilter<EventQuery> {
+  private final Event event;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+  public EventFilter(final Event event) {
+    this.event = event;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public boolean queryable(final @NonNull FilterQuery query) {
+    return query instanceof EventQuery;
+  }
+
+  @Override
+  public @NonNull FilterResponse typedQuery(final @NonNull EventQuery query) {
+    return FilterResponse.from(query.event().equals(this.event));
   }
 }

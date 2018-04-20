@@ -21,25 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.git.event;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.EnumParser;
+import net.kyori.xml.node.parser.Parser;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import javax.inject.Inject;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+public final class EventFilterParser implements Parser<EventFilter> {
+  private final EnumParser<Event> parser;
+
+  @Inject
+  private EventFilterParser(final EnumParser<Event> parser) {
+    this.parser = parser;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public @NonNull EventFilter throwingParse(final @NonNull Node node) {
+    return new EventFilter(this.parser.parse(node));
   }
 }

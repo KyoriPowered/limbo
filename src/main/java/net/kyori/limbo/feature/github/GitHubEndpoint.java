@@ -25,7 +25,6 @@ package net.kyori.limbo.feature.github;
 
 import com.google.gson.Gson;
 import net.kyori.event.EventBus;
-import net.kyori.limbo.core.event.Listener;
 import net.kyori.limbo.core.web.SimpleError;
 import net.kyori.limbo.feature.github.api.event.Event;
 import net.kyori.limbo.feature.github.api.event.Events;
@@ -33,7 +32,6 @@ import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
 import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
 import net.kyori.limbo.util.Crypt;
-import net.kyori.membrane.facet.Facet;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import org.apache.logging.log4j.LogManager;
@@ -61,27 +59,27 @@ import javax.xml.bind.DatatypeConverter;
 
 @Controller
 @Singleton
-public final class GitHubEndpoint implements Facet {
+public final class GitHubEndpoint {
   private static final Logger LOGGER = LogManager.getLogger();
   private static final String X_GITHUB_EVENT = "X-GitHub-Event";
   private static final String X_HUB_SIGNATURE = "X-Hub-Signature";
   private final byte[] key;
   private final Gson gson;
-  private final EventBus<Object, Listener> bus;
+  private final EventBus<Object, Object> bus;
 
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Inject
-  private GitHubEndpoint(@Named("github_identity") final Node node, final Gson gson, final EventBus<Object, Listener> bus) throws XMLException {
-    this.key = node.requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
+  private GitHubEndpoint(@Named("env") final Node node, final Gson gson, final EventBus<Object, Object> bus) throws XMLException {
+    this.key = node.elements("github").one().need().requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
     this.gson = gson;
     this.bus = bus;
   }
 
   @PostMapping("/endpoint/github/")
   public ResponseEntity<?> endpoint(
-    @RequestBody String body,
-    @RequestHeader(X_HUB_SIGNATURE) final String xHubSignature,
-    @RequestHeader(X_GITHUB_EVENT) final String xGitHubEvent
+    final @RequestBody String body,
+    final @RequestHeader(X_HUB_SIGNATURE) String xHubSignature,
+    final @RequestHeader(X_GITHUB_EVENT) String xGitHubEvent
   ) {
     final byte[] payload = body.getBytes(StandardCharsets.UTF_8);
     if(this.verifySignature(xHubSignature, payload)) {

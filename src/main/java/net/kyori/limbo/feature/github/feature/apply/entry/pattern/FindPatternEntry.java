@@ -21,44 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.github.feature.apply.entry.pattern;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.feature.github.action.Action;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.inject.Singleton;
+public final class FindPatternEntry extends PatternEntry {
+  private final Action action;
 
-@Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
-
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
+  FindPatternEntry(final Filter filter, final Pattern pattern, final Action action) {
+    super(filter, pattern);
+    this.action = action;
   }
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
-
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
-      this.actions = actions;
+  @Override
+  public void collect(final String string, final List<Action> actions) {
+    final Matcher matcher = this.pattern.matcher(string);
+    if(!matcher.find() || this.escaped(matcher, string)) {
+      return;
     }
+    actions.add(this.action);
   }
 }

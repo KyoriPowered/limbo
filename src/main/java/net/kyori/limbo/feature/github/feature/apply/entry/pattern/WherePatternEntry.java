@@ -21,43 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.github.feature.apply.entry.pattern;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.feature.github.action.Action;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.inject.Singleton;
+public final class WherePatternEntry extends PatternEntry {
+  private final List<Where> where;
 
-@Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
-
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
+  WherePatternEntry(final Filter filter, final Pattern pattern, final List<Where> where) {
+    super(filter, pattern);
+    this.where = where;
   }
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
+  @Override
+  public void collect(final String string, final List<Action> actions) {
+    final Matcher matcher = this.pattern.matcher(string);
+    if(!matcher.find() || this.escaped(matcher, string)) {
+      return;
+    }
+    for(final Where where : this.where) {
+      actions.add(where.actions.get(matcher.group(where.group)));
+    }
+    actions.removeAll(Collections.singleton(null));
+  }
 
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
+  static class Where {
+    final int group;
+    final Map<String, Action> actions;
+
+    Where(final int group, final Map<String, Action> actions) {
+      this.group = group;
       this.actions = actions;
     }
   }

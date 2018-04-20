@@ -21,25 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.util;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
+import com.google.inject.TypeLiteral;
+import net.kyori.lunar.CheckedAutoCloseable;
 import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.violet.FriendlyTypeLiteral;
+import net.kyori.violet.TypeArgument;
 
-public final class FeatureModule extends AbstractModule {
+import javax.inject.Provider;
+
+import static java.util.Objects.requireNonNull;
+
+public class DynamicProvider<T> implements Provider<T> {
+  private T value;
+
   @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
-
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+  public T get() {
+    return requireNonNull(this.value, "value");
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  public CheckedAutoCloseable set(final T newValue) {
+    final T oldValue = this.value;
+    this.value = newValue;
+    return () -> this.value = oldValue;
+  }
+
+  public static class Module<T> extends AbstractModule {
+    private final Class<T> type;
+
+    public Module(final Class<T> type) {
+      this.type = type;
+    }
+
+    @Override
+    protected void configure() {
+      final TypeLiteral<DynamicProvider<T>> type = new FriendlyTypeLiteral<DynamicProvider<T>>() {}.where(new TypeArgument<T>(this.type) {});
+      this.bind(this.type).toProvider(type);
+      this.bind(type).toInstance(new DynamicProvider<>());
+    }
   }
 }

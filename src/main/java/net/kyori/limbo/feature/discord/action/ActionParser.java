@@ -21,44 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.discord.action;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
-import net.kyori.limbo.feature.github.action.Action;
+import com.google.common.base.Function;
+import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.Parser;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
+public final class ActionParser implements Parser<Action> {
+  private final Parser<Embed> embedParser;
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
+  @Inject
+  private ActionParser(final Parser<Embed> embedParser) {
+    this.embedParser = embedParser;
   }
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
+  @Override
+  public @NonNull Action throwingParse(final @NonNull Node node) {
+    final Action.Message message = node.nodes("message")
+      .one()
+      .map((Function<Node, Action.Message>) m -> {
+        final String content = m.nodes("content").one().map(Node::value).want().orElse("");
+        final @Nullable Embed embed = m.nodes("embed").one().map(this.embedParser::parse).want().orElse(null);
+        return new Action.Message() {
+          @Override
+          public @NonNull String content() {
+            return content;
+          }
 
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
-      this.actions = actions;
-    }
+          @Override
+          public @NonNull Optional<Embed> embed() {
+            return Optional.ofNullable(embed);
+          }
+        };
+      }).want().orElse(null);
+    return new ActionImpl(message);
   }
 }

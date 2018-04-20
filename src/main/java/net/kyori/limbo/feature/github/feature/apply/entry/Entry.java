@@ -21,44 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.github.feature.apply.entry;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.feature.github.action.Action;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Singleton;
+public interface Entry {
+  Filter filter();
 
-@Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
+  void collect(final String string, final List<Action> actions);
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
-  }
+  abstract class Impl implements Entry {
+    final Filter filter;
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
-
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
+    public Impl(final Filter filter) {
       this.filter = filter;
-      this.actions = actions;
+    }
+
+    @Override
+    public Filter filter() {
+      return this.filter;
     }
   }
 }

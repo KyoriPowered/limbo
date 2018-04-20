@@ -21,25 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.feature.move;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.membrane.facet.FacetBinder;
+import net.kyori.violet.DuplexModule;
+import net.kyori.violet.SetBinder;
 
-public final class FeatureModule extends AbstractModule {
+public final class MoveFeatureModule extends DuplexModule {
   @Override
   protected void configure() {
-    this.install(new FeatureCoreModule());
+    this.bindAndExpose(MoveFeature.class);
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
+    final FacetBinder facets = new FacetBinder(this.publicBinder());
+    facets.addBinding().to(MoveFeature.class);
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+    final SetBinder<Processor> processors = new SetBinder<>(this.publicBinder(), Processor.class);
+    processors.addBinding().to(MoveProcessor.class);
   }
 }

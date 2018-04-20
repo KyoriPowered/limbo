@@ -23,22 +23,23 @@
  */
 package net.kyori.limbo.feature.github.feature.apply;
 
-import com.google.common.base.Suppliers;
 import net.kyori.event.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.limbo.core.event.Listener;
 import net.kyori.limbo.feature.Feature;
+import net.kyori.limbo.feature.git.actor.ActorType;
+import net.kyori.limbo.feature.git.event.Event;
+import net.kyori.limbo.feature.git.repository.RepositoryId;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
 import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
-import net.kyori.limbo.feature.github.cache.RepositoryPermissionCache;
-import net.kyori.limbo.feature.github.component.action.Action;
+import net.kyori.limbo.feature.github.filter.IssueQuery;
+import net.kyori.limbo.feature.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.lunar.exception.Exceptions;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -60,10 +61,27 @@ public final class ApplyFeature implements Feature, Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    this.configuration.applicators(Action.On.ISSUE_OPEN, event.repository, this.allowed(
-      true,
-      Suppliers.memoize(() -> this.permission.get(event.repository, event.issue.user).write())
-    ), event.issue.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
+    this.configuration.applicators(new IssueQuery() {
+      @Override
+      public Set<ActorType> actorTypes() {
+        final Set<ActorType> types = new HashSet<>(1);
+        types.add(ActorType.AUTHOR);
+        if(ApplyFeature.this.permission.get(event.repository, event.issue.user).write()) {
+          types.add(ActorType.COLLABORATOR);
+        }
+        return types;
+      }
+
+      @Override
+      public Event event() {
+        return Event.ISSUE_OPEN;
+      }
+
+      @Override
+      public RepositoryId repository() {
+        return event.repository;
+      }
+    }, event.issue.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
   }
 
   @Subscribe
@@ -72,27 +90,53 @@ public final class ApplyFeature implements Feature, Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
-    this.configuration.applicators(Action.On.PULL_REQUEST_OPEN, event.repository, this.allowed(
-      true,
-      Suppliers.memoize(() -> this.permission.get(event.repository, event.pull_request.user).write())
-    ), event.pull_request.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
+    this.configuration.applicators(new IssueQuery() {
+      @Override
+      public Set<ActorType> actorTypes() {
+        final Set<ActorType> types = new HashSet<>(2);
+        types.add(ActorType.AUTHOR);
+        if(ApplyFeature.this.permission.get(event.repository, event.pull_request.user).write()) {
+          types.add(ActorType.COLLABORATOR);
+        }
+        return types;
+      }
+
+      @Override
+      public Event event() {
+        return Event.PULL_REQUEST_OPEN;
+      }
+
+      @Override
+      public RepositoryId repository() {
+        return event.repository;
+      }
+    }, event.pull_request.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
   }
 
   @Subscribe
   public void comment(final IssueCommentEvent event) {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    this.configuration.applicators(event.issue.pull_request != null ? Action.On.PULL_REQUEST_COMMENT : Action.On.ISSUE_COMMENT, event.repository, this.allowed(
-      event.issue.user.equals(event.comment.user),
-      Suppliers.memoize(() -> this.permission.get(event.repository, event.comment.user).write())
-    ), event.comment.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
-  }
+    this.configuration.applicators(new IssueQuery() {
+      @Override
+      public Set<ActorType> actorTypes() {
+        final Set<ActorType> types = new HashSet<>(2);
+        if(ApplyFeature.this.permission.get(event.repository, event.comment.user).write()) {
+          types.add(ActorType.COLLABORATOR);
+        } else if(event.issue.user.equals(event.comment.user)) {
+          types.add(ActorType.AUTHOR);
+        }
+        return types;
+      }
 
-  private Function<Set<Action.Who>, Boolean> allowed(final boolean author, final Supplier<Boolean> collaborator) {
-    return who -> {
-      if(who.contains(Action.Who.ANY)) return true;
-      if(who.contains(Action.Who.AUTHOR) && author) return true;
-      if(who.contains(Action.Who.COLLABORATOR) && collaborator.get()) return true;
-      return false;
-    };
+      @Override
+      public Event event() {
+        return event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT;
+      }
+
+      @Override
+      public RepositoryId repository() {
+        return event.repository;
+      }
+    }, event.comment.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
   }
 }

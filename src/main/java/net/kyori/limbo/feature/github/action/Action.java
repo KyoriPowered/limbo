@@ -21,44 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.github.action;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
-import net.kyori.limbo.feature.github.action.Action;
+import net.kyori.fragment.feature.Feature;
+import net.kyori.igloo.v3.Issue;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.IOException;
+import java.util.Set;
 
-import javax.inject.Singleton;
+public interface Action extends Feature {
+  @Nullable String comment();
 
-@Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
+  @NonNull Set<String> addLabels();
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
+  void apply(final Issue issue) throws IOException;
+
+  void apply(final Issue issue, final net.kyori.limbo.feature.github.api.model.@Nullable Issue source) throws IOException;
+
+  enum State {
+    OPEN,
+    CLOSE;
   }
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
-
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
-      this.actions = actions;
-    }
+  enum Lock {
+    LOCK,
+    UNLOCK;
   }
 }

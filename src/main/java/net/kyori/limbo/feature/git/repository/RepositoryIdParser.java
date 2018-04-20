@@ -21,51 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.core.event;
+package net.kyori.limbo.feature.git.repository;
 
-import com.google.inject.Provides;
-import net.kyori.event.ASMEventExecutorFactory;
-import net.kyori.event.EventBus;
-import net.kyori.event.SimpleEventBus;
-import net.kyori.membrane.facet.Enableable;
-import net.kyori.membrane.facet.FacetBinder;
-import net.kyori.membrane.facet.internal.Facets;
-import net.kyori.violet.AbstractModule;
+import net.kyori.limbo.feature.github.repository.GitHubRepositoryIdImpl;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.EnumParser;
+import net.kyori.xml.node.parser.Parser;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-public final class EventModule extends AbstractModule {
+@Singleton
+public final class RepositoryIdParser implements Parser<RepositoryId> {
+  private final EnumParser<RepositoryId.Source> source;
+
+  @Inject
+  private RepositoryIdParser(final EnumParser<RepositoryId.Source> source) {
+    this.source = source;
+  }
+
   @Override
-  protected void configure() {
-    final FacetBinder facets = new FacetBinder(this);
-    facets.addBinding().to(Installer.class);
-  }
-
-  @Provides
-  @Singleton
-  EventBus<Object, Object> bus() {
-    return new SimpleEventBus<>(new ASMEventExecutorFactory<>());
-  }
-
-  private static final class Installer implements Enableable {
-    private final EventBus<Object, Object> bus;
-    private final Facets facets;
-
-    @Inject
-    private Installer(final EventBus<Object, Object> bus, final Facets facets) {
-      this.bus = bus;
-      this.facets = facets;
-    }
-
-    @Override
-    public void enable() {
-      this.facets.of(Listener.class).forEach(this.bus::register);
-    }
-
-    @Override
-    public void disable() {
-      this.facets.of(Listener.class).forEach(this.bus::unregister);
+  public @NonNull RepositoryId throwingParse(final @NonNull Node node) throws XMLException {
+    final RepositoryId.Source source = this.source.parse(node.attribute("source")).orElse(RepositoryId.Source.GITHUB);
+    final String user = node.requireAttribute("user").value();
+    final String repo = node.requireAttribute("repo").value();
+    final Set<String> tags = node.nodes("tag").map(Node::value).collect(Collectors.toSet());
+    switch(source) {
+      case GITHUB: return new GitHubRepositoryIdImpl(user, repo, tags);
+      default: throw new IllegalArgumentException(source.name());
     }
   }
 }

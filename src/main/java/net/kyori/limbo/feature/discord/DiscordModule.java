@@ -21,25 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.discord;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.kassel.client.Client;
+import net.kyori.limbo.feature.discord.action.ActionModule;
+import net.kyori.limbo.feature.discord.embed.EmbedParser;
+import net.kyori.limbo.feature.discord.feature.gir.GitHubIssueRefFeatureModule;
+import net.kyori.membrane.facet.FacetBinder;
+import net.kyori.polar.PolarConfiguration;
+import net.kyori.polar.PolarModule;
+import net.kyori.violet.DuplexModule;
+import net.kyori.xml.node.parser.ParserBinder;
 
-public final class FeatureModule extends AbstractModule {
+public final class DiscordModule extends DuplexModule {
   @Override
   protected void configure() {
-    this.install(new FeatureCoreModule());
+    this.install(new PolarModule());
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
+    this.expose(Client.class);
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+    this.bind(PolarConfiguration.class).to(PolarConfigurationImpl.class);
+
+    final FacetBinder facets = new FacetBinder(this.publicBinder());
+    facets.addBinding().to(ClientConnector.class);
+
+    final ParserBinder parsers = new ParserBinder(this.publicBinder());
+    parsers.bindParser(Embed.class).to(EmbedParser.class);
+
+    this.install(new ActionModule());
+
+    this.install(new GitHubIssueRefFeatureModule());
   }
 }

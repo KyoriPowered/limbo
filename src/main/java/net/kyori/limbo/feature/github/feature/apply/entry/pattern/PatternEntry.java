@@ -21,25 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.feature.apply.entry.pattern;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.limbo.feature.github.feature.apply.entry.Entry;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+public abstract class PatternEntry extends Entry.Impl {
+  private static final char ESCAPE_CHARACTER = '`';
+  final Pattern pattern;
+
+  PatternEntry(final Filter filter, final Pattern pattern) {
+    super(filter);
+    this.pattern = pattern;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  boolean escaped(final Matcher matcher, final String string) {
+    return matcher.start() != 0
+      && string.charAt(matcher.start() - 1) == ESCAPE_CHARACTER
+      && string.charAt(matcher.end()) == ESCAPE_CHARACTER;
   }
 }

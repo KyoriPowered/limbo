@@ -25,12 +25,18 @@ package net.kyori.limbo.core;
 
 import net.kyori.limbo.core.event.EventModule;
 import net.kyori.limbo.core.gson.GsonModule;
+import net.kyori.limbo.core.http.HttpModule;
+import net.kyori.limbo.core.scheduler.SchedulerModule;
 import net.kyori.violet.AbstractModule;
+import net.kyori.xml.node.parser.ParserModule;
 
 public final class CoreModule extends AbstractModule {
   @Override
   protected void configure() {
     this.install(new EventModule());
     this.install(new GsonModule());
+    this.install(new HttpModule());
+    this.install(new SchedulerModule());
+    this.install(new ParserModule());
   }
 }

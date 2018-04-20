@@ -21,25 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.feature.move;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
-
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
-
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
-
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
-  }
+interface MoveToken {
+  String AUTHOR = "author";
+  String SOURCE = "source";
+  String SOURCE_ID = "source_id";
+  String SOURCE_URL = "source_url";
+  String TARGET = "target";
+  String TARGET_ID = "target_id";
+  String TARGET_URL = "target_url";
 }

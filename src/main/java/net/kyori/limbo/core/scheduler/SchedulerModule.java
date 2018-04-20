@@ -21,25 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.core.scheduler;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Provides;
 import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+import javax.inject.Singleton;
+
+public final class SchedulerModule extends AbstractModule {
+  @Provides
+  @Singleton
+  ExecutorService executorService() {
+    final ThreadFactory factory = new ThreadFactoryBuilder()
+      .setNameFormat("Limbo Executor - %d")
+      .build();
+    return Executors.newScheduledThreadPool(0, factory);
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Provides
+  @Singleton
+  ScheduledExecutorService scheduledExecutorService() {
+    final ThreadFactory factory = new ThreadFactoryBuilder()
+      .setNameFormat("Limbo Scheduler - %d")
+      .build();
+    return Executors.newScheduledThreadPool(0, factory);
   }
 }

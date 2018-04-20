@@ -21,71 +21,64 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.git.repository;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.limbo.feature.github.repository.GitHubRepositoryId;
+import net.kyori.lunar.EvenMoreObjects;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public final class Repository implements GitHubRepositoryId {
-  public User owner;
-  public String name;
+public abstract class AbstractRepositoryId implements RepositoryId {
+  private final String user;
+  private final String repo;
+  private final Set<String> tags;
 
-  public Repository() {
-  }
-
-  public Repository(final User owner, final String name) {
-    this.owner = owner;
-    this.name = name;
-  }
-
-  @Override
-  public @NonNull Source source() {
-    return Source.GITHUB;
+  protected AbstractRepositoryId(final String user, final String repo, final Set<String> tags) {
+    this.user = user;
+    this.repo = repo;
+    this.tags = tags;
   }
 
   @Override
-  public String user() {
-    return this.owner.login;
+  public @NonNull String user() {
+    return this.user;
   }
 
   @Override
-  public String repo() {
-    return this.name;
+  public @NonNull String repo() {
+    return this.repo;
   }
 
   @Override
   public @NonNull Set<String> tags() {
-    return Collections.emptySet();
+    return this.tags;
   }
 
   @Override
   public boolean equals(final Object other) {
-    if(this == other) {
-      return true;
-    }
-    if(other == null || !(other instanceof GitHubRepositoryId)) {
-      return false;
-    }
-    final GitHubRepositoryId that = (GitHubRepositoryId) other;
-    return Objects.equals(this.owner.login, that.user())
-      && Objects.equals(this.name, that.repo());
+    return EvenMoreObjects.equals(RepositoryId.class, this, other, this::equals);
+  }
+
+  protected boolean equals(final RepositoryId that) {
+    return Objects.equals(this.source(), that.source())
+      && Objects.equals(this.user(), that.user())
+      && Objects.equals(this.repo(), that.repo());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.owner.login, this.name);
+    return Objects.hash(this.user(), this.repo());
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("owner", this.owner.login)
-      .add("name", this.name)
+      .add("source", this.source())
+      .add("user", this.user())
+      .add("repo", this.repo())
+      .add("tags", this.tags())
       .toString();
   }
 }

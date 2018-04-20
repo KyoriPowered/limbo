@@ -21,25 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.repository;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.limbo.feature.git.repository.RepositoryId;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
+public interface GitHubRepositoryId extends RepositoryId, net.kyori.igloo.v3.RepositoryId {
   @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
-
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
-
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  default @NonNull String asString() {
+    return RepositoryId.super.asString();
   }
 }

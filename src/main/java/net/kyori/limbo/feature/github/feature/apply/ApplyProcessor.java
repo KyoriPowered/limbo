@@ -24,41 +24,40 @@
 package net.kyori.limbo.feature.github.feature.apply;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
-import net.kyori.limbo.feature.github.action.Action;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.limbo.feature.github.feature.apply.entry.Entry;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
 
-@Singleton
-final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
+public final class ApplyProcessor implements Processor {
+  private final ApplyFeatureConfiguration configuration;
+  private final Parser<Filter> filterParser;
+  private final Parser<Entry> entryParser;
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
-    for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
-      }
-    }
-    return applicators;
+  @Inject
+  private ApplyProcessor(final ApplyFeatureConfiguration configuration, final Parser<Filter> filterParser, final Parser<Entry> entryParser) {
+    this.configuration = configuration;
+    this.filterParser = filterParser;
+    this.entryParser = entryParser;
   }
 
-  static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
-
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
-      this.actions = actions;
-    }
+  @Override
+  public void process(final Node node) {
+    node
+      .elements("github")
+      .flatMap(Node::elements)
+      .named("apply")
+      .flatMap(Node::elements)
+      .forEach(entry -> {
+        final @Nullable Filter filter = this.filterParser.parse(entry.nodes("filter").flatMap(Node::nodes).one().want()).orElse(null);
+        final List<Entry> entries = entry.elements("actions").flatMap(Node::elements).map(this.entryParser::parse).collect(Collectors.toList());
+        this.configuration.entries.add(new ApplyFeatureConfiguration.Entry(filter, entries));
+      });
   }
 }

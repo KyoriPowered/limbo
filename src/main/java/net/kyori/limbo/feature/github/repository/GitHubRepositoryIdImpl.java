@@ -21,26 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.github.repository;
 
-import com.google.common.base.MoreObjects;
-import net.kyori.limbo.feature.github.repository.GitHubRepositoryId;
+import net.kyori.limbo.feature.git.repository.AbstractRepositoryId;
+import net.kyori.limbo.feature.git.repository.RepositoryId;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public final class Repository implements GitHubRepositoryId {
-  public User owner;
-  public String name;
-
-  public Repository() {
+public class GitHubRepositoryIdImpl extends AbstractRepositoryId implements GitHubRepositoryId {
+  public GitHubRepositoryIdImpl(final RepositoryId id) {
+    this(id.user(), id.repo(), id.tags());
   }
 
-  public Repository(final User owner, final String name) {
-    this.owner = owner;
-    this.name = name;
+  public GitHubRepositoryIdImpl(final String user, final String repo, final Set<String> tags) {
+    super(user, repo, tags);
   }
 
   @Override
@@ -49,43 +45,18 @@ public final class Repository implements GitHubRepositoryId {
   }
 
   @Override
-  public String user() {
-    return this.owner.login;
-  }
-
-  @Override
-  public String repo() {
-    return this.name;
-  }
-
-  @Override
-  public @NonNull Set<String> tags() {
-    return Collections.emptySet();
-  }
-
-  @Override
   public boolean equals(final Object other) {
     if(this == other) {
       return true;
     }
-    if(other == null || !(other instanceof GitHubRepositoryId)) {
+    if(other == null) {
       return false;
     }
-    final GitHubRepositoryId that = (GitHubRepositoryId) other;
-    return Objects.equals(this.owner.login, that.user())
-      && Objects.equals(this.name, that.repo());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.owner.login, this.name);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("owner", this.owner.login)
-      .add("name", this.name)
-      .toString();
+    if(other instanceof net.kyori.igloo.v3.RepositoryId) {
+      final net.kyori.igloo.v3.RepositoryId that = (net.kyori.igloo.v3.RepositoryId) other;
+      return Objects.equals(this.user(), that.user())
+        && Objects.equals(this.repo(), that.repo());
+    }
+    return super.equals(other);
   }
 }

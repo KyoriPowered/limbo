@@ -21,25 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.discord;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.polar.PolarConfiguration;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.Parser;
+import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+@Singleton
+final class PolarConfigurationImpl implements PolarConfiguration {
+  private final String token;
+  private final int shards;
+
+  @Inject
+  private PolarConfigurationImpl(final @Named("env") Node environment, final Parser<Integer> intParser) throws XMLException {
+    final Node discord = environment.elements("discord").one().need();
+    this.token = discord.requireAttribute("token").value();
+    this.shards = intParser.parse(discord.requireAttribute("shards"));
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public @NonNull String token() {
+    return this.token;
+  }
+
+  @Override
+  public @NonNegative int shards() {
+    return this.shards;
   }
 }

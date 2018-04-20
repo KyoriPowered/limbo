@@ -21,25 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.git.actor;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.fragment.filter.FilterResponse;
+import net.kyori.fragment.filter.TypedFilter;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+public final class ActorTypeFilter implements TypedFilter<ActorTypeQuery> {
+  private final ActorType actor;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+  public ActorTypeFilter(final ActorType actor) {
+    this.actor = actor;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public boolean queryable(final @NonNull FilterQuery query) {
+    return query instanceof ActorTypeQuery;
+  }
+
+  @Override
+  public @NonNull FilterResponse typedQuery(final @NonNull ActorTypeQuery query) {
+    return FilterResponse.from(query.actorTypes().contains(this.actor));
   }
 }

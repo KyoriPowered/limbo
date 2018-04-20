@@ -44,11 +44,14 @@ repositories {
 }
 
 dependencies {
-  compile 'net.kyori:event:1.0.0-SNAPSHOT'
+  compile 'com.google.guava:guava:23.6-jre'
+  compile 'net.kyori:event:1.1.0-SNAPSHOT'
+  compile 'net.kyori:fragment:1.0.0-SNAPSHOT'
   compile 'net.kyori:igloo:1.0.0-SNAPSHOT'
   compile 'net.kyori:lunar:1.0.6-SNAPSHOT'
-  compile 'net.kyori:membrane:1.0.5'
-  compile 'net.kyori:violet:1.0.0'
+  compile 'net.kyori:membrane:1.1.0-SNAPSHOT'
+  compile 'net.kyori:polar:1.0.0-SNAPSHOT'
+  compile 'net.kyori:violet:2.0.0-SNAPSHOT'
   compile 'net.kyori:xml:1.0.0-SNAPSHOT'
   compile 'org.apache.commons:commons-text:1.2'
   compile 'org.springframework.boot:spring-boot-starter-undertow'

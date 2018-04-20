@@ -21,25 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.git.repository;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.feature.Feature;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import java.util.Set;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+public interface RepositoryId extends Feature {
+  /**
+   * Gets the repository source.
+   *
+   * @return the repository source
+   */
+  @NonNull Source source();
+
+  /**
+   * Gets the user name.
+   *
+   * @return the user name
+   */
+  @NonNull String user();
+
+  /**
+   * Gets the repository name.
+   *
+   * @return the repository name
+   */
+  @NonNull String repo();
+
+  /**
+   * Gets a set of "tags" that may be used to identify this repository.
+   *
+   * @return a set of tags
+   */
+  @NonNull Set<String> tags();
+
+  /**
+   * Gets the repository id as a string.
+   *
+   * @return string
+   */
+  default @NonNull String asString() {
+    return this.user() + '/' + this.repo();
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  enum Source {
+    GITHUB;
   }
 }

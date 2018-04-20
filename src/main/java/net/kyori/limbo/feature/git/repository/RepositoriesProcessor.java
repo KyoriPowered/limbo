@@ -21,25 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.git.repository;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.feature.context.FeatureContext;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.lunar.exception.Exceptions;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
+import net.kyori.xml.node.parser.Parser;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import javax.inject.Inject;
+import javax.inject.Provider;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+public final class RepositoriesProcessor implements Processor {
+  private final Provider<FeatureContext> context;
+  private final Parser<RepositoryId> parser;
+
+  @Inject
+  private RepositoriesProcessor(final Provider<FeatureContext> context, final Parser<RepositoryId> parser) {
+    this.context = context;
+    this.parser = parser;
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  @Override
+  public void process(final Node node) {
+    node.elements()
+      .flatMap(new BranchLeafNodeFlattener("repositories", "repository"))
+      .forEach(Exceptions.rethrowConsumer(entry -> this.context.get().add(RepositoryId.class, entry, this.parser.parse(entry))));
   }
 }

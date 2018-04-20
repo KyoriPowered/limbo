@@ -21,25 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.feature.apply.entry;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import com.google.inject.TypeLiteral;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.multibindings.MapBinder;
+import net.kyori.limbo.feature.github.feature.apply.entry.pattern.PatternEntryParser;
+import net.kyori.violet.DuplexModule;
+import net.kyori.xml.node.parser.Parser;
+import net.kyori.xml.node.parser.ParserBinder;
 
-public final class FeatureModule extends AbstractModule {
+public final class EntryModule extends DuplexModule {
   @Override
   protected void configure() {
-    this.install(new FeatureCoreModule());
+    final ParserBinder parsers = new ParserBinder(this.publicBinder());
+    parsers.bindParser(Entry.class).to(EntryParser.class);
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
+    this.bindEntry("pattern").to(PatternEntryParser.class);
   }
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+  private LinkedBindingBuilder<Parser<? extends Entry>> bindEntry(final String id) {
+    return MapBinder.newMapBinder(this.publicBinder(), TypeLiteral.get(String.class), new TypeLiteral<Parser<? extends Entry>>() {}).addBinding(id);
   }
 }

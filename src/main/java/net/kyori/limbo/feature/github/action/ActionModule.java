@@ -21,25 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.action;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.feature.parser.FeatureParserBinder;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.violet.DuplexModule;
+import net.kyori.violet.SetBinder;
+import net.kyori.xml.node.parser.ParserBinder;
 
-public final class FeatureModule extends AbstractModule {
+public final class ActionModule extends DuplexModule {
   @Override
   protected void configure() {
-    this.install(new FeatureCoreModule());
+    final ParserBinder parsers = new ParserBinder(this.publicBinder());
+    parsers.bindParser(Action.class).to(ActionParser.class);
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
+    final FeatureParserBinder featureParsers = new FeatureParserBinder(this.publicBinder());
+    featureParsers.bindFeatureParser(Action.class);
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+    final SetBinder<Processor> processors = new SetBinder<>(this.publicBinder(), Processor.class);
+    processors.addBinding().to(ActionProcessor.class);
   }
 }

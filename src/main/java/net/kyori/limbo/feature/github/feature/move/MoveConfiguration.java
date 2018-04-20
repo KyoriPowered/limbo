@@ -21,44 +21,72 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.feature.apply;
+package net.kyori.limbo.feature.github.feature.move;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.limbo.feature.git.repository.RepositoryId;
 import net.kyori.limbo.feature.github.action.Action;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Singleton;
 
 @Singleton
-final class ApplyFeatureConfiguration {
+final class MoveConfiguration {
   final Collection<Entry> entries = new ArrayList<>();
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    final List<Action> applicators = new ArrayList<>();
+  @Nullable Entry source(final net.kyori.igloo.v3.RepositoryId source) {
     for(final Entry entry : this.entries) {
-      if(entry.filter == null || entry.filter.allowed(query)) {
-        for(final net.kyori.limbo.feature.github.feature.apply.entry.Entry action : entry.actions) {
-          if(action.filter().allowed(query)) {
-            action.collect(string, applicators);
-          }
-        }
+      if(entry.sourceRepository.equals(source)) {
+        return entry;
       }
     }
-    return applicators;
+    return null;
   }
 
   static class Entry {
-    private final @Nullable Filter filter;
-    private final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions;
+    final Pattern pattern;
+    final RepositoryId sourceRepository;
+    final Action sourceAction;
+    final List<Target> targets;
 
-    Entry(final @Nullable Filter filter, final List<net.kyori.limbo.feature.github.feature.apply.entry.Entry> actions) {
-      this.filter = filter;
-      this.actions = actions;
+    Entry(final Pattern pattern, final RepositoryId sourceRepository, final Action sourceAction, final List<Target> targets) {
+      this.pattern = pattern;
+      this.sourceRepository = sourceRepository;
+      this.sourceAction = sourceAction;
+      this.targets = targets;
+    }
+
+    @Nullable Target target(final String comment) {
+      final Matcher matcher = this.pattern.matcher(comment);
+      if(matcher.matches()) {
+        final String tag = matcher.group(1);
+        for(final Target target : this.targets) {
+          if(target.repository.tags().contains(tag)) {
+            return target;
+          }
+        }
+      }
+      return null;
+    }
+
+    @Override
+    public String toString() {
+      return this.sourceRepository.toString();
+    }
+  }
+
+  static class Target {
+    final RepositoryId repository;
+    final Action action;
+
+    Target(final RepositoryId repository, final Action action) {
+      this.repository = repository;
+      this.action = action;
     }
   }
 }

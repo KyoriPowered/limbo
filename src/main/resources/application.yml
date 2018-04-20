@@ -1,9 +1,18 @@
-server:
-  port: 8080
-
-# only for FourOhFour
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
+  profiles:
+    active: 'dev'
   resources:
     add-mappings: false
+---
+spring:
+  profiles: 'dev'
+server:
+  port: 8080
+---
+spring:
+  profiles: 'prod'
+server:
+  address: '127.0.0.1'
+  port: 50696

@@ -21,25 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.feature.github.feature.apply;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
-import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.limbo.feature.github.feature.apply.entry.EntryModule;
+import net.kyori.membrane.facet.FacetBinder;
+import net.kyori.violet.DuplexModule;
+import net.kyori.violet.SetBinder;
 
-public final class FeatureModule extends AbstractModule {
+public final class ApplyFeatureModule extends DuplexModule {
   @Override
   protected void configure() {
-    this.install(new FeatureCoreModule());
+    this.install(new EntryModule());
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
+    this.bindAndExpose(ApplyFeature.class);
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+    final FacetBinder facets = new FacetBinder(this.publicBinder());
+    facets.addBinding().to(ApplyFeature.class);
+
+    final SetBinder<Processor> processors = new SetBinder<>(this.publicBinder(), Processor.class);
+    processors.addBinding().to(ApplyProcessor.class);
   }
 }

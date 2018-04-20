@@ -28,20 +28,23 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.Provides;
 import net.kyori.cereal.Document;
 import net.kyori.cereal.DocumentSerializer;
+import net.kyori.polar.util.ColorSerializer;
+import net.kyori.polar.util.InstantSerializer;
 import net.kyori.violet.AbstractModule;
+
+import java.awt.Color;
+import java.time.Instant;
 
 import javax.inject.Singleton;
 
 public final class GsonModule extends AbstractModule {
-  @Override
-  protected void configure() {
-  }
-
   @Provides
   @Singleton
   GsonBuilder gsonBuilder() {
     return new GsonBuilder()
-      .registerTypeHierarchyAdapter(Document.class, DocumentSerializer.serializerOnly());
+      .registerTypeAdapter(Color.class, new ColorSerializer())
+      .registerTypeAdapter(Instant.class, new InstantSerializer())
+      .registerTypeHierarchyAdapter(Document.class, DocumentSerializer.both());
   }
 
   @Provides

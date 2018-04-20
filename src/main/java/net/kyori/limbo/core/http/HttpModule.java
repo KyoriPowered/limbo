@@ -21,25 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.core.http;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.github.GitHubModule;
+import com.google.inject.Provides;
 import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import okhttp3.OkHttpClient;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import javax.inject.Singleton;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitHubModule());
-  }
-
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+public final class HttpModule extends AbstractModule {
+  @Provides
+  @Singleton
+  OkHttpClient client() {
+    return new OkHttpClient();
   }
 }

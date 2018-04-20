@@ -21,71 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.git.repository;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.limbo.feature.github.repository.GitHubRepositoryId;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.fragment.filter.FilterResponse;
+import net.kyori.fragment.filter.TypedFilter;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+public class RepositoryFilter implements TypedFilter<AbstractRepositoryQuery> {
+  private final RepositoryId repository;
 
-public final class Repository implements GitHubRepositoryId {
-  public User owner;
-  public String name;
-
-  public Repository() {
-  }
-
-  public Repository(final User owner, final String name) {
-    this.owner = owner;
-    this.name = name;
+  public RepositoryFilter(final RepositoryId repository) {
+    this.repository = repository;
   }
 
   @Override
-  public @NonNull Source source() {
-    return Source.GITHUB;
+  public boolean queryable(final @NonNull FilterQuery query) {
+    return query instanceof AbstractRepositoryQuery;
   }
 
   @Override
-  public String user() {
-    return this.owner.login;
-  }
-
-  @Override
-  public String repo() {
-    return this.name;
-  }
-
-  @Override
-  public @NonNull Set<String> tags() {
-    return Collections.emptySet();
-  }
-
-  @Override
-  public boolean equals(final Object other) {
-    if(this == other) {
-      return true;
+  public @NonNull FilterResponse typedQuery(final @NonNull AbstractRepositoryQuery query) {
+    if(query instanceof RepositoryQuery) {
+      return FilterResponse.from(((RepositoryQuery) query).repository().equals(this.repository));
+    } else if(query instanceof RepositoryTagQuery) {
+      return FilterResponse.from(this.repository.tags().contains(((RepositoryTagQuery) query).repositoryTag()));
     }
-    if(other == null || !(other instanceof GitHubRepositoryId)) {
-      return false;
-    }
-    final GitHubRepositoryId that = (GitHubRepositoryId) other;
-    return Objects.equals(this.owner.login, that.user())
-      && Objects.equals(this.name, that.repo());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.owner.login, this.name);
+    throw new IllegalArgumentException(query.getClass().getName());
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("owner", this.owner.login)
-      .add("name", this.name)
+      .addValue(this.repository)
       .toString();
   }
 }
