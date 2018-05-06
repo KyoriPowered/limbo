@@ -25,7 +25,8 @@ package net.kyori.limbo.feature.github.filter;
 
 import net.kyori.limbo.feature.git.actor.ActorTypeQuery;
 import net.kyori.limbo.feature.git.event.EventQuery;
+import net.kyori.limbo.feature.git.label.LabelQuery;
 import net.kyori.limbo.feature.git.repository.RepositoryQuery;
 
-public interface IssueQuery extends ActorTypeQuery, EventQuery, RepositoryQuery {
+public interface IssueQuery extends ActorTypeQuery, EventQuery, LabelQuery, RepositoryQuery {
 }

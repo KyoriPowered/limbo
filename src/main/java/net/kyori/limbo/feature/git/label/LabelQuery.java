@@ -21,28 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.git.label;
 
-import com.google.gson.annotations.SerializedName;
+import net.kyori.fragment.filter.FilterQuery;
 
-import java.util.List;
+import java.util.Collection;
 
-public final class PullRequest {
-  public String html_url;
-  public int number;
-  public State state;
-  public boolean locked;
-  public String title;
-  public User user;
-  public List<Label> labels;
-  public String body;
-  public boolean merged;
-  public List<User> assignees;
-
-  public enum State {
-    @SerializedName("closed")
-    CLOSED,
-    @SerializedName("open")
-    OPEN;
-  }
+public interface LabelQuery extends FilterQuery {
+  Collection<String> labels();
 }

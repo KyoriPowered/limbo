@@ -21,28 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.git.label;
 
-import com.google.gson.annotations.SerializedName;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.fragment.filter.FilterResponse;
+import net.kyori.fragment.filter.TypedFilter;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.List;
+public final class LabelFilter implements TypedFilter<LabelQuery> {
+  private final String label;
 
-public final class PullRequest {
-  public String html_url;
-  public int number;
-  public State state;
-  public boolean locked;
-  public String title;
-  public User user;
-  public List<Label> labels;
-  public String body;
-  public boolean merged;
-  public List<User> assignees;
+  public LabelFilter(final String label) {
+    this.label = label;
+  }
 
-  public enum State {
-    @SerializedName("closed")
-    CLOSED,
-    @SerializedName("open")
-    OPEN;
+  @Override
+  public boolean queryable(final @NonNull FilterQuery query) {
+    return query instanceof LabelQuery;
+  }
+
+  @Override
+  public @NonNull FilterResponse typedQuery(@NonNull LabelQuery query) {
+    return FilterResponse.from(query.labels().contains(this.label));
   }
 }

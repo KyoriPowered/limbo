@@ -31,5 +31,9 @@ public enum ActorType {
   /**
    * A repository collaborator.
    */
-  COLLABORATOR;
+  COLLABORATOR,
+  /**
+   * The bot.
+   */
+  SELF;
 }

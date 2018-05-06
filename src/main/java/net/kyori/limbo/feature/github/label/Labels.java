@@ -21,28 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature.github.api.model;
+package net.kyori.limbo.feature.github.label;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.common.base.Suppliers;
+import net.kyori.igloo.v3.Issue;
+import net.kyori.igloo.v3.Label;
+import net.kyori.lunar.exception.Exceptions;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-public final class PullRequest {
-  public String html_url;
-  public int number;
-  public State state;
-  public boolean locked;
-  public String title;
-  public User user;
-  public List<Label> labels;
-  public String body;
-  public boolean merged;
-  public List<User> assignees;
-
-  public enum State {
-    @SerializedName("closed")
-    CLOSED,
-    @SerializedName("open")
-    OPEN;
+public interface Labels {
+  static Collection<String> labels(final Issue issue) {
+    final Supplier<Collection<String>> supplier = Suppliers.memoize(Exceptions.rethrowSupplier(() -> StreamSupport.stream(issue.labels().all().spliterator(), false)
+      .map(Label::name)
+      .collect(Collectors.toSet()))::get);
+    return supplier.get();
   }
 }

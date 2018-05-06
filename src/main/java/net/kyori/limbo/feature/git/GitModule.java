@@ -28,6 +28,7 @@ import net.kyori.fragment.filter.FilterBinder;
 import net.kyori.fragment.processor.Processor;
 import net.kyori.limbo.feature.git.actor.ActorTypeFilterParser;
 import net.kyori.limbo.feature.git.event.EventFilterParser;
+import net.kyori.limbo.feature.git.label.LabelFilterParser;
 import net.kyori.limbo.feature.git.repository.RepositoriesProcessor;
 import net.kyori.limbo.feature.git.repository.RepositoryFilterParser;
 import net.kyori.limbo.feature.git.repository.RepositoryId;
@@ -42,6 +43,7 @@ public final class GitModule extends DuplexModule {
     final FilterBinder filters = new FilterBinder(this.publicBinder());
     filters.bindFilter("actor").to(ActorTypeFilterParser.class);
     filters.bindFilter("event").to(EventFilterParser.class);
+    filters.bindFilter("label").to(LabelFilterParser.class);
     filters.bindFilter("repository").to(RepositoryFilterParser.class);
 
     final ParserBinder parsers = new ParserBinder(this.publicBinder());

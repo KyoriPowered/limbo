@@ -34,25 +34,31 @@ import net.kyori.limbo.feature.git.repository.RepositoryId;
 import net.kyori.limbo.feature.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.feature.github.api.event.IssuesEvent;
 import net.kyori.limbo.feature.github.api.event.PullRequestEvent;
+import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.filter.IssueQuery;
+import net.kyori.limbo.feature.github.label.Labels;
 import net.kyori.limbo.feature.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.lunar.exception.Exceptions;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public final class ApplyFeature implements Feature, Listener {
   private final ApplyFeatureConfiguration configuration;
   private final Repositories repositories;
   private final RepositoryPermissionCache permission;
+  private final User selfUser;
 
   @Inject
-  private ApplyFeature(final ApplyFeatureConfiguration configuration, final Repositories repositories, final RepositoryPermissionCache permission) {
+  private ApplyFeature(final ApplyFeatureConfiguration configuration, final Repositories repositories, final RepositoryPermissionCache permission, final @Named("identity") User selfUser) {
     this.configuration = configuration;
     this.repositories = repositories;
     this.permission = permission;
+    this.selfUser = selfUser;
   }
 
   @Subscribe
@@ -69,12 +75,20 @@ public final class ApplyFeature implements Feature, Listener {
         if(ApplyFeature.this.permission.get(event.repository, event.issue.user).write()) {
           types.add(ActorType.COLLABORATOR);
         }
+        if(event.issue.user.login.equals(ApplyFeature.this.selfUser.login)) {
+          types.add(ActorType.SELF);
+        }
         return types;
       }
 
       @Override
       public Event event() {
         return Event.ISSUE_OPEN;
+      }
+
+      @Override
+      public Collection<String> labels() {
+        return Labels.labels(issue);
       }
 
       @Override
@@ -93,10 +107,13 @@ public final class ApplyFeature implements Feature, Listener {
     this.configuration.applicators(new IssueQuery() {
       @Override
       public Set<ActorType> actorTypes() {
-        final Set<ActorType> types = new HashSet<>(2);
+        final Set<ActorType> types = new HashSet<>(1);
         types.add(ActorType.AUTHOR);
         if(ApplyFeature.this.permission.get(event.repository, event.pull_request.user).write()) {
           types.add(ActorType.COLLABORATOR);
+        }
+        if(event.pull_request.user.login.equals(ApplyFeature.this.selfUser.login)) {
+          types.add(ActorType.SELF);
         }
         return types;
       }
@@ -104,6 +121,11 @@ public final class ApplyFeature implements Feature, Listener {
       @Override
       public Event event() {
         return Event.PULL_REQUEST_OPEN;
+      }
+
+      @Override
+      public Collection<String> labels() {
+        return Labels.labels(issue);
       }
 
       @Override
@@ -120,10 +142,14 @@ public final class ApplyFeature implements Feature, Listener {
       @Override
       public Set<ActorType> actorTypes() {
         final Set<ActorType> types = new HashSet<>(2);
+        if(event.issue.user.equals(event.comment.user)) {
+          types.add(ActorType.AUTHOR);
+        }
         if(ApplyFeature.this.permission.get(event.repository, event.comment.user).write()) {
           types.add(ActorType.COLLABORATOR);
-        } else if(event.issue.user.equals(event.comment.user)) {
-          types.add(ActorType.AUTHOR);
+        }
+        if(event.issue.user.login.equals(ApplyFeature.this.selfUser.login)) {
+          types.add(ActorType.SELF);
         }
         return types;
       }
@@ -131,6 +157,11 @@ public final class ApplyFeature implements Feature, Listener {
       @Override
       public Event event() {
         return event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT;
+      }
+
+      @Override
+      public Collection<String> labels() {
+        return Labels.labels(issue);
       }
 
       @Override
