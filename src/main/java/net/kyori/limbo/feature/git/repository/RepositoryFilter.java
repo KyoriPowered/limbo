@@ -44,7 +44,7 @@ public class RepositoryFilter implements TypedFilter<AbstractRepositoryQuery> {
   @Override
   public @NonNull FilterResponse typedQuery(final @NonNull AbstractRepositoryQuery query) {
     if(query instanceof RepositoryQuery) {
-      return FilterResponse.from(((RepositoryQuery) query).repository().equals(this.repository));
+      return FilterResponse.from(this.repository.equals(((RepositoryQuery) query).repository()));
     } else if(query instanceof RepositoryTagQuery) {
       return FilterResponse.from(this.repository.tags().contains(((RepositoryTagQuery) query).repositoryTag()));
     }

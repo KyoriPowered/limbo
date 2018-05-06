@@ -34,7 +34,7 @@ import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -69,9 +69,12 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
       final List<WherePatternEntry.Where> where = node.elements("where")
         .map(Exceptions.rethrowFunction(group -> {
           final int id = Integer.parseInt(group.requireAttribute("group").value());
-          final Map<String, Action> actions = group.elements("match")
-            .map(Exceptions.rethrowFunction(match -> new AbstractMap.SimpleImmutableEntry<>(match.requireAttribute("value").value(), this.actionParser.parse(match))))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+          final Map<String, Action> actions = new HashMap<>();
+          group.elements("match")
+            .forEach(match -> {
+              final Action action = this.actionParser.parse(match.nodes("apply").one().need());
+              match.nodes("value").forEach(value -> actions.put(value.value(), action));
+            });
           return new WherePatternEntry.Where(id, actions);
         }))
         .collect(Collectors.toList());
