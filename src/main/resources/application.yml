@@ -1,3 +1,5 @@
+logging:
+  path: 'logs'
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
