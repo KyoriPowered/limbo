@@ -61,7 +61,7 @@ public final class GitHubModule extends DuplexModule {
   @Named("github")
   @Provides
   @Singleton
-  Path path(@Named("config") final Path path) {
+  Path path(final @Named("config") Path path) {
     return path.resolve("github");
   }
 
@@ -69,16 +69,16 @@ public final class GitHubModule extends DuplexModule {
   @Named("identity")
   @Provides
   @Singleton
-  User identity(@Named("env") final Node node) throws XMLException {
-    return new User(node.elements("github").one().need().requireAttribute("login").value());
+  User identity(final @Named("env") Node environment) throws XMLException {
+    return new User(environment.elements("github").one().need().requireAttribute("login").value());
   }
 
   @Provides
   @Singleton
-  GitHub github(final Gson gson, @Named("env") final Node config) throws XMLException {
+  GitHub github(final Gson gson, final @Named("env") Node environment) throws XMLException {
     return GitHub.builder()
       .gson(gson)
-      .token(config.elements("github").one().need().requireAttribute("token").value())
+      .token(environment.elements("github").one().need().requireAttribute("token").value())
       .build();
   }
 

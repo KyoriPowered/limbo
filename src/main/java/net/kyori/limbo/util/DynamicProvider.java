@@ -28,13 +28,22 @@ import net.kyori.lunar.CheckedAutoCloseable;
 import net.kyori.violet.AbstractModule;
 import net.kyori.violet.FriendlyTypeLiteral;
 import net.kyori.violet.TypeArgument;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.inject.Provider;
 
 import static java.util.Objects.requireNonNull;
 
 public class DynamicProvider<T> implements Provider<T> {
-  private T value;
+  private @Nullable T value;
+
+  public DynamicProvider() {
+    this(null);
+  }
+
+  public DynamicProvider(final @Nullable T value) {
+    this.value = value;
+  }
 
   @Override
   public T get() {
@@ -42,23 +51,29 @@ public class DynamicProvider<T> implements Provider<T> {
   }
 
   public CheckedAutoCloseable set(final T newValue) {
-    final T oldValue = this.value;
+    final @Nullable T oldValue = this.value;
     this.value = newValue;
     return () -> this.value = oldValue;
   }
 
   public static class Module<T> extends AbstractModule {
     private final Class<T> type;
+    private final @Nullable T value;
 
     public Module(final Class<T> type) {
+      this(type, null);
+    }
+
+    public Module(final Class<T> type, final @Nullable T value) {
       this.type = type;
+      this.value = value;
     }
 
     @Override
     protected void configure() {
       final TypeLiteral<DynamicProvider<T>> type = new FriendlyTypeLiteral<DynamicProvider<T>>() {}.where(new TypeArgument<T>(this.type) {});
       this.bind(this.type).toProvider(type);
-      this.bind(type).toInstance(new DynamicProvider<>());
+      this.bind(type).toInstance(new DynamicProvider<>(this.value));
     }
   }
 }

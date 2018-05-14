@@ -23,16 +23,25 @@
  */
 package net.kyori.limbo.feature.discord;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.inject.Provides;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.client.Client;
 import net.kyori.limbo.feature.discord.action.ActionModule;
 import net.kyori.limbo.feature.discord.embed.EmbedParser;
 import net.kyori.limbo.feature.discord.feature.gir.GitHubIssueRefFeatureModule;
 import net.kyori.membrane.facet.FacetBinder;
+import net.kyori.polar.ForPolar;
 import net.kyori.polar.PolarConfiguration;
 import net.kyori.polar.PolarModule;
+import net.kyori.polar.util.ColorSerializer;
+import net.kyori.polar.util.InstantSerializer;
 import net.kyori.violet.DuplexModule;
 import net.kyori.xml.node.parser.ParserBinder;
+
+import java.awt.Color;
+import java.time.Instant;
 
 public final class DiscordModule extends DuplexModule {
   @Override
@@ -52,5 +61,14 @@ public final class DiscordModule extends DuplexModule {
     this.install(new ActionModule());
 
     this.install(new GitHubIssueRefFeatureModule());
+  }
+
+  @ForPolar
+  @Provides
+  Gson polarGson(final GsonBuilder builder) {
+    return builder
+      .registerTypeAdapter(Color.class, new ColorSerializer())
+      .registerTypeAdapter(Instant.class, new InstantSerializer())
+      .create();
   }
 }

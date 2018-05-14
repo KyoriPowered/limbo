@@ -69,8 +69,8 @@ public final class GitHubEndpoint {
 
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Inject
-  private GitHubEndpoint(@Named("env") final Node node, final Gson gson, final EventBus<Object, Object> bus) throws XMLException {
-    this.key = node.elements("github").one().need().requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
+  private GitHubEndpoint(final @Named("env") Node environment, final Gson gson, final EventBus<Object, Object> bus) throws XMLException {
+    this.key = environment.elements("github").one().need().requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
     this.gson = gson;
     this.bus = bus;
   }

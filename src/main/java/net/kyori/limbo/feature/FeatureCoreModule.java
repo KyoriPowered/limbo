@@ -41,14 +41,13 @@ import org.jdom2.JDOMException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 public final class FeatureCoreModule extends AbstractModule {
   @Override
   protected void configure() {
-    this.install(new ContextModule());
+    this.install(new DynamicProvider.Module<>(FeatureContext.class, new FeatureContextImpl()));
 
     final FacetBinder facets = new FacetBinder(this.binder());
     facets.addBinding().to(FeatureProcessor.class);
@@ -61,20 +60,7 @@ public final class FeatureCoreModule extends AbstractModule {
   @Named("env")
   @Provides
   @Singleton
-  Node identityConfiguration(@Named("config") final Path path) throws IOException, JDOMException {
+  Node environmentConfiguration(final @Named("config") Path path) throws IOException, JDOMException {
     return Documents.read(path.resolve("environment.xml"));
-  }
-
-  private static class ContextModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      this.install(new DynamicProvider.Module<>(FeatureContext.class));
-      this.requestInjection(this);
-    }
-
-    @Inject
-    private void provideContext(final DynamicProvider<FeatureContext> context) {
-      context.set(new FeatureContextImpl());
-    }
   }
 }

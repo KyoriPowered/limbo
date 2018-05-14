@@ -51,7 +51,7 @@ public final class LimboModule extends AbstractModule {
   @Named("config")
   @Provides
   @Singleton
-  Path config(@Named("root") final Path path) {
+  Path config(final @Named("root") Path path) {
     return path.resolve("config");
   }
 }
