@@ -24,13 +24,12 @@
 package net.kyori.limbo.feature;
 
 import net.kyori.fragment.processor.Processor;
-import net.kyori.limbo.util.Documents;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.membrane.facet.Connectable;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;
-import org.jdom2.JDOMException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -38,11 +37,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public final class FeatureProcessor implements Connectable {
+  private final DocumentFactory factory;
   private final Set<Processor> processors;
   private final Path path;
 
   @Inject
-  private FeatureProcessor(final Set<Processor> processors, final @Named("config") Path path) {
+  private FeatureProcessor(final DocumentFactory factory, final Set<Processor> processors, final @Named("config") Path path) {
+    this.factory = factory;
     this.processors = processors;
     this.path = path;
   }
@@ -51,8 +52,8 @@ public final class FeatureProcessor implements Connectable {
   public void connect() {
     final Node node;
     try {
-      node = Documents.read(this.path.resolve("features.xml"));
-    } catch(final IOException | JDOMException e) {
+      node = Node.of(this.factory.read(this.path.resolve("features.xml")).getRootElement());
+    } catch(final XMLException e) {
       throw Exceptions.rethrow(e);
     }
 

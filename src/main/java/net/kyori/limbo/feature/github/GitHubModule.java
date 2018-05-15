@@ -29,7 +29,6 @@ import com.google.inject.Provides;
 import net.kyori.igloo.v3.GitHub;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.Users;
-import net.kyori.limbo.feature.git.GitModule;
 import net.kyori.limbo.feature.github.action.ActionModule;
 import net.kyori.limbo.feature.github.api.model.User;
 import net.kyori.limbo.feature.github.feature.apply.ApplyFeatureModule;
@@ -49,7 +48,6 @@ public final class GitHubModule extends DuplexModule {
   @Override
   protected void configure() {
     this.install(new ActionModule());
-    this.install(new GitModule());
 
     this.bind(RepositoryPermissionCache.class).to(RepositoryPermissionCacheImpl.class);
 

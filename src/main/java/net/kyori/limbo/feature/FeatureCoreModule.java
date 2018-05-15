@@ -30,15 +30,14 @@ import net.kyori.fragment.feature.context.FeatureContext;
 import net.kyori.fragment.feature.context.FeatureContextImpl;
 import net.kyori.fragment.filter.FilterModule;
 import net.kyori.fragment.processor.Processor;
-import net.kyori.limbo.core.config.FiltersProcessor;
-import net.kyori.limbo.util.Documents;
+import net.kyori.limbo.feature.core.FiltersProcessor;
 import net.kyori.limbo.util.DynamicProvider;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
+import net.kyori.xml.XMLException;
+import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;
-import org.jdom2.JDOMException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import javax.inject.Named;
@@ -60,7 +59,7 @@ public final class FeatureCoreModule extends AbstractModule {
   @Named("env")
   @Provides
   @Singleton
-  Node environmentConfiguration(final @Named("config") Path path) throws IOException, JDOMException {
-    return Documents.read(path.resolve("environment.xml"));
+  Node environmentConfiguration(final DocumentFactory factory, final @Named("config") Path path) throws XMLException {
+    return Node.of(factory.read(path.resolve("environment.xml")).getRootElement());
   }
 }

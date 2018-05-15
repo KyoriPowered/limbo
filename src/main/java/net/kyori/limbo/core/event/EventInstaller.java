@@ -21,27 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.core.config;
+package net.kyori.limbo.core.event;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.processor.Processor;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.parser.Parser;
+import net.kyori.event.EventBus;
+import net.kyori.membrane.facet.Enableable;
+import net.kyori.membrane.facet.internal.Facets;
 
 import javax.inject.Inject;
 
-public final class FiltersProcessor implements Processor {
-  private final Parser<Filter> parser;
+final class EventInstaller implements Enableable {
+  private final EventBus<Object, Object> bus;
+  private final Facets facets;
 
   @Inject
-  private FiltersProcessor(final Parser<Filter> parser) {
-    this.parser = parser;
+  private EventInstaller(final EventBus<Object, Object> bus, final Facets facets) {
+    this.bus = bus;
+    this.facets = facets;
   }
 
   @Override
-  public void process(final Node node) {
-    node.elements("filters")
-      .flatMap(Node::elements)
-      .forEach(this.parser::parse); // filter parser adds to context
+  public void enable() {
+    this.facets.of(Listener.class).forEach(this.bus::register);
+  }
+
+  @Override
+  public void disable() {
+    this.facets.of(Listener.class).forEach(this.bus::unregister);
   }
 }

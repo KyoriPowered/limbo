@@ -21,27 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.feature;
+package net.kyori.limbo.core.xml;
 
-import com.google.inject.Module;
-import net.kyori.limbo.feature.discord.DiscordModule;
-import net.kyori.limbo.feature.git.GitModule;
-import net.kyori.limbo.feature.github.GitHubModule;
+import com.google.inject.Provides;
+import net.kyori.lunar.EvenMoreObjects;
 import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
+import net.kyori.xml.document.factory.DocumentFactory;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.located.LocatedJDOMFactory;
 
-public final class FeatureModule extends AbstractModule {
-  @Override
-  protected void configure() {
-    this.install(new FeatureCoreModule());
+import java.nio.file.Path;
 
-    this.installFeature(new DiscordModule());
-    this.installFeature(new GitModule());
-    this.installFeature(new GitHubModule());
-  }
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-  private void installFeature(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
+public final class XmlModule extends AbstractModule {
+  @Provides
+  @Singleton
+  DocumentFactory documentFactory(final @Named("config") Path path) {
+    return DocumentFactory.builder()
+      .builder(EvenMoreObjects.make(new SAXBuilder(), builder -> builder.setJDOMFactory(new LocatedJDOMFactory())))
+      .includePaths(path.resolve("include"))
+      .build();
   }
 }

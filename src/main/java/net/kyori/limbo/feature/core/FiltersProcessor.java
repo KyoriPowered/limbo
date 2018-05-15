@@ -21,17 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.util;
+package net.kyori.limbo.feature.core;
 
+import net.kyori.fragment.filter.Filter;
+import net.kyori.fragment.processor.Processor;
 import net.kyori.xml.node.Node;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
+import net.kyori.xml.node.parser.Parser;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import javax.inject.Inject;
 
-public interface Documents {
-  static Node read(final Path path) throws IOException, JDOMException {
-    return Node.of(new SAXBuilder().build(path.toFile()).getRootElement());
+public final class FiltersProcessor implements Processor {
+  private final Parser<Filter> parser;
+
+  @Inject
+  private FiltersProcessor(final Parser<Filter> parser) {
+    this.parser = parser;
+  }
+
+  @Override
+  public void process(final Node node) {
+    node.elements("filters")
+      .flatMap(Node::elements)
+      .forEach(this.parser::parse); // filter parser adds to context
   }
 }

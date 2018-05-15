@@ -27,45 +27,21 @@ import com.google.inject.Provides;
 import net.kyori.event.ASMEventExecutorFactory;
 import net.kyori.event.EventBus;
 import net.kyori.event.SimpleEventBus;
-import net.kyori.membrane.facet.Enableable;
 import net.kyori.membrane.facet.FacetBinder;
-import net.kyori.membrane.facet.internal.Facets;
 import net.kyori.violet.AbstractModule;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 public final class EventModule extends AbstractModule {
   @Override
   protected void configure() {
-    final FacetBinder facets = new FacetBinder(this);
-    facets.addBinding().to(Installer.class);
+    final FacetBinder facets = new FacetBinder(this.binder());
+    facets.addBinding().to(EventInstaller.class);
   }
 
   @Provides
   @Singleton
   EventBus<Object, Object> bus() {
     return new SimpleEventBus<>(new ASMEventExecutorFactory<>());
-  }
-
-  private static final class Installer implements Enableable {
-    private final EventBus<Object, Object> bus;
-    private final Facets facets;
-
-    @Inject
-    private Installer(final EventBus<Object, Object> bus, final Facets facets) {
-      this.bus = bus;
-      this.facets = facets;
-    }
-
-    @Override
-    public void enable() {
-      this.facets.of(Listener.class).forEach(this.bus::register);
-    }
-
-    @Override
-    public void disable() {
-      this.facets.of(Listener.class).forEach(this.bus::unregister);
-    }
   }
 }
