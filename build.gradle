@@ -48,7 +48,7 @@ dependencies {
   compile 'net.kyori:event:1.1.0-SNAPSHOT'
   compile 'net.kyori:fragment:1.0.0-SNAPSHOT'
   compile 'net.kyori:igloo:1.0.0-SNAPSHOT'
-  compile 'net.kyori:lunar:1.0.6-SNAPSHOT'
+  compile 'net.kyori:lunar:1.0.7-SNAPSHOT'
   compile 'net.kyori:membrane:1.1.0-SNAPSHOT'
   compile 'net.kyori:polar:1.0.0-SNAPSHOT'
   compile 'net.kyori:violet:2.0.0-SNAPSHOT'

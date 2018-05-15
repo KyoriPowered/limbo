@@ -21,67 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo;
+package net.kyori.limbo.xml;
 
-import com.google.inject.Module;
+import com.google.inject.Key;
 import com.google.inject.Provides;
-import net.kyori.limbo.discord.DiscordModule;
-import net.kyori.limbo.event.EventModule;
-import net.kyori.limbo.git.GitModule;
-import net.kyori.limbo.github.GitHubModule;
-import net.kyori.limbo.gson.GsonModule;
-import net.kyori.limbo.http.HttpModule;
-import net.kyori.limbo.scheduler.SchedulerModule;
-import net.kyori.limbo.xml.XmlModule;
+import com.google.inject.Scopes;
+import com.google.inject.multibindings.Multibinder;
+import net.kyori.fragment.feature.context.FeatureContext;
+import net.kyori.fragment.feature.context.FeatureContextImpl;
+import net.kyori.fragment.filter.FilterModule;
+import net.kyori.fragment.processor.Processor;
+import net.kyori.lunar.EvenMoreObjects;
+import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
-import net.kyori.violet.DuplexBinder;
-import net.kyori.xml.XMLException;
 import net.kyori.xml.document.factory.DocumentFactory;
-import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.ParserModule;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.located.LocatedJDOMFactory;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-public final class LimboModule extends AbstractModule {
+public final class XmlModule extends AbstractModule {
   @Override
   protected void configure() {
-    this.install(new EventModule());
-    this.install(new GitModule());
-    this.install(new GsonModule());
-    this.install(new HttpModule());
-    this.install(new SchedulerModule());
-    this.install(new XmlModule());
+    this.bind(FeatureContext.class).to(FeatureContextImpl.class).in(Scopes.SINGLETON);
 
-    this.installDuplex(new DiscordModule());
-    this.installDuplex(new GitHubModule());
+    this.install(new ParserModule());
+
+    this.install(new FilterModule());
+
+    final FacetBinder facets = new FacetBinder(this.binder());
+    facets.addBinding().to(FeatureProcessor.class);
+
+    final Multibinder<Processor> processors = this.inSet(Key.get(Processor.class));
+    processors.addBinding().to(FiltersProcessor.class);
   }
 
-  private void installDuplex(final Module module) {
-    final DuplexBinder binder = DuplexBinder.create(this.binder());
-    binder.install(module);
-  }
-
-  @Named("root")
   @Provides
   @Singleton
-  Path root() {
-    return Paths.get(".");
-  }
-
-  @Named("config")
-  @Provides
-  @Singleton
-  Path config(final @Named("root") Path path) {
-    return path.resolve("config");
-  }
-
-  @Named("env")
-  @Provides
-  @Singleton
-  Node environmentConfiguration(final DocumentFactory factory, final @Named("config") Path path) throws XMLException {
-    return Node.of(factory.read(path.resolve("environment.xml")).getRootElement());
+  DocumentFactory documentFactory(final @Named("config") Path path) {
+    return DocumentFactory.builder()
+      .builder(EvenMoreObjects.make(new SAXBuilder(), builder -> builder.setJDOMFactory(new LocatedJDOMFactory())))
+      .includePaths(path.resolve("include"))
+      .build();
   }
 }
