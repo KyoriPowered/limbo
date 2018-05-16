@@ -21,28 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry;
+package net.kyori.limbo.github.feature.apply.entry.normal;
 
-import com.google.inject.TypeLiteral;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.multibindings.MapBinder;
-import net.kyori.limbo.github.feature.apply.entry.normal.NormalEntryParser;
-import net.kyori.limbo.github.feature.apply.entry.pattern.PatternEntryParser;
-import net.kyori.violet.DuplexModule;
-import net.kyori.xml.node.parser.Parser;
-import net.kyori.xml.node.parser.ParserBinder;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.entry.Entry;
 
-public final class EntryModule extends DuplexModule {
-  @Override
-  protected void configure() {
-    final ParserBinder parsers = new ParserBinder(this.publicBinder());
-    parsers.bindParser(Entry.class).to(EntryParser.class);
+import java.util.List;
 
-    this.bindEntry("normal").to(NormalEntryParser.class);
-    this.bindEntry("pattern").to(PatternEntryParser.class);
+public final class NormalEntry extends Entry.Impl {
+  private final Action action;
+
+  NormalEntry(final Filter filter, final Action action) {
+    super(filter);
+    this.action = action;
   }
 
-  private LinkedBindingBuilder<Parser<? extends Entry>> bindEntry(final String id) {
-    return MapBinder.newMapBinder(this.publicBinder(), TypeLiteral.get(String.class), new TypeLiteral<Parser<? extends Entry>>() {}).addBinding(id);
+  @Override
+  public void collect(final String string, final List<Action> actions) {
+    actions.add(this.action);
   }
 }

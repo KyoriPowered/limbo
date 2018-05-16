@@ -21,28 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry;
+package net.kyori.limbo.github.feature.apply.entry.normal;
 
-import com.google.inject.TypeLiteral;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.multibindings.MapBinder;
-import net.kyori.limbo.github.feature.apply.entry.normal.NormalEntryParser;
-import net.kyori.limbo.github.feature.apply.entry.pattern.PatternEntryParser;
-import net.kyori.violet.DuplexModule;
+import com.google.common.collect.MoreCollectors;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.limbo.github.action.Action;
+import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
-import net.kyori.xml.node.parser.ParserBinder;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class EntryModule extends DuplexModule {
-  @Override
-  protected void configure() {
-    final ParserBinder parsers = new ParserBinder(this.publicBinder());
-    parsers.bindParser(Entry.class).to(EntryParser.class);
+import javax.inject.Inject;
 
-    this.bindEntry("normal").to(NormalEntryParser.class);
-    this.bindEntry("pattern").to(PatternEntryParser.class);
+public final class NormalEntryParser implements Parser<NormalEntry> {
+  private final Parser<Filter> filterParser;
+  private final Parser<Action> actionParser;
+
+  @Inject
+  private NormalEntryParser(final Parser<Filter> filterParser, final Parser<Action> actionParser) {
+    this.filterParser = filterParser;
+    this.actionParser = actionParser;
   }
 
-  private LinkedBindingBuilder<Parser<? extends Entry>> bindEntry(final String id) {
-    return MapBinder.newMapBinder(this.publicBinder(), TypeLiteral.get(String.class), new TypeLiteral<Parser<? extends Entry>>() {}).addBinding(id);
+  @Override
+  public @NonNull NormalEntry throwingParse(final @NonNull Node node) {
+    final Filter filter = this.filterParser.parse(node.nodes("filter").collect(MoreCollectors.onlyElement()));
+    final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
+    return new NormalEntry(filter, action);
   }
 }
