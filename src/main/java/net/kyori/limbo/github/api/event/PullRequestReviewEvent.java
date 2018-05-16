@@ -21,51 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.actor;
+package net.kyori.limbo.github.api.event;
 
-import java.util.EnumSet;
-import java.util.Set;
+import com.google.gson.annotations.SerializedName;
+import net.kyori.limbo.github.api.model.PullRequest;
+import net.kyori.limbo.github.api.model.PullRequestReview;
+import net.kyori.limbo.github.api.model.Repository;
 
-public enum ActorType {
-  /**
-   * The author of an issue or pull request.
-   */
-  AUTHOR,
-  /**
-   * A repository collaborator.
-   */
-  COLLABORATOR,
-  /**
-   * The bot.
-   */
-  SELF;
+public final class PullRequestReviewEvent implements Event {
+  public Action action;
+  public PullRequest pull_request;
+  public PullRequestReview review;
+  public Repository repository;
 
-  public static class Collector {
-    private final Set<ActorType> types = EnumSet.noneOf(ActorType.class);
-
-    public Collector author(final boolean author) {
-      if(author) {
-        this.types.add(AUTHOR);
+  public enum Action {
+    @SerializedName("dismissed")
+    DISMISSED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent() {
+        return net.kyori.limbo.git.event.Event.PULL_REQUEST_REVIEW_DISMISSED;
       }
-      return this;
-    }
-
-    public Collector collaborator(final boolean collaborator) {
-      if(collaborator) {
-        this.types.add(COLLABORATOR);
+    },
+    @SerializedName("edited")
+    EDITED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent() {
+        return net.kyori.limbo.git.event.Event.PULL_REQUEST_REVIEW_EDITED;
       }
-      return this;
-    }
-
-    public Collector self(final boolean self) {
-      if(self) {
-        this.types.add(SELF);
+    },
+    @SerializedName("submitted")
+    SUBMITTED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent() {
+        return net.kyori.limbo.git.event.Event.PULL_REQUEST_REVIEW_SUBMITTED;
       }
-      return this;
-    }
+    };
 
-    public Set<ActorType> get() {
-      return this.types;
-    }
+    public abstract net.kyori.limbo.git.event.Event asEvent();
   }
 }

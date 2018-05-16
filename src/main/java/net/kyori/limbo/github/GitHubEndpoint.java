@@ -30,6 +30,7 @@ import net.kyori.limbo.github.api.event.Events;
 import net.kyori.limbo.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.github.api.event.IssuesEvent;
 import net.kyori.limbo.github.api.event.PullRequestEvent;
+import net.kyori.limbo.github.api.event.PullRequestReviewEvent;
 import net.kyori.limbo.web.SimpleError;
 import net.kyori.lunar.crypt.Algorithms;
 import net.kyori.xml.XMLException;
@@ -103,6 +104,8 @@ public final class GitHubEndpoint {
         return IssuesEvent.class;
       case Events.PULL_REQUEST:
         return PullRequestEvent.class;
+      case Events.PULL_REQUEST_REVIEW:
+        return PullRequestReviewEvent.class;
     }
     return null;
   }

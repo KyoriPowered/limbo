@@ -21,51 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.actor;
+package net.kyori.limbo.github.api.model;
 
-import java.util.EnumSet;
-import java.util.Set;
+import com.google.gson.annotations.SerializedName;
 
-public enum ActorType {
-  /**
-   * The author of an issue or pull request.
+public class PullRequestReview {
+  public String body;
+  public State state;
+  public User user;
+
+  /*
+   * The GitHub documentation is a bit vague - REST v3 docs show UPPERCASE, while webhook docs show lowercase
    */
-  AUTHOR,
-  /**
-   * A repository collaborator.
-   */
-  COLLABORATOR,
-  /**
-   * The bot.
-   */
-  SELF;
-
-  public static class Collector {
-    private final Set<ActorType> types = EnumSet.noneOf(ActorType.class);
-
-    public Collector author(final boolean author) {
-      if(author) {
-        this.types.add(AUTHOR);
-      }
-      return this;
-    }
-
-    public Collector collaborator(final boolean collaborator) {
-      if(collaborator) {
-        this.types.add(COLLABORATOR);
-      }
-      return this;
-    }
-
-    public Collector self(final boolean self) {
-      if(self) {
-        this.types.add(SELF);
-      }
-      return this;
-    }
-
-    public Set<ActorType> get() {
-      return this.types;
-    }
+  public enum State {
+    @SerializedName(value = "approved", alternate = "APPROVED")
+    APPROVED,
+    @SerializedName(value = "changes_requested", alternate = "CHANGES_REQUESTED")
+    CHANGES_REQUESTED,
+    @SerializedName(value = "commented", alternate = "COMMENTED")
+    COMMENTED,
+    @SerializedName(value = "dismissed", alternate = "DISMISSED")
+    DISMISSED;
   }
 }

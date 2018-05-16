@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import com.google.common.base.Suppliers;
 import net.kyori.event.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
@@ -33,6 +34,7 @@ import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.github.api.event.IssuesEvent;
 import net.kyori.limbo.github.api.event.PullRequestEvent;
+import net.kyori.limbo.github.api.event.PullRequestReviewEvent;
 import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.issue.IssueQuery;
 import net.kyori.limbo.github.label.Labels;
@@ -40,8 +42,8 @@ import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.lunar.exception.Exceptions;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -66,18 +68,15 @@ public final class ApplyFeature implements Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
+    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
+      .author(true)
+      .collaborator(this.permission.get(event.repository, event.issue.user).write())
+      .self(event.issue.user.login.equals(this.selfUser.login))
+      .get());
     this.configuration.applicators(new IssueQuery() {
       @Override
       public Set<ActorType> actorTypes() {
-        final Set<ActorType> types = new HashSet<>(1);
-        types.add(ActorType.AUTHOR);
-        if(ApplyFeature.this.permission.get(event.repository, event.issue.user).write()) {
-          types.add(ActorType.COLLABORATOR);
-        }
-        if(event.issue.user.login.equals(ApplyFeature.this.selfUser.login)) {
-          types.add(ActorType.SELF);
-        }
-        return types;
+        return actorTypes.get();
       }
 
       @Override
@@ -103,18 +102,15 @@ public final class ApplyFeature implements Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
+    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
+      .author(true)
+      .collaborator(this.permission.get(event.repository, event.pull_request.user).write())
+      .self(event.pull_request.user.login.equals(this.selfUser.login))
+      .get());
     this.configuration.applicators(new IssueQuery() {
       @Override
       public Set<ActorType> actorTypes() {
-        final Set<ActorType> types = new HashSet<>(1);
-        types.add(ActorType.AUTHOR);
-        if(ApplyFeature.this.permission.get(event.repository, event.pull_request.user).write()) {
-          types.add(ActorType.COLLABORATOR);
-        }
-        if(event.pull_request.user.login.equals(ApplyFeature.this.selfUser.login)) {
-          types.add(ActorType.SELF);
-        }
-        return types;
+        return actorTypes.get();
       }
 
       @Override
@@ -137,20 +133,15 @@ public final class ApplyFeature implements Listener {
   @Subscribe
   public void comment(final IssueCommentEvent event) {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
+    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
+      .author(event.issue.user.equals(event.comment.user))
+      .collaborator(this.permission.get(event.repository, event.comment.user).write())
+      .self(event.comment.user.login.equals(this.selfUser.login))
+      .get());
     this.configuration.applicators(new IssueQuery() {
       @Override
       public Set<ActorType> actorTypes() {
-        final Set<ActorType> types = new HashSet<>(2);
-        if(event.issue.user.equals(event.comment.user)) {
-          types.add(ActorType.AUTHOR);
-        }
-        if(ApplyFeature.this.permission.get(event.repository, event.comment.user).write()) {
-          types.add(ActorType.COLLABORATOR);
-        }
-        if(event.issue.user.login.equals(ApplyFeature.this.selfUser.login)) {
-          types.add(ActorType.SELF);
-        }
-        return types;
+        return actorTypes.get();
       }
 
       @Override
@@ -168,5 +159,36 @@ public final class ApplyFeature implements Listener {
         return event.repository;
       }
     }, event.comment.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
+  }
+
+  @Subscribe
+  public void review(final PullRequestReviewEvent event) {
+    final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
+    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
+      .author(event.pull_request.user.equals(event.review.user))
+      .collaborator(this.permission.get(event.repository, event.review.user).write())
+      .self(event.review.user.login.equalsIgnoreCase(this.selfUser.login))
+      .get());
+    this.configuration.applicators(new IssueQuery() {
+      @Override
+      public Set<ActorType> actorTypes() {
+        return actorTypes.get();
+      }
+
+      @Override
+      public Event event() {
+        return event.action.asEvent();
+      }
+
+      @Override
+      public Collection<String> labels() {
+        return Labels.labels(issue);
+      }
+
+      @Override
+      public RepositoryId repository() {
+        return event.repository;
+      }
+    }, event.review.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
   }
 }
