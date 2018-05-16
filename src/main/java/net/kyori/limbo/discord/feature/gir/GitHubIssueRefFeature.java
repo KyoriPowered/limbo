@@ -31,6 +31,7 @@ import net.kyori.igloo.v3.Repositories;
 import net.kyori.kassel.channel.TextChannel;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
+import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.embed.EmbedRenderer;
 import net.kyori.limbo.event.Listener;
@@ -38,19 +39,27 @@ import net.kyori.limbo.git.issue.IssueToken;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.lunar.Optionals;
+import net.kyori.membrane.facet.Activatable;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.inject.Inject;
 
-public final class GitHubIssueRefFeature implements Listener {
+public final class GitHubIssueRefFeature implements Activatable, Listener {
+  private final DiscordConfiguration discord;
   private final Configuration configuration;
   private final Repositories repositories;
 
   @Inject
-  private GitHubIssueRefFeature(final Configuration configuration, final Repositories repositories) {
+  private GitHubIssueRefFeature(final DiscordConfiguration discord, final Configuration configuration, final Repositories repositories) {
+    this.discord = discord;
     this.configuration = configuration;
     this.repositories = repositories;
+  }
+
+  @Override
+  public boolean active() {
+    return this.discord.isEnabled();
   }
 
   @Subscribe

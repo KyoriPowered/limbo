@@ -33,7 +33,6 @@ import net.kyori.limbo.discord.embed.EmbedParser;
 import net.kyori.limbo.discord.feature.gir.GitHubIssueRefFeatureModule;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.polar.ForPolar;
-import net.kyori.polar.PolarConfiguration;
 import net.kyori.polar.PolarModule;
 import net.kyori.polar.util.ColorSerializer;
 import net.kyori.polar.util.InstantSerializer;
@@ -49,8 +48,6 @@ public final class DiscordModule extends DuplexModule {
     this.install(new PolarModule());
 
     this.expose(Client.class);
-
-    this.bind(PolarConfiguration.class).to(PolarConfigurationImpl.class);
 
     final FacetBinder facets = new FacetBinder(this.publicBinder());
     facets.addBinding().to(ClientConnector.class);

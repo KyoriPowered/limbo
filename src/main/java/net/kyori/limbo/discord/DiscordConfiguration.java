@@ -24,26 +24,37 @@
 package net.kyori.limbo.discord;
 
 import net.kyori.polar.PolarConfiguration;
-import net.kyori.xml.XMLException;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+@Component
+@ConfigurationProperties("discord")
+public class DiscordConfiguration implements PolarConfiguration {
+  private boolean enabled;
+  private int shards;
+  private String token;
 
-@Singleton
-final class PolarConfigurationImpl implements PolarConfiguration {
-  private final String token;
-  private final int shards;
+  public boolean isEnabled() {
+    return this.enabled;
+  }
 
-  @Inject
-  private PolarConfigurationImpl(final @Named("env") Node environment, final Parser<Integer> intParser) throws XMLException {
-    final Node discord = environment.elements("discord").one().need();
-    this.token = discord.requireAttribute("token").value();
-    this.shards = intParser.parse(discord.requireAttribute("shards"));
+  public void setEnabled(final boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  @Override
+  public @NonNegative int shards() {
+    return this.shards;
+  }
+
+  public int getShards() {
+    return this.shards;
+  }
+
+  public void setShards(final int shards) {
+    this.shards = shards;
   }
 
   @Override
@@ -51,8 +62,11 @@ final class PolarConfigurationImpl implements PolarConfiguration {
     return this.token;
   }
 
-  @Override
-  public @NonNegative int shards() {
-    return this.shards;
+  public String getToken() {
+    return this.token;
+  }
+
+  public void setToken(final String token) {
+    this.token = token;
   }
 }

@@ -24,16 +24,24 @@
 package net.kyori.limbo.discord;
 
 import net.kyori.kassel.client.Client;
+import net.kyori.membrane.facet.Activatable;
 import net.kyori.membrane.facet.Connectable;
 
 import javax.inject.Inject;
 
-final class ClientConnector implements Connectable {
+final class ClientConnector implements Activatable, Connectable {
+  private final DiscordConfiguration discord;
   private final Client client;
 
   @Inject
-  private ClientConnector(final Client client) {
+  private ClientConnector(final DiscordConfiguration discord, final Client client) {
+    this.discord = discord;
     this.client = client;
+  }
+
+  @Override
+  public boolean active() {
+    return this.discord.isEnabled();
   }
 
   @Override
