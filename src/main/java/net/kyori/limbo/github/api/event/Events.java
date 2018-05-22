@@ -24,6 +24,8 @@
 package net.kyori.limbo.github.api.event;
 
 public interface Events {
+  String CHECK_RUN = "check_run";
+  String CHECK_SUITE = "check_suite";
   String COMMIT_COMMENT = "commit_comment";
   String CREATE = "create";
   String DELETE = "delete";
@@ -47,12 +49,13 @@ public interface Events {
   String PROJECT_COLUMN = "project_column";
   String PROJECT = "project";
   String PUBLIC = "public";
-  String PULL_REQUEST_REVIEW_COMMENT = "pull_request_review_comment";
-  String PULL_REQUEST_REVIEW = "pull_request_review";
   String PULL_REQUEST = "pull_request";
+  String PULL_REQUEST_REVIEW = "pull_request_review";
+  String PULL_REQUEST_REVIEW_COMMENT = "pull_request_review_comment";
   String PUSH = "push";
-  String REPOSITORY = "repository";
   String RELEASE = "release";
+  String REPOSITORY = "repository";
+  String REPOSITORY_VULNERABILITY_ALERT = "repository_vulnerability_alert";
   String STATUS = "status";
   String TEAM = "team";
   String TEAM_ADD = "team_add";
