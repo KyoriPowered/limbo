@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.discord.action;
 
-import net.kyori.fragment.feature.parser.FeatureParserBinder;
+import net.kyori.feature.parser.FeatureDefinitionParserBinder;
 import net.kyori.violet.DuplexModule;
 import net.kyori.xml.node.parser.ParserBinder;
 
@@ -33,7 +33,7 @@ public final class ActionModule extends DuplexModule {
     final ParserBinder parsers = new ParserBinder(this.publicBinder());
     parsers.bindParser(Action.class).to(ActionParser.class);
 
-    final FeatureParserBinder featureParsers = new FeatureParserBinder(this.publicBinder());
-    featureParsers.bindFeatureParser(Action.class);
+    final FeatureDefinitionParserBinder featureParsers = new FeatureDefinitionParserBinder(this.publicBinder());
+    featureParsers.bindFeatureParser(Action.class).to(ActionParser.class);
   }
 }

@@ -23,10 +23,10 @@
  */
 package net.kyori.limbo.discord.feature.gir;
 
-import net.kyori.fragment.feature.parser.FeatureParser;
-import net.kyori.fragment.processor.Processor;
+import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.git.repository.RepositoryId;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 
@@ -38,11 +38,11 @@ import javax.inject.Inject;
 
 public final class GitHubIssueRefProcessor implements Processor {
   private final Configuration configuration;
-  private final FeatureParser<RepositoryId> repoParser;
-  private final FeatureParser<Action> actionParser;
+  private final FeatureDefinitionParser<RepositoryId> repoParser;
+  private final FeatureDefinitionParser<Action> actionParser;
 
   @Inject
-  private GitHubIssueRefProcessor(final Configuration configuration, final FeatureParser<RepositoryId> repoParser, final FeatureParser<Action> actionParser) {
+  private GitHubIssueRefProcessor(final Configuration configuration, final FeatureDefinitionParser<RepositoryId> repoParser, final FeatureDefinitionParser<Action> actionParser) {
     this.configuration = configuration;
     this.repoParser = repoParser;
     this.actionParser = actionParser;
@@ -57,7 +57,7 @@ public final class GitHubIssueRefProcessor implements Processor {
       .one()
       .ifPresent(Exceptions.rethrowConsumer(entry -> {
         entry.nodes("search").one().ifPresent(search -> {
-          final Pattern pattern = search.nodes("pattern").one().map(Node::value).map(Pattern::compile).need();
+          final Pattern pattern = search.nodes("pattern").one().map(Node::value).map(Pattern::compile).required();
           final List<RepositoryId> repositories = search.nodes("repositories")
             .flatMap(Node::elements)
             .named("repository")
@@ -65,9 +65,9 @@ public final class GitHubIssueRefProcessor implements Processor {
             .collect(Collectors.toList());
           this.configuration.searches.add(new Configuration.Search(pattern, repositories));
         });
-        this.configuration.openAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("open").one().need());
-        this.configuration.mergedAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("merged").one().need());
-        this.configuration.closedAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("closed").one().need());
+        this.configuration.openAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("open").one().required());
+        this.configuration.mergedAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("merged").one().required());
+        this.configuration.closedAction = this.actionParser.parse(entry.nodes("state").flatMap(Node::elements).named("closed").one().required());
       }));
   }
 }

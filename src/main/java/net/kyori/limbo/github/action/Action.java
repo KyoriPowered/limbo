@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.github.action;
 
-import net.kyori.fragment.feature.Feature;
+import net.kyori.feature.FeatureDefinition;
 import net.kyori.igloo.v3.Issue;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.io.IOException;
 import java.util.Set;
 
-public interface Action extends Feature {
+public interface Action extends FeatureDefinition {
   @Nullable String comment();
 
   @NonNull Set<String> addLabels();

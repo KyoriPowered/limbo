@@ -97,6 +97,46 @@ public final class ApplyFeature implements Listener {
   }
 
   @Subscribe
+  public void label(final IssuesEvent event) {
+    if(event.action != IssuesEvent.Action.LABELED && event.action != IssuesEvent.Action.UNLABELED) {
+      return;
+    }
+    final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
+    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
+      .author(true)
+      .collaborator(this.permission.get(event.repository, event.issue.user).write())
+      .self(event.issue.user.login.equals(this.selfUser.login))
+      .get());
+    this.configuration.applicators(new IssueQuery() {
+      @Override
+      public Set<ActorType> actorTypes() {
+        return actorTypes.get();
+      }
+
+      @Override
+      public Event event() {
+        switch(event.action) {
+          case LABELED:
+            return event.issue.pull_request != null ? Event.PULL_REQUEST_LABEL : Event.ISSUE_LABEL;
+          case UNLABELED:
+            return event.issue.pull_request != null ? Event.PULL_REQUEST_UNLABEL : Event.ISSUE_UNLABEL;
+        }
+        throw new IllegalArgumentException(event.action.name());
+      }
+
+      @Override
+      public Collection<String> labels() {
+        return Labels.labels(issue);
+      }
+
+      @Override
+      public RepositoryId repository() {
+        return event.repository;
+      }
+    }, event.issue.body).forEach(Exceptions.rethrowConsumer(action -> action.apply(issue)));
+  }
+
+  @Subscribe
   public void open(final PullRequestEvent event) {
     if(event.action != PullRequestEvent.Action.OPENED) {
       return;

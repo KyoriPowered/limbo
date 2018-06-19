@@ -23,7 +23,6 @@
  */
 package net.kyori.limbo.xml;
 
-import net.kyori.fragment.processor.Processor;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.membrane.facet.Connectable;
 import net.kyori.xml.XMLException;

@@ -24,8 +24,8 @@
 package net.kyori.limbo.github.feature.apply;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.processor.Processor;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -55,7 +55,7 @@ public final class ApplyProcessor implements Processor {
       .named("apply")
       .flatMap(Node::elements)
       .forEach(entry -> {
-        final @Nullable Filter filter = this.filterParser.parse(entry.nodes("filter").flatMap(Node::nodes).one().want()).orElse(null);
+        final @Nullable Filter filter = this.filterParser.parse(entry.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
         final List<Entry> entries = entry.elements("actions").flatMap(Node::elements).map(this.entryParser::parse).collect(Collectors.toList());
         this.configuration.entries.add(new ApplyFeatureConfiguration.Entry(filter, entries));
       });

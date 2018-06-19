@@ -23,8 +23,8 @@
  */
 package net.kyori.limbo.github.action;
 
-import net.kyori.fragment.feature.context.FeatureContext;
-import net.kyori.fragment.processor.Processor;
+import net.kyori.feature.FeatureDefinitionContext;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
@@ -33,11 +33,11 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 public final class ActionProcessor implements Processor {
-  private final Provider<FeatureContext> context;
+  private final Provider<FeatureDefinitionContext> context;
   private final Parser<Action> actionParser;
 
   @Inject
-  private ActionProcessor(final Provider<FeatureContext> context, final Parser<Action> actionParser) {
+  private ActionProcessor(final Provider<FeatureDefinitionContext> context, final Parser<Action> actionParser) {
     this.context = context;
     this.actionParser = actionParser;
   }
@@ -48,6 +48,6 @@ public final class ActionProcessor implements Processor {
       .elements("github")
       .flatMap(Node::elements)
       .flatMap(new BranchLeafNodeFlattener("actions", "action"))
-      .forEach(entry -> this.context.get().add(Action.class, entry, this.actionParser.parse(entry)));
+      .forEach(entry -> this.context.get().define(Action.class, entry, this.actionParser.parse(entry)));
   }
 }

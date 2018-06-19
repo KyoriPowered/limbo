@@ -21,18 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.event;
+package net.kyori.limbo.xml;
 
-public enum Event {
-  ISSUE_COMMENT,
-  ISSUE_LABEL,
-  ISSUE_OPEN,
-  ISSUE_UNLABEL,
-  PULL_REQUEST_COMMENT,
-  PULL_REQUEST_OPEN,
-  PULL_REQUEST_LABEL,
-  PULL_REQUEST_REVIEW_DISMISSED,
-  PULL_REQUEST_REVIEW_EDITED,
-  PULL_REQUEST_REVIEW_SUBMITTED,
-  PULL_REQUEST_UNLABEL;
+import net.kyori.xml.node.Node;
+
+public interface Processor {
+  void process(final Node node);
 }

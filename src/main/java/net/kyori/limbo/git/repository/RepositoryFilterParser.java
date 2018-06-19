@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.git.repository;
 
-import net.kyori.fragment.feature.parser.FeatureParser;
+import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
@@ -34,10 +34,10 @@ import javax.inject.Singleton;
 
 @Singleton
 public final class RepositoryFilterParser implements Parser<Filter> {
-  private final FeatureParser<RepositoryId> parser;
+  private final FeatureDefinitionParser<RepositoryId> parser;
 
   @Inject
-  private RepositoryFilterParser(final FeatureParser<RepositoryId> parser) {
+  private RepositoryFilterParser(final FeatureDefinitionParser<RepositoryId> parser) {
     this.parser = parser;
   }
 

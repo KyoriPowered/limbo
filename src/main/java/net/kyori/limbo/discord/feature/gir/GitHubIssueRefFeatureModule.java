@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.discord.feature.gir;
 
-import net.kyori.fragment.processor.Processor;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.DuplexModule;
 import net.kyori.violet.SetBinder;

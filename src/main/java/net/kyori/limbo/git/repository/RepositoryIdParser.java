@@ -23,6 +23,8 @@
  */
 package net.kyori.limbo.git.repository;
 
+import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
+import net.kyori.feature.reference.ReferenceFinder;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
@@ -37,7 +39,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class RepositoryIdParser implements Parser<RepositoryId> {
+public final class RepositoryIdParser extends AbstractInjectedFeatureDefinitionParser<RepositoryId> implements Parser<RepositoryId> {
+  private static final ReferenceFinder REFERENCE_FINDER = ReferenceFinder.finder().refs("repository");
   private final EnumParser<RepositoryId.Source> source;
 
   @Inject
@@ -46,8 +49,8 @@ public final class RepositoryIdParser implements Parser<RepositoryId> {
   }
 
   @Override
-  public @NonNull RepositoryId throwingParse(final @NonNull Node node) throws XMLException {
-    final RepositoryId.Source source = this.source.parse(node.attribute("source")).orElse(RepositoryId.Source.GITHUB);
+  public @NonNull RepositoryId realThrowingParse(final @NonNull Node node) throws XMLException {
+    final RepositoryId.Source source = this.source.parse(node.attribute("source").optional()).orElse(RepositoryId.Source.GITHUB);
     final String user = node.requireAttribute("user").value();
     final String repo = node.requireAttribute("repo").value();
     final Set<String> tags = node.nodes("tag").map(Node::value).collect(Collectors.toSet());
@@ -55,5 +58,10 @@ public final class RepositoryIdParser implements Parser<RepositoryId> {
       case GITHUB: return new GitHubRepositoryIdImpl(user, repo, tags);
       default: throw new IllegalArgumentException(source.name());
     }
+  }
+
+  @Override
+  protected @NonNull ReferenceFinder referenceFinder() {
+    return REFERENCE_FINDER;
   }
 }

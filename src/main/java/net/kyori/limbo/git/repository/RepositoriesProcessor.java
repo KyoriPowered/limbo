@@ -23,8 +23,8 @@
  */
 package net.kyori.limbo.git.repository;
 
-import net.kyori.fragment.feature.context.FeatureContext;
-import net.kyori.fragment.processor.Processor;
+import net.kyori.feature.FeatureDefinitionContext;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
@@ -34,11 +34,11 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 public final class RepositoriesProcessor implements Processor {
-  private final Provider<FeatureContext> context;
+  private final Provider<FeatureDefinitionContext> context;
   private final Parser<RepositoryId> parser;
 
   @Inject
-  private RepositoriesProcessor(final Provider<FeatureContext> context, final Parser<RepositoryId> parser) {
+  private RepositoriesProcessor(final Provider<FeatureDefinitionContext> context, final Parser<RepositoryId> parser) {
     this.context = context;
     this.parser = parser;
   }
@@ -47,6 +47,6 @@ public final class RepositoriesProcessor implements Processor {
   public void process(final Node node) {
     node.elements()
       .flatMap(new BranchLeafNodeFlattener("repositories", "repository"))
-      .forEach(Exceptions.rethrowConsumer(entry -> this.context.get().add(RepositoryId.class, entry, this.parser.parse(entry))));
+      .forEach(Exceptions.rethrowConsumer(entry -> this.context.get().define(RepositoryId.class, entry, this.parser.parse(entry))));
   }
 }

@@ -23,12 +23,12 @@
  */
 package net.kyori.limbo.git.repository;
 
-import net.kyori.fragment.feature.Feature;
+import net.kyori.feature.FeatureDefinition;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Set;
 
-public interface RepositoryId extends Feature {
+public interface RepositoryId extends FeatureDefinition {
   /**
    * Gets the repository source.
    *

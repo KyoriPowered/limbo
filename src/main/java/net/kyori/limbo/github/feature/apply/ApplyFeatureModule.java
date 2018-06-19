@@ -23,8 +23,8 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
-import net.kyori.fragment.processor.Processor;
 import net.kyori.limbo.github.feature.apply.entry.EntryModule;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.DuplexModule;
 import net.kyori.violet.SetBinder;

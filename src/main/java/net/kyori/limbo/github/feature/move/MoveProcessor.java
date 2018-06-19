@@ -23,11 +23,11 @@
  */
 package net.kyori.limbo.github.feature.move;
 
-import net.kyori.fragment.feature.parser.FeatureParser;
-import net.kyori.fragment.processor.Processor;
+import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.element.Elements;
 import net.kyori.xml.node.Node;
@@ -44,11 +44,11 @@ import javax.inject.Named;
 public final class MoveProcessor implements Processor {
   private final User identity;
   private final MoveConfiguration configuration;
-  private final FeatureParser<RepositoryId> repoParser;
-  private final FeatureParser<Action> actionParser;
+  private final FeatureDefinitionParser<RepositoryId> repoParser;
+  private final FeatureDefinitionParser<Action> actionParser;
 
   @Inject
-  private MoveProcessor(final @Named("identity") User identity, final MoveConfiguration configuration, final FeatureParser<RepositoryId> repoParser, final FeatureParser<Action> actionParser) {
+  private MoveProcessor(final @Named("identity") User identity, final MoveConfiguration configuration, final FeatureDefinitionParser<RepositoryId> repoParser, final FeatureDefinitionParser<Action> actionParser) {
     this.identity = identity;
     this.configuration = configuration;
     this.repoParser = repoParser;
@@ -66,14 +66,14 @@ public final class MoveProcessor implements Processor {
       .forEach(Exceptions.rethrowConsumer(entry -> {
         final Pattern pattern = Pattern.compile(String.format(entry.requireAttribute("pattern").value(), this.identity.login));
 
-        final @Nullable RepositoryId sourceRepository = entry.elements("source").flatMap(source -> source.nodes("repository")).one().map(this.repoParser::parse).need();
-        final Action sourceAction = entry.elements("source").flatMap(source -> source.nodes("action")).one().map(this.actionParser::parse).need();
+        final @Nullable RepositoryId sourceRepository = entry.elements("source").flatMap(source -> source.nodes("repository")).one().map(this.repoParser::parse).required();
+        final Action sourceAction = entry.elements("source").flatMap(source -> source.nodes("action")).one().map(this.actionParser::parse).required();
 
         final List<MoveConfiguration.Target> targets = entry.elements()
           .flatMap(new BranchLeafNodeFlattener("targets", "target"))
           .map(target -> {
-            final @Nullable RepositoryId repository = target.nodes("repository").one().map(this.repoParser::parse).need();
-            final Action action = target.nodes("action").one().map(this.actionParser::parse).need();
+            final @Nullable RepositoryId repository = target.nodes("repository").one().map(this.repoParser::parse).required();
+            final Action action = target.nodes("action").one().map(this.actionParser::parse).required();
             return new MoveConfiguration.Target(repository, action);
           })
           .collect(Collectors.toList());

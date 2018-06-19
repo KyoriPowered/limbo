@@ -44,7 +44,7 @@ public final class NormalEntryParser implements Parser<NormalEntry> {
 
   @Override
   public @NonNull NormalEntry throwingParse(final @NonNull Node node) {
-    final Filter filter = this.filterParser.parse(node.nodes("filter").collect(MoreCollectors.onlyElement()));
+    final Filter filter = this.filterParser.parse(node.nodes("filter").flatMap(Node::nodes).one().required());
     final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
     return new NormalEntry(filter, action);
   }

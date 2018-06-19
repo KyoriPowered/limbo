@@ -23,9 +23,8 @@
  */
 package net.kyori.limbo.git;
 
-import net.kyori.fragment.feature.parser.FeatureParserBinder;
+import net.kyori.feature.parser.FeatureDefinitionParserBinder;
 import net.kyori.fragment.filter.FilterBinder;
-import net.kyori.fragment.processor.Processor;
 import net.kyori.limbo.git.actor.ActorTypeFilterParser;
 import net.kyori.limbo.git.event.EventFilterParser;
 import net.kyori.limbo.git.label.LabelFilterParser;
@@ -33,6 +32,7 @@ import net.kyori.limbo.git.repository.RepositoriesProcessor;
 import net.kyori.limbo.git.repository.RepositoryFilterParser;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.git.repository.RepositoryIdParser;
+import net.kyori.limbo.xml.Processor;
 import net.kyori.violet.AbstractModule;
 import net.kyori.violet.SetBinder;
 import net.kyori.xml.node.parser.ParserBinder;
@@ -49,8 +49,8 @@ public final class GitModule extends AbstractModule {
     final ParserBinder parsers = new ParserBinder(this.binder());
     parsers.bindParser(RepositoryId.class).to(RepositoryIdParser.class);
 
-    final FeatureParserBinder featureParsers = new FeatureParserBinder(this.binder());
-    featureParsers.bindFeatureParser(RepositoryId.class);
+    final FeatureDefinitionParserBinder featureParsers = new FeatureDefinitionParserBinder(this.binder());
+    featureParsers.bindFeatureParser(RepositoryId.class).to(RepositoryIdParser.class);
 
     final SetBinder<Processor> processors = new SetBinder<>(this.binder(), Processor.class);
     processors.addBinding().to(RepositoriesProcessor.class);

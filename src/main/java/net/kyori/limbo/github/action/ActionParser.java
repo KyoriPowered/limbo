@@ -24,6 +24,7 @@
 package net.kyori.limbo.github.action;
 
 import com.google.common.base.Joiner;
+import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
@@ -42,7 +43,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
-public final class ActionParser implements Parser<Action> {
+public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<Action> implements Parser<Action> {
   private static final Joiner JOINER = Joiner.on('\n');
   private final Path root;
 
@@ -52,30 +53,29 @@ public final class ActionParser implements Parser<Action> {
   }
 
   @Override
-  public @NonNull Action throwingParse(final @NonNull Node node) {
+  public @NonNull Action realThrowingParse(final @NonNull Node node) {
     final Action.@Nullable State state = pickOne(
       node.attribute("open")
         .map(Node::value)
         .map(Boolean::valueOf)
-        .orElse(false),
+        .optional(false),
       Action.State.OPEN,
       node.attribute("close")
         .map(Node::value)
         .map(Boolean::valueOf)
-        .orElse(false),
+        .optional(false),
       Action.State.CLOSE
     );
     final @Nullable String comment = node.elements("comment")
       .one()
       .map(Exceptions.rethrowFunction(content -> {
-        final Optional<Node> src = content.attribute("src");
+        final Optional<Node> src = content.attribute("src").optional();
         if(src.isPresent()) {
           return readMessage(this.root.resolve("message").resolve(src.get().value()));
         }
         return content.value();
       }))
-      .want()
-      .orElse(null);
+      .optional(null);
     final Set<String> addLabels = node.elements("label")
       .flatMap(label -> label.elements("add"))
       .map(Node::value)
@@ -88,12 +88,12 @@ public final class ActionParser implements Parser<Action> {
       node.attribute("lock")
         .map(Node::value)
         .map(Boolean::valueOf)
-        .orElse(false),
+        .optional(false),
       Action.Lock.LOCK,
       node.attribute("unlock")
         .map(Node::value)
         .map(Boolean::valueOf)
-        .orElse(false),
+        .optional(false),
       Action.Lock.UNLOCK
     );
     return new ActionImpl(state, comment, addLabels, removeLabels, lock);

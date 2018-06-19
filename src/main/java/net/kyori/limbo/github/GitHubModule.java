@@ -68,7 +68,7 @@ public final class GitHubModule extends DuplexModule {
   @Provides
   @Singleton
   User identity(final @Named("env") Node environment) throws XMLException {
-    return new User(environment.elements("github").one().need().requireAttribute("login").value());
+    return new User(environment.elements("github").one().required().requireAttribute("login").value());
   }
 
   @Provides
@@ -76,7 +76,7 @@ public final class GitHubModule extends DuplexModule {
   GitHub github(final Gson gson, final @Named("env") Node environment) throws XMLException {
     return GitHub.builder()
       .gson(gson)
-      .token(environment.elements("github").one().need().requireAttribute("token").value())
+      .token(environment.elements("github").one().required().requireAttribute("token").value())
       .build();
   }
 

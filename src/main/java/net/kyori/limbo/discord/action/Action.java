@@ -23,13 +23,13 @@
  */
 package net.kyori.limbo.discord.action;
 
-import net.kyori.fragment.feature.Feature;
+import net.kyori.feature.FeatureDefinition;
 import net.kyori.kassel.channel.message.embed.Embed;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Optional;
 
-public interface Action extends Feature {
+public interface Action extends FeatureDefinition {
   @NonNull Optional<Message> message();
 
   interface Message {

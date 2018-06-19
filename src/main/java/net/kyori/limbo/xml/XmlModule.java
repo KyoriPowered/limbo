@@ -27,10 +27,9 @@ import com.google.inject.Key;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
-import net.kyori.fragment.feature.context.FeatureContext;
-import net.kyori.fragment.feature.context.FeatureContextImpl;
+import net.kyori.feature.FeatureDefinitionContext;
+import net.kyori.feature.FeatureDefinitionContextImpl;
 import net.kyori.fragment.filter.FilterModule;
-import net.kyori.fragment.processor.Processor;
 import net.kyori.lunar.EvenMoreObjects;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
@@ -47,7 +46,7 @@ import javax.inject.Singleton;
 public final class XmlModule extends AbstractModule {
   @Override
   protected void configure() {
-    this.bind(FeatureContext.class).to(FeatureContextImpl.class).in(Scopes.SINGLETON);
+    this.bind(FeatureDefinitionContext.class).to(FeatureDefinitionContextImpl.class).in(Scopes.SINGLETON);
 
     this.install(new ParserModule());
 

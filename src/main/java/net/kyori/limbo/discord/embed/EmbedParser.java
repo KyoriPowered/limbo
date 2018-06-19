@@ -63,8 +63,8 @@ public final class EmbedParser implements Parser<Embed> {
     node.nodes("image").one().ifPresent(image -> builder.imageUrl(image.value()));
     node.nodes("thumbnail").one().ifPresent(thumbnail -> builder.thumbnailUrl(thumbnail.value()));
     node.nodes("field").forEach(field -> builder.field(
-      field.nodes("name").one().need().value(),
-      field.nodes("value").one().need().value()
+      field.nodes("name").one().required().value(),
+      field.nodes("value").one().required().value()
     ));
     node.nodes("footer").one().ifPresent(footer -> {
       footer.nodes("text").one().ifPresent(text -> builder.footerText(text.value()));

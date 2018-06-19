@@ -59,8 +59,8 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
 
   @Override
   public @NonNull PatternEntry throwingParse(final @NonNull Node node) throws XMLException {
-    final Type type = this.typeParser.parse(node.nodes("type").one().need());
-    final Filter filter = this.filterParser.parse(node.nodes("filter").one().need());
+    final Type type = this.typeParser.parse(node.nodes("type").one().required());
+    final Filter filter = this.filterParser.parse(node.nodes("filter").flatMap(Node::nodes).one().required());
     final Pattern pattern = this.pattern(node);
     if(type == Type.FIND) {
       final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
@@ -72,7 +72,7 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
           final Map<String, Action> actions = new HashMap<>();
           group.elements("match")
             .forEach(match -> {
-              final Action action = this.actionParser.parse(match.nodes("apply").one().need());
+              final Action action = this.actionParser.parse(match.nodes("apply").one().required());
               match.nodes("value").forEach(value -> actions.put(value.value(), action));
             });
           return new WherePatternEntry.Where(id, actions);

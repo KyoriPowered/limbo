@@ -24,6 +24,7 @@
 package net.kyori.limbo.discord.action;
 
 import com.google.common.base.Function;
+import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class ActionParser implements Parser<Action> {
+public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<Action> implements Parser<Action> {
   private final Parser<Embed> embedParser;
 
   @Inject
@@ -45,12 +46,12 @@ public final class ActionParser implements Parser<Action> {
   }
 
   @Override
-  public @NonNull Action throwingParse(final @NonNull Node node) {
+  public @NonNull Action realThrowingParse(final @NonNull Node node) {
     final Action.Message message = node.nodes("message")
       .one()
       .map((Function<Node, Action.Message>) m -> {
-        final String content = m.nodes("content").one().map(Node::value).want().orElse("");
-        final @Nullable Embed embed = m.nodes("embed").one().map(this.embedParser::parse).want().orElse(null);
+        final String content = m.nodes("content").one().map(Node::value).optional("");
+        final @Nullable Embed embed = m.nodes("embed").one().map(this.embedParser::parse).optional(null);
         return new Action.Message() {
           @Override
           public @NonNull String content() {
@@ -62,7 +63,7 @@ public final class ActionParser implements Parser<Action> {
             return Optional.ofNullable(embed);
           }
         };
-      }).want().orElse(null);
+      }).optional(null);
     return new ActionImpl(message);
   }
 }

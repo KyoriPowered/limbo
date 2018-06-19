@@ -24,7 +24,6 @@
 package net.kyori.limbo.xml;
 
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.processor.Processor;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 
