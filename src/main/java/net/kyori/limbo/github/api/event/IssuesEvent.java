@@ -26,11 +26,13 @@ package net.kyori.limbo.github.api.event;
 import com.google.gson.annotations.SerializedName;
 import net.kyori.limbo.github.api.model.Issue;
 import net.kyori.limbo.github.api.model.Repository;
+import net.kyori.limbo.github.api.model.User;
 
 public final class IssuesEvent implements Event {
   public Action action;
   public Issue issue;
   public Repository repository;
+  public User sender;
 
   public enum Action {
     @SerializedName("assigned")

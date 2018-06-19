@@ -104,8 +104,8 @@ public final class ApplyFeature implements Listener {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
     final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
       .author(true)
-      .collaborator(this.permission.get(event.repository, event.issue.user).write())
-      .self(event.issue.user.login.equals(this.selfUser.login))
+      .collaborator(this.permission.get(event.repository, event.sender).write())
+      .self(event.sender.login.equals(this.selfUser.login))
       .get());
     this.configuration.applicators(new IssueQuery() {
       @Override
