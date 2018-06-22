@@ -1,5 +1,7 @@
 logging:
   path: 'logs'
+server:
+  port: 43596
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
@@ -10,11 +12,6 @@ spring:
 ---
 spring:
   profiles: 'dev'
-server:
-  port: 8080
 ---
 spring:
   profiles: 'prod'
-server:
-  address: '127.0.0.1'
-  port: 50696
