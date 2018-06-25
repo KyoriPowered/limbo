@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,12 +38,12 @@ import java.util.stream.StreamSupport;
 
 public final class ActionImpl implements Action {
   private final @Nullable State state;
-  private final @Nullable String comment;
+  private final @Nullable Comment comment;
   private final Set<String> addLabels;
   private final Set<String> removeLabels;
   private final @Nullable Lock lock;
 
-  ActionImpl(final @Nullable State state, final @Nullable String comment, final Set<String> addLabels, final Set<String> removeLabels, final @Nullable Lock lock) {
+  ActionImpl(final @Nullable State state, final @Nullable Comment comment, final Set<String> addLabels, final Set<String> removeLabels, final @Nullable Lock lock) {
     this.state = state;
     this.comment = comment;
     this.addLabels = addLabels;
@@ -51,7 +52,12 @@ public final class ActionImpl implements Action {
   }
 
   @Override
-  public @Nullable String comment() {
+  public @Nullable State state() {
+    return this.state;
+  }
+
+  @Override
+  public @Nullable Comment comment() {
     return this.comment;
   }
 
@@ -61,12 +67,17 @@ public final class ActionImpl implements Action {
   }
 
   @Override
-  public void apply(final Issue issue) throws IOException {
-    this.apply(issue, null);
+  public @NonNull Set<String> removeLabels() {
+    return this.removeLabels;
   }
 
   @Override
-  public void apply(final Issue issue, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException {
+  public @Nullable Lock lock() {
+    return this.lock;
+  }
+
+  @Override
+  public void apply(final Issue issue, final @Nullable Map<String, Object> comment, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException {
     if(!this.addLabels.isEmpty() || !this.removeLabels.isEmpty()) {
       if(!this.removeLabels.isEmpty()) {
         issue.labels().set(Stream.concat(
@@ -76,6 +87,9 @@ public final class ActionImpl implements Action {
       } else {
         issue.labels().add(this.addLabels);
       }
+    }
+    if(comment != null && this.comment != null) {
+      issue.comments().post(() -> this.comment.render(comment));
     }
     if(this.state != null) {
       switch(this.state) {

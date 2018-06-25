@@ -23,22 +23,68 @@
  */
 package net.kyori.limbo.github.action;
 
+import com.google.common.collect.ImmutableMap;
 import net.kyori.feature.FeatureDefinition;
 import net.kyori.igloo.v3.Issue;
+import net.kyori.limbo.util.Tokens;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 public interface Action extends FeatureDefinition {
-  @Nullable String comment();
+  @Nullable State state();
+
+  @Nullable Comment comment();
 
   @NonNull Set<String> addLabels();
 
-  void apply(final Issue issue) throws IOException;
+  @NonNull Set<String> removeLabels();
 
-  void apply(final Issue issue, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException;
+  @Nullable Lock lock();
+
+  default void apply(final Issue issue) throws IOException {
+    this.apply(issue, null, null);
+  }
+
+  default void apply(final Issue issue, final @Nullable Map<String, Object> comment) throws IOException {
+    this.apply(issue, comment, null);
+  }
+
+  default void apply(final Issue issue, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException {
+    this.apply(issue, null, source);
+  }
+
+  void apply(final Issue issue, final @Nullable Map<String, Object> comment, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException;
+
+  class Comment {
+    final String comment;
+    final Map<String, String> tokens;
+
+    Comment(final String comment, final Map<String, String> tokens) {
+      this.comment = comment;
+      this.tokens = tokens;
+    }
+
+    public String render() {
+      return this.render0(this.tokens);
+    }
+
+    public String render(final Map<String, Object> tokens) {
+      return this.render0(
+        ImmutableMap.<String, Object>builder()
+        .putAll(this.tokens)
+        .putAll(tokens)
+        .build()
+      );
+    }
+
+    private String render0(final Map<String, ?> tokens) {
+      return Tokens.format(this.comment, tokens);
+    }
+  }
 
   enum State {
     OPEN,

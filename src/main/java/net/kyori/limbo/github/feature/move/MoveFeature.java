@@ -95,16 +95,13 @@ public final class MoveFeature implements Listener {
 
       @Override
       public String body() {
-        return Tokens.format(
-          target.action.comment(),
-          ImmutableMap.of(
-            MoveToken.AUTHOR, event.issue.user.login,
-            IssueToken.BODY, event.issue.body,
-            MoveToken.SOURCE, sourceRepository.asString(),
-            MoveToken.SOURCE_ID, event.issue.number,
-            MoveToken.SOURCE_URL, event.issue.html_url
-          )
-        );
+        return target.action.comment().render(ImmutableMap.of(
+          Tokens.AUTHOR, event.issue.user.login,
+          IssueToken.BODY, event.issue.body,
+          MoveToken.SOURCE, sourceRepository.asString(),
+          MoveToken.SOURCE_ID, event.issue.number,
+          MoveToken.SOURCE_URL, event.issue.html_url
+        ));
       }
 
       @Override
@@ -127,17 +124,12 @@ public final class MoveFeature implements Listener {
       }
     });
 
-    sourceIssue.comments().post(() -> Tokens.format(
-      source.sourceAction.comment(),
-      ImmutableMap.of(
-        MoveToken.AUTHOR, event.issue.user.login,
-        MoveToken.TARGET, targetRepository.asString(),
-        MoveToken.TARGET_ID, targetIssue.number(),
-        MoveToken.TARGET_URL, targetIssue.html_url()
-      )
+    source.sourceAction.apply(sourceIssue, ImmutableMap.of(
+      Tokens.AUTHOR, event.issue.user.login,
+      MoveToken.TARGET, targetRepository.asString(),
+      MoveToken.TARGET_ID, targetIssue.number(),
+      MoveToken.TARGET_URL, targetIssue.html_url()
     ));
-
-    source.sourceAction.apply(sourceIssue);
     target.action.apply(targetIssue);
   }
 }

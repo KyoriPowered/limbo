@@ -28,7 +28,17 @@ import org.apache.commons.text.StrSubstitutor;
 import java.util.Map;
 
 public interface Tokens {
-  static String format(final String string, final Map<String, Object> tokens) {
+  String AUTHOR = "author";
+  /**
+   * The name of the repository.
+   */
+  String REPOSITORY_USER = "repository_user";
+  /**
+   * The name of the repository.
+   */
+  String REPOSITORY_NAME = "repository_name";
+
+  static String format(final String string, final Map<String, ?> tokens) {
     final StrSubstitutor text = new StrSubstitutor(tokens);
     return text.replace(string);
   }

@@ -25,6 +25,7 @@ package net.kyori.limbo.github.action;
 
 import com.google.common.base.Joiner;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
+import net.kyori.lunar.Optionals;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
@@ -34,6 +35,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,15 +69,9 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
         .optional(false),
       Action.State.CLOSE
     );
-    final @Nullable String comment = node.elements("comment")
+    final Action.@Nullable Comment comment = node.elements("comment")
       .one()
-      .map(Exceptions.rethrowFunction(content -> {
-        final Optional<Node> src = content.attribute("src").optional();
-        if(src.isPresent()) {
-          return readMessage(this.root.resolve("message").resolve(src.get().value()));
-        }
-        return content.value();
-      }))
+      .map(this::parseComment)
       .optional(null);
     final Set<String> addLabels = node.elements("label")
       .flatMap(label -> label.elements("add"))
@@ -97,6 +94,29 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       Action.Lock.UNLOCK
     );
     return new ActionImpl(state, comment, addLabels, removeLabels, lock);
+  }
+
+  private Action.Comment parseComment(final Node node) {
+    final Map<String, String> tokens = node.nodes("tokens")
+      .flatMap(Node::nodes)
+      .named("token")
+      .stream()
+      .map(Exceptions.rethrowFunction(token -> new AbstractMap.SimpleImmutableEntry<>(token.requireAttribute("name").value(), token.requireAttribute("value").value())))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    final @Nullable String comment = Optionals.first(
+      node.nodes("src")
+        .one()
+        .map(Exceptions.rethrowFunction(src -> readMessage(this.root.resolve("message").resolve(src.value()))))
+        .optional(),
+      node.nodes("value")
+        .one()
+        .map(Node::value)
+        .optional(),
+      tokens.isEmpty()
+        ? Optional.of(node.value())
+        : Optional.empty()
+    ).orElse(null);
+    return new Action.Comment(comment, tokens);
   }
 
   private static <E extends Enum<E>> @Nullable E pickOne(final boolean a, final E aResult, final boolean b, final E bResult) {
