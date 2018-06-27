@@ -29,7 +29,6 @@ import net.kyori.limbo.discord.DiscordModule;
 import net.kyori.limbo.event.EventModule;
 import net.kyori.limbo.git.GitModule;
 import net.kyori.limbo.github.GitHubModule;
-import net.kyori.limbo.gson.GsonModule;
 import net.kyori.limbo.http.HttpModule;
 import net.kyori.limbo.scheduler.SchedulerModule;
 import net.kyori.limbo.xml.XmlModule;
@@ -50,7 +49,6 @@ public final class LimboModule extends AbstractModule {
   protected void configure() {
     this.install(new EventModule());
     this.install(new GitModule());
-    this.install(new GsonModule());
     this.install(new HttpModule());
     this.install(new SchedulerModule());
     this.install(new XmlModule());

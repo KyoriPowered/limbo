@@ -60,6 +60,8 @@ dependencies {
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
   }
   compile 'org.springframework.guice:spring-guice:1.1.2.RELEASE'
+  testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0'
+  testCompile 'org.junit.jupiter:junit-jupiter-engine:5.2.0'
 }
 
 bootJar {

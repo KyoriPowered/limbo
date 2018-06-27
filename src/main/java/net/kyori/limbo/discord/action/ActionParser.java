@@ -23,7 +23,6 @@
  */
 package net.kyori.limbo.discord.action;
 
-import com.google.common.base.Function;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.xml.node.Node;
@@ -49,7 +48,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
   public @NonNull Action realThrowingParse(final @NonNull Node node) {
     final Action.Message message = node.nodes("message")
       .one()
-      .map((Function<Node, Action.Message>) m -> {
+      .map(m -> {
         final String content = m.nodes("content").one().map(Node::value).optional("");
         final @Nullable Embed embed = m.nodes("embed").one().map(this.embedParser::parse).optional(null);
         return new Action.Message() {
@@ -63,7 +62,8 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
             return Optional.ofNullable(embed);
           }
         };
-      }).optional(null);
+      })
+      .optional(null);
     return new ActionImpl(message);
   }
 }

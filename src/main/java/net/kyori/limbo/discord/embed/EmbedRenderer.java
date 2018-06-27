@@ -30,12 +30,20 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public interface EmbedRenderer {
+  static Embed render(final Embed.Builder builder, final Embed embed, final UnaryOperator<String> renderer) {
+    return render(builder, embed, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer);
+  }
+
   static Embed render(final Embed embed, final UnaryOperator<String> renderer) {
     return render(embed, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer);
   }
 
   static Embed render(final Embed embed, final UnaryOperator<String> title, final UnaryOperator<String> description, final UnaryOperator<String> url, final UnaryOperator<String> authorName, final UnaryOperator<String> authorUrl, final UnaryOperator<String> authorIcon, final UnaryOperator<String> imageUrl, final UnaryOperator<String> thumbnailUrl, final UnaryOperator<String> fieldName, final UnaryOperator<String> fieldValue, final UnaryOperator<String> footerText, final UnaryOperator<String> footerIcon) {
     final Embed.Builder builder = Embed.builder();
+    return render(builder, embed, title, description, url, authorName, authorUrl, authorIcon, imageUrl, thumbnailUrl, fieldName, fieldValue, footerText, footerIcon);
+  }
+
+  static Embed render(final Embed.Builder builder, final Embed embed, final UnaryOperator<String> title, final UnaryOperator<String> description, final UnaryOperator<String> url, final UnaryOperator<String> authorName, final UnaryOperator<String> authorUrl, final UnaryOperator<String> authorIcon, final UnaryOperator<String> imageUrl, final UnaryOperator<String> thumbnailUrl, final UnaryOperator<String> fieldName, final UnaryOperator<String> fieldValue, final UnaryOperator<String> footerText, final UnaryOperator<String> footerIcon) {
     apply(embed.title(), title, builder::title);
     apply(embed.description(), description, builder::description);
     apply(embed.url(), url, builder::url);
@@ -51,9 +59,18 @@ public interface EmbedRenderer {
     embed.fields().forEach(field -> builder.field(fieldName.apply(field.name()), fieldValue.apply(field.value())));
     embed.footer().ifPresent(footer -> {
       apply(footer.text(), footerText, builder::footerText);
-      apply(footer.icon(), footerIcon, builder::authorIcon);
+      apply(footer.icon(), footerIcon, builder::footerIcon);
     });
     return builder.build();
+  }
+
+  static Embed edited(final Embed original, final Embed source) {
+    return edited(original, source, UnaryOperator.identity());
+  }
+
+  static Embed edited(final Embed original, final Embed source, final UnaryOperator<String> renderer) {
+    final Embed.Builder builder = original.toBuilder();
+    return render(builder, source, renderer);
   }
 
   static void apply(final Optional<String> oldValue, final UnaryOperator<String> newValue, final Consumer<String> setter) {

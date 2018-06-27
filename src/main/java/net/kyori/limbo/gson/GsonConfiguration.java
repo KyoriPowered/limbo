@@ -23,25 +23,16 @@
  */
 package net.kyori.limbo.gson;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Provides;
 import net.kyori.cereal.Document;
 import net.kyori.cereal.DocumentSerializer;
-import net.kyori.violet.AbstractModule;
+import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
+import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Singleton;
-
-public final class GsonModule extends AbstractModule {
-  @Provides
-  GsonBuilder gsonBuilder() {
-    return new GsonBuilder()
-      .registerTypeHierarchyAdapter(Document.class, DocumentSerializer.both());
-  }
-
-  @Provides
-  @Singleton
-  Gson gson(final GsonBuilder builder) {
-    return builder.create();
+@Configuration
+/* package */ class GsonConfiguration implements GsonBuilderCustomizer {
+  @Override
+  public void customize(final GsonBuilder builder) {
+    builder.registerTypeHierarchyAdapter(Document.class, DocumentSerializer.both());
   }
 }
