@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.gir;
+package net.kyori.limbo.git.issue;
 
-/* package */ interface Token {
-  String TAG = "tag";
+public interface IssueTokens {
+  String BODY = "body";
+  String NUMBER = "number";
+  String TITLE = "title";
+  String URL = "url";
 }

@@ -35,7 +35,7 @@ import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.embed.EmbedRenderer;
 import net.kyori.limbo.event.Listener;
-import net.kyori.limbo.git.issue.IssueToken;
+import net.kyori.limbo.git.issue.IssueTokens;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.lunar.Optionals;
@@ -72,11 +72,11 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
         message.content(),
         message.embed()
           .map(embed -> EmbedRenderer.render(embed, string -> Tokens.format(string, ImmutableMap.of(
-            IssueToken.BODY, StringUtils.truncate(issue.body(), Embed.MAX_DESCRIPTION_LENGTH),
-            IssueToken.NUMBER, issue.number(),
-            Token.TAG, search.tag,
-            IssueToken.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2),
-            IssueToken.URL, issue.html_url()
+            IssueTokens.BODY, StringUtils.truncate(issue.body(), Embed.MAX_DESCRIPTION_LENGTH),
+            IssueTokens.NUMBER, issue.number(),
+            GitHubIssueRefTokens.TAG, search.tag,
+            IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2),
+            IssueTokens.URL, issue.html_url()
           ))))
           .orElse(null)
       ));

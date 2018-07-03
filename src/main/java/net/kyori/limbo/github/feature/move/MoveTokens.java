@@ -21,17 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.util;
+package net.kyori.limbo.github.feature.move;
 
-import org.apache.commons.text.StrSubstitutor;
-
-import java.util.Map;
-
-public interface Tokens {
-  String AUTHOR = "author";
-
-  static String format(final String string, final Map<String, ?> tokens) {
-    final StrSubstitutor text = new StrSubstitutor(tokens);
-    return text.replace(string);
-  }
+/* package */ interface MoveTokens {
+  String SOURCE = "source";
+  String SOURCE_ID = "source_id";
+  String SOURCE_URL = "source_url";
+  String TARGET = "target";
+  String TARGET_ID = "target_id";
+  String TARGET_URL = "target_url";
 }

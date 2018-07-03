@@ -40,11 +40,26 @@ public final class IssuesEvent implements Event {
     @SerializedName("unassigned")
     UNASSIGNED,
     @SerializedName("labeled")
-    LABELED,
+    LABELED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent(final boolean pullRequest) {
+        return pullRequest ? net.kyori.limbo.git.event.Event.PULL_REQUEST_LABEL : net.kyori.limbo.git.event.Event.ISSUE_LABEL;
+      }
+    },
     @SerializedName("unlabeled")
-    UNLABELED,
+    UNLABELED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent(final boolean pullRequest) {
+        return pullRequest ? net.kyori.limbo.git.event.Event.PULL_REQUEST_UNLABEL : net.kyori.limbo.git.event.Event.ISSUE_UNLABEL;
+      }
+    },
     @SerializedName("opened")
-    OPENED,
+    OPENED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent(final boolean pullRequest) {
+        return net.kyori.limbo.git.event.Event.ISSUE_OPEN;
+      }
+    },
     @SerializedName("edited")
     EDITED,
     @SerializedName("milestoned")
@@ -52,8 +67,17 @@ public final class IssuesEvent implements Event {
     @SerializedName("demilestoned")
     DEMILESTONED,
     @SerializedName("closed")
-    CLOSED,
+    CLOSED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent(final boolean pullRequest) {
+        return net.kyori.limbo.git.event.Event.ISSUE_CLOSE;
+      }
+    },
     @SerializedName("reopened")
     REOPENED;
+
+    public net.kyori.limbo.git.event.Event asEvent(final boolean pullRequest) {
+      throw new UnsupportedOperationException(this.name());
+    }
   }
 }

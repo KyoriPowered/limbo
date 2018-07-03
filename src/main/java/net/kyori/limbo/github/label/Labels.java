@@ -34,10 +34,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public interface Labels {
-  static Collection<String> labels(final Issue issue) {
-    final Supplier<Collection<String>> supplier = Suppliers.memoize(Exceptions.rethrowSupplier(() -> StreamSupport.stream(issue.labels().all().spliterator(), false)
+  static Supplier<Collection<String>> labels(final Issue issue) {
+    return Suppliers.memoize(Exceptions.rethrowSupplier(() -> StreamSupport.stream(issue.labels().all().spliterator(), false)
       .map(Label::name)
       .collect(Collectors.toSet()))::get);
-    return supplier.get();
   }
 }

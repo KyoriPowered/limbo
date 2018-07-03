@@ -21,11 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.issue;
+package net.kyori.limbo.git;
 
-public interface IssueToken {
-  String BODY = "body";
-  String NUMBER = "number";
-  String TITLE = "title";
-  String URL = "url";
+public interface GitTokens {
+  /**
+   * The name of the repository.
+   */
+  String REPOSITORY_USER = "repository_user";
+  /**
+   * The name of the repository.
+   */
+  String REPOSITORY_NAME = "repository_name";
 }

@@ -29,6 +29,7 @@ import net.kyori.event.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.limbo.event.Listener;
+import net.kyori.limbo.git.GitTokens;
 import net.kyori.limbo.git.actor.ActorType;
 import net.kyori.limbo.git.event.Event;
 import net.kyori.limbo.git.repository.RepositoryId;
@@ -42,6 +43,7 @@ import net.kyori.limbo.github.issue.IssueQuery;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -71,43 +73,27 @@ public final class ApplyFeature implements Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.sender.login.equals(event.issue.user.login))
-      .collaborator(this.permission.get(event.repository, event.sender).write())
-      .self(event.sender.login.equals(this.selfUser.login))
-      .get());
+
     final BulkActions applicators = new BulkActions(issue);
-    this.configuration.applicators(new IssueQuery() {
-      @Override
-      public Set<ActorType> actorTypes() {
-        return actorTypes.get();
-      }
-
-      @Override
-      public Event event() {
-        switch(event.action) {
-          case OPENED:
-            return Event.ISSUE_OPEN;
-          case CLOSED:
-            return Event.ISSUE_CLOSE;
-        }
-        throw new IllegalArgumentException(event.action.name());
-      }
-
-      @Override
-      public Collection<String> labels() {
-        return Labels.labels(issue);
-      }
-
-      @Override
-      public RepositoryId repository() {
-        return event.repository;
-      }
-    }, event.issue.body).forEach(applicators::add);
+    applicators.addAll(
+      this.configuration.applicators(
+        new IssueQueryImpl(
+          event.repository,
+          event.action.asEvent(event.issue.pull_request != null),
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.sender, event.issue.user)
+            .collaborator(this.permission.get(event.repository, event.sender).write())
+            .self(event.sender, this.selfUser)
+            .get()),
+          Labels.labels(issue)
+        ),
+        event.issue.body
+      )
+    );
     applicators.apply(ImmutableMap.of(
       Tokens.AUTHOR, event.issue.user.login,
-      Tokens.REPOSITORY_USER, event.repository.owner,
-      Tokens.REPOSITORY_NAME, event.repository.name
+      GitTokens.REPOSITORY_USER, event.repository.owner,
+      GitTokens.REPOSITORY_NAME, event.repository.name
     ));
   }
 
@@ -117,43 +103,27 @@ public final class ApplyFeature implements Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.sender.login.equals(event.issue.user.login))
-      .collaborator(this.permission.get(event.repository, event.sender).write())
-      .self(event.sender.login.equals(this.selfUser.login))
-      .get());
+
     final BulkActions applicators = new BulkActions(issue);
-    this.configuration.applicators(new IssueQuery() {
-      @Override
-      public Set<ActorType> actorTypes() {
-        return actorTypes.get();
-      }
-
-      @Override
-      public Event event() {
-        switch(event.action) {
-          case LABELED:
-            return event.issue.pull_request != null ? Event.PULL_REQUEST_LABEL : Event.ISSUE_LABEL;
-          case UNLABELED:
-            return event.issue.pull_request != null ? Event.PULL_REQUEST_UNLABEL : Event.ISSUE_UNLABEL;
-        }
-        throw new IllegalArgumentException(event.action.name());
-      }
-
-      @Override
-      public Collection<String> labels() {
-        return Labels.labels(issue);
-      }
-
-      @Override
-      public RepositoryId repository() {
-        return event.repository;
-      }
-    }, event.issue.body).forEach(applicators::add);
+    applicators.addAll(
+      this.configuration.applicators(
+        new IssueQueryImpl(
+          event.repository,
+          event.action.asEvent(event.issue.pull_request != null),
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.sender, event.issue.user)
+            .collaborator(this.permission.get(event.repository, event.sender).write())
+            .self(event.sender, this.selfUser)
+            .get()),
+          Labels.labels(issue)
+        ),
+        event.issue.body
+      )
+    );
     applicators.apply(ImmutableMap.of(
       Tokens.AUTHOR, event.issue.user.login,
-      Tokens.REPOSITORY_USER, event.repository.owner,
-      Tokens.REPOSITORY_NAME, event.repository.name
+      GitTokens.REPOSITORY_USER, event.repository.owner,
+      GitTokens.REPOSITORY_NAME, event.repository.name
     ));
   }
 
@@ -163,117 +133,115 @@ public final class ApplyFeature implements Listener {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
-    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.sender.login.equals(event.pull_request.user.login))
-      .collaborator(this.permission.get(event.repository, event.sender).write())
-      .self(event.sender.login.equals(this.selfUser.login))
-      .get());
+
     final BulkActions applicators = new BulkActions(issue);
-    this.configuration.applicators(new IssueQuery() {
-      @Override
-      public Set<ActorType> actorTypes() {
-        return actorTypes.get();
-      }
-
-      @Override
-      public Event event() {
-        switch(event.action) {
-          case OPENED:
-            return Event.PULL_REQUEST_OPEN;
-          case CLOSED:
-            return Event.PULL_REQUEST_CLOSE;
-        }
-        throw new IllegalArgumentException(event.action.name());
-      }
-
-      @Override
-      public Collection<String> labels() {
-        return Labels.labels(issue);
-      }
-
-      @Override
-      public RepositoryId repository() {
-        return event.repository;
-      }
-    }, event.pull_request.body).forEach(applicators::add);
+    applicators.addAll(
+      this.configuration.applicators(
+        new IssueQueryImpl(
+          event.repository,
+          event.action.asEvent(),
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.sender, event.pull_request.user)
+            .collaborator(this.permission.get(event.repository, event.sender).write())
+            .self(event.sender, this.selfUser)
+            .get()),
+          Labels.labels(issue)
+        ),
+        event.pull_request.body
+      )
+    );
     applicators.apply(ImmutableMap.of(
       Tokens.AUTHOR, event.pull_request.user.login,
-      Tokens.REPOSITORY_USER, event.repository.owner,
-      Tokens.REPOSITORY_NAME, event.repository.name
+      GitTokens.REPOSITORY_USER, event.repository.owner,
+      GitTokens.REPOSITORY_NAME, event.repository.name
     ));
   }
 
   @Subscribe
   public void comment(final IssueCommentEvent event) throws IOException {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.issue.user.equals(event.comment.user))
-      .collaborator(this.permission.get(event.repository, event.comment.user).write())
-      .self(event.comment.user.login.equals(this.selfUser.login))
-      .get());
+
     final BulkActions applicators = new BulkActions(issue);
-    this.configuration.applicators(new IssueQuery() {
-      @Override
-      public Set<ActorType> actorTypes() {
-        return actorTypes.get();
-      }
-
-      @Override
-      public Event event() {
-        return event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT;
-      }
-
-      @Override
-      public Collection<String> labels() {
-        return Labels.labels(issue);
-      }
-
-      @Override
-      public RepositoryId repository() {
-        return event.repository;
-      }
-    }, event.comment.body).forEach(applicators::add);
+    applicators.addAll(
+      this.configuration.applicators(
+        new IssueQueryImpl(
+          event.repository,
+          event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT,
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.issue.user, event.comment.user)
+            .collaborator(this.permission.get(event.repository, event.comment.user).write())
+            .self(event.comment.user, this.selfUser)
+            .get()),
+          Labels.labels(issue)
+        ),
+        event.comment.body
+      )
+    );
     applicators.apply(ImmutableMap.of(
       Tokens.AUTHOR, event.issue.user.login,
-      Tokens.REPOSITORY_USER, event.repository.owner,
-      Tokens.REPOSITORY_NAME, event.repository.name
+      GitTokens.REPOSITORY_USER, event.repository.owner,
+      GitTokens.REPOSITORY_NAME, event.repository.name
     ));
   }
 
   @Subscribe
   public void review(final PullRequestReviewEvent event) throws IOException {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
-    final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.sender.equals(event.review.user))
-      .collaborator(this.permission.get(event.repository, event.sender).write())
-      .self(event.sender.login.equalsIgnoreCase(this.selfUser.login))
-      .get());
+
     final BulkActions applicators = new BulkActions(issue);
-    this.configuration.applicators(new IssueQuery() {
-      @Override
-      public Set<ActorType> actorTypes() {
-        return actorTypes.get();
-      }
-
-      @Override
-      public Event event() {
-        return event.action.asEvent();
-      }
-
-      @Override
-      public Collection<String> labels() {
-        return Labels.labels(issue);
-      }
-
-      @Override
-      public RepositoryId repository() {
-        return event.repository;
-      }
-    }, event.review.body).forEach(applicators::add);
+    applicators.addAll(
+      this.configuration.applicators(
+        new IssueQueryImpl(
+          event.repository,
+          event.action.asEvent(),
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.sender, event.review.user)
+            .collaborator(this.permission.get(event.repository, event.sender).write())
+            .self(event.sender, this.selfUser)
+            .get()),
+          Labels.labels(issue)
+        ),
+        event.review.body
+      )
+    );
     applicators.apply(ImmutableMap.of(
       Tokens.AUTHOR, event.pull_request.user.login,
-      Tokens.REPOSITORY_USER, event.repository.owner,
-      Tokens.REPOSITORY_NAME, event.repository.name
+      GitTokens.REPOSITORY_USER, event.repository.owner,
+      GitTokens.REPOSITORY_NAME, event.repository.name
     ));
+  }
+
+  final class IssueQueryImpl implements IssueQuery {
+    private final RepositoryId repository;
+    private final Event event;
+    private final Supplier<Set<ActorType>> actorTypes;
+    private final Supplier<Collection<String>> labels;
+
+    IssueQueryImpl(final RepositoryId repository, final Event event, final Supplier<Set<ActorType>> actorTypes, final Supplier<Collection<String>> labels) {
+      this.repository = repository;
+      this.event = event;
+      this.actorTypes = actorTypes;
+      this.labels = labels;
+    }
+
+    @Override
+    public @NonNull RepositoryId repository() {
+      return this.repository;
+    }
+
+    @Override
+    public @NonNull Event event() {
+      return this.event;
+    }
+
+    @Override
+    public @NonNull Set<ActorType> actorTypes() {
+      return this.actorTypes.get();
+    }
+
+    @Override
+    public Collection<String> labels() {
+      return this.labels.get();
+    }
   }
 }

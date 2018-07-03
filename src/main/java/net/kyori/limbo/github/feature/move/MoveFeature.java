@@ -29,7 +29,7 @@ import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.limbo.event.Listener;
-import net.kyori.limbo.git.issue.IssueToken;
+import net.kyori.limbo.git.issue.IssueTokens;
 import net.kyori.limbo.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.github.api.model.Repository;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
@@ -97,10 +97,10 @@ public final class MoveFeature implements Listener {
       public String body() {
         return target.action.comment().render(ImmutableMap.of(
           Tokens.AUTHOR, event.issue.user.login,
-          IssueToken.BODY, event.issue.body,
-          MoveToken.SOURCE, sourceRepository.asString(),
-          MoveToken.SOURCE_ID, event.issue.number,
-          MoveToken.SOURCE_URL, event.issue.html_url
+          IssueTokens.BODY, event.issue.body,
+          MoveTokens.SOURCE, sourceRepository.asString(),
+          MoveTokens.SOURCE_ID, event.issue.number,
+          MoveTokens.SOURCE_URL, event.issue.html_url
         ));
       }
 
@@ -126,9 +126,9 @@ public final class MoveFeature implements Listener {
 
     source.sourceAction.apply(sourceIssue, ImmutableMap.of(
       Tokens.AUTHOR, event.issue.user.login,
-      MoveToken.TARGET, targetRepository.asString(),
-      MoveToken.TARGET_ID, targetIssue.number(),
-      MoveToken.TARGET_URL, targetIssue.html_url()
+      MoveTokens.TARGET, targetRepository.asString(),
+      MoveTokens.TARGET_ID, targetIssue.number(),
+      MoveTokens.TARGET_URL, targetIssue.html_url()
     ));
     target.action.apply(targetIssue);
   }

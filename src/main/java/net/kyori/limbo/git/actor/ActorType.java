@@ -23,6 +23,8 @@
  */
 package net.kyori.limbo.git.actor;
 
+import net.kyori.limbo.github.api.model.User;
+
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -43,7 +45,11 @@ public enum ActorType {
   public static class Collector {
     private final Set<ActorType> types = EnumSet.noneOf(ActorType.class);
 
-    public Collector author(final boolean author) {
+    public Collector author(final User a, final User b) {
+      return this.author(a.equals(b));
+    }
+
+    private Collector author(final boolean author) {
       if(author) {
         this.types.add(AUTHOR);
       }
@@ -57,7 +63,11 @@ public enum ActorType {
       return this;
     }
 
-    public Collector self(final boolean self) {
+    public Collector self(final User a, final User b) {
+      return this.self(a.equals(b));
+    }
+
+    private Collector self(final boolean self) {
       if(self) {
         this.types.add(SELF);
       }

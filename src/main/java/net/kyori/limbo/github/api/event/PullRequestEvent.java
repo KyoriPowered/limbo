@@ -48,12 +48,26 @@ public final class PullRequestEvent implements Event {
     @SerializedName("unlabeled")
     UNLABELED,
     @SerializedName("opened")
-    OPENED,
+    OPENED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent() {
+        return net.kyori.limbo.git.event.Event.PULL_REQUEST_OPEN;
+      }
+    },
     @SerializedName("edited")
     EDITED,
     @SerializedName("closed")
-    CLOSED,
+    CLOSED {
+      @Override
+      public net.kyori.limbo.git.event.Event asEvent() {
+        return net.kyori.limbo.git.event.Event.PULL_REQUEST_CLOSE;
+      }
+    },
     @SerializedName("reopened")
     REOPENED;
+
+    public net.kyori.limbo.git.event.Event asEvent() {
+      throw new UnsupportedOperationException(this.name());
+    }
   }
 }

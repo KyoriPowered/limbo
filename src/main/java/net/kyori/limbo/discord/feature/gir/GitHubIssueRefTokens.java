@@ -21,13 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.move;
+package net.kyori.limbo.discord.feature.gir;
 
-/* package */ interface MoveToken {
-  String SOURCE = "source";
-  String SOURCE_ID = "source_id";
-  String SOURCE_URL = "source_url";
-  String TARGET = "target";
-  String TARGET_ID = "target_id";
-  String TARGET_URL = "target_url";
+/* package */ interface GitHubIssueRefTokens {
+  String TAG = "tag";
 }

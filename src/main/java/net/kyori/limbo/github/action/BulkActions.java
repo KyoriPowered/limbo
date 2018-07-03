@@ -45,7 +45,12 @@ public class BulkActions {
   private final List<Action> actions = new ArrayList<>();
 
   public BulkActions(final Issue issue) {
-    this(issue, null);
+    this(issue, (net.kyori.limbo.github.api.model.Issue) null);
+  }
+
+  public BulkActions(final Issue issue, final List<Action> actions) {
+    this(issue, (net.kyori.limbo.github.api.model.Issue) null);
+    this.actions.addAll(actions);
   }
 
   public BulkActions(final Issue issue, final net.kyori.limbo.github.api.model.@Nullable Issue source) {
@@ -55,6 +60,10 @@ public class BulkActions {
 
   public void add(final Action action) {
     this.actions.add(action);
+  }
+
+  public void addAll(final List<Action> actions) {
+    this.actions.addAll(actions);
   }
 
   public void apply(final Map<String, Object> commentTokens) throws IOException {
