@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public final class WherePatternEntry extends PatternEntry {
   private final List<Where> where;
 
-  WherePatternEntry(final Filter filter, final Pattern pattern, final List<Where> where) {
+  /* package */ WherePatternEntry(final Filter filter, final Pattern pattern, final List<Where> where) {
     super(filter, pattern);
     this.where = where;
   }

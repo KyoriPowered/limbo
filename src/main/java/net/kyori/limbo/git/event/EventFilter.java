@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public final class EventFilter implements TypedFilter<EventQuery> {
   private final Event event;
 
-  public EventFilter(final Event event) {
+  /* package */ EventFilter(final Event event) {
     this.event = event;
   }
 

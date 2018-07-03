@@ -23,6 +23,6 @@
  */
 package net.kyori.limbo.discord.feature.gir;
 
-interface Token {
+/* package */ interface Token {
   String TAG = "tag";
 }

@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public final class FindPatternEntry extends PatternEntry {
   private final Action action;
 
-  FindPatternEntry(final Filter filter, final Pattern pattern, final Action action) {
+  /* package */ FindPatternEntry(final Filter filter, final Pattern pattern, final Action action) {
     super(filter, pattern);
     this.action = action;
   }

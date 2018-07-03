@@ -23,8 +23,7 @@
  */
 package net.kyori.limbo.github.feature.move;
 
-interface MoveToken {
-  String AUTHOR = "author";
+/* package */ interface MoveToken {
   String SOURCE = "source";
   String SOURCE_ID = "source_id";
   String SOURCE_URL = "source_url";

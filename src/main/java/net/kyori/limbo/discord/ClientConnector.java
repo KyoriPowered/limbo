@@ -29,7 +29,7 @@ import net.kyori.membrane.facet.Connectable;
 
 import javax.inject.Inject;
 
-final class ClientConnector implements Activatable, Connectable {
+/* package */ final class ClientConnector implements Activatable, Connectable {
   private final DiscordConfiguration discord;
   private final Client client;
 

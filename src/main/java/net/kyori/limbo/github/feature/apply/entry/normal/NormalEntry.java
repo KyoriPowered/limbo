@@ -32,7 +32,7 @@ import java.util.List;
 public final class NormalEntry extends Entry.Impl {
   private final Action action;
 
-  NormalEntry(final Filter filter, final Action action) {
+  /* package */ NormalEntry(final Filter filter, final Action action) {
     super(filter);
     this.action = action;
   }

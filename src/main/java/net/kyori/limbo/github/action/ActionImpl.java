@@ -36,14 +36,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class ActionImpl implements Action {
+/* package */ final class ActionImpl implements Action {
   private final @Nullable State state;
   private final @Nullable Comment comment;
   private final Set<String> addLabels;
   private final Set<String> removeLabels;
   private final @Nullable Lock lock;
 
-  ActionImpl(final @Nullable State state, final @Nullable Comment comment, final Set<String> addLabels, final Set<String> removeLabels, final @Nullable Lock lock) {
+  /* package */ ActionImpl(final @Nullable State state, final @Nullable Comment comment, final Set<String> addLabels, final Set<String> removeLabels, final @Nullable Lock lock) {
     this.state = state;
     this.comment = comment;
     this.addLabels = addLabels;

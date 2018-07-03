@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public final class LabelFilter implements TypedFilter<LabelQuery> {
   private final String label;
 
-  public LabelFilter(final String label) {
+  /* package */ LabelFilter(final String label) {
     this.label = label;
   }
 

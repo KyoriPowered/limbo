@@ -35,7 +35,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 @Singleton
-final class ApplyFeatureConfiguration {
+/* package */ final class ApplyFeatureConfiguration {
   final Collection<Entry> entries = new ArrayList<>();
 
   public List<Action> applicators(final FilterQuery query, final String string) {

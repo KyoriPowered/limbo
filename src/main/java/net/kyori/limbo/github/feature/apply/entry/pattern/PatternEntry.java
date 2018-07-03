@@ -33,7 +33,7 @@ public abstract class PatternEntry extends Entry.Impl {
   private static final char ESCAPE_CHARACTER = '`';
   final Pattern pattern;
 
-  PatternEntry(final Filter filter, final Pattern pattern) {
+  /* package */ PatternEntry(final Filter filter, final Pattern pattern) {
     super(filter);
     this.pattern = pattern;
   }

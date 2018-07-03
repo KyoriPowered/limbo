@@ -36,10 +36,10 @@ import java.util.regex.Pattern;
 import javax.inject.Singleton;
 
 @Singleton
-final class MoveConfiguration {
+/* package */ final class MoveConfiguration {
   final Collection<Entry> entries = new ArrayList<>();
 
-  @Nullable Entry source(final net.kyori.igloo.v3.RepositoryId source) {
+  /* package */ @Nullable Entry source(final net.kyori.igloo.v3.RepositoryId source) {
     for(final Entry entry : this.entries) {
       if(entry.sourceRepository.equals(source)) {
         return entry;
@@ -48,20 +48,20 @@ final class MoveConfiguration {
     return null;
   }
 
-  static class Entry {
-    final Pattern pattern;
-    final RepositoryId sourceRepository;
-    final Action sourceAction;
-    final List<Target> targets;
+  /* package */ static class Entry {
+    /* package */ final Pattern pattern;
+    /* package */ final RepositoryId sourceRepository;
+    /* package */ final Action sourceAction;
+    /* package */ final List<Target> targets;
 
-    Entry(final Pattern pattern, final RepositoryId sourceRepository, final Action sourceAction, final List<Target> targets) {
+    /* package */ Entry(final Pattern pattern, final RepositoryId sourceRepository, final Action sourceAction, final List<Target> targets) {
       this.pattern = pattern;
       this.sourceRepository = sourceRepository;
       this.sourceAction = sourceAction;
       this.targets = targets;
     }
 
-    @Nullable Target target(final String comment) {
+    /* package */ @Nullable Target target(final String comment) {
       final Matcher matcher = this.pattern.matcher(comment);
       if(matcher.matches()) {
         final String tag = matcher.group(1);
@@ -80,11 +80,11 @@ final class MoveConfiguration {
     }
   }
 
-  static class Target {
-    final RepositoryId repository;
-    final Action action;
+  /* package */ static class Target {
+    /* package */ final RepositoryId repository;
+    /* package */ final Action action;
 
-    Target(final RepositoryId repository, final Action action) {
+    /* package */ Target(final RepositoryId repository, final Action action) {
       this.repository = repository;
       this.action = action;
     }

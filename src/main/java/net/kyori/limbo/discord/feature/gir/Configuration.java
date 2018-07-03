@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import javax.inject.Singleton;
 
 @Singleton
-final class Configuration {
+/* package */ final class Configuration {
   final List<Search> searches = new ArrayList<>();
   @MonotonicNonNull Action openAction;
   @MonotonicNonNull Action mergedAction;

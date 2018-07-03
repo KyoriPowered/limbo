@@ -28,10 +28,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
 
-public final class ActionImpl implements Action {
+/* package */ final class ActionImpl implements Action {
   private final @Nullable Message message;
 
-  ActionImpl(final @Nullable Message message) {
+  /* package */ ActionImpl(final @Nullable Message message) {
     this.message = message;
   }
 

@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public final class ActorTypeFilter implements TypedFilter<ActorTypeQuery> {
   private final ActorType actor;
 
-  public ActorTypeFilter(final ActorType actor) {
+  /* package */ ActorTypeFilter(final ActorType actor) {
     this.actor = actor;
   }
 

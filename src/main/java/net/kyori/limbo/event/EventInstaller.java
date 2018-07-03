@@ -29,7 +29,7 @@ import net.kyori.membrane.facet.internal.Facets;
 
 import javax.inject.Inject;
 
-final class EventInstaller implements Enableable {
+/* package */ final class EventInstaller implements Enableable {
   private final EventBus<Object, Object> bus;
   private final Facets facets;
 
