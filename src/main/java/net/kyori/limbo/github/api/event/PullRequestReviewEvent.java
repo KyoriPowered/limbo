@@ -27,12 +27,14 @@ import com.google.gson.annotations.SerializedName;
 import net.kyori.limbo.github.api.model.PullRequest;
 import net.kyori.limbo.github.api.model.PullRequestReview;
 import net.kyori.limbo.github.api.model.Repository;
+import net.kyori.limbo.github.api.model.User;
 
 public final class PullRequestReviewEvent implements Event {
   public Action action;
   public PullRequest pull_request;
   public PullRequestReview review;
   public Repository repository;
+  public User sender;
 
   public enum Action {
     @SerializedName("dismissed")

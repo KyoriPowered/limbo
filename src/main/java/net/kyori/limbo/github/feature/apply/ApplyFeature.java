@@ -73,8 +73,8 @@ public final class ApplyFeature implements Listener {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
     final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
       .author(event.sender.login.equals(event.issue.user.login))
-      .collaborator(this.permission.get(event.repository, event.issue.user).write())
-      .self(event.issue.user.login.equals(this.selfUser.login))
+      .collaborator(this.permission.get(event.repository, event.sender).write())
+      .self(event.sender.login.equals(this.selfUser.login))
       .get());
     final BulkActions applicators = new BulkActions(issue);
     this.configuration.applicators(new IssueQuery() {
@@ -158,15 +158,15 @@ public final class ApplyFeature implements Listener {
   }
 
   @Subscribe
-  public void open(final PullRequestEvent event) throws IOException {
-    if(event.action != PullRequestEvent.Action.OPENED) {
+  public void openClose(final PullRequestEvent event) throws IOException {
+    if(event.action != PullRequestEvent.Action.CLOSED && event.action != PullRequestEvent.Action.OPENED) {
       return;
     }
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
     final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(true)
-      .collaborator(this.permission.get(event.repository, event.pull_request.user).write())
-      .self(event.pull_request.user.login.equals(this.selfUser.login))
+      .author(event.sender.login.equals(event.pull_request.user.login))
+      .collaborator(this.permission.get(event.repository, event.sender).write())
+      .self(event.sender.login.equals(this.selfUser.login))
       .get());
     final BulkActions applicators = new BulkActions(issue);
     this.configuration.applicators(new IssueQuery() {
@@ -177,7 +177,13 @@ public final class ApplyFeature implements Listener {
 
       @Override
       public Event event() {
-        return Event.PULL_REQUEST_OPEN;
+        switch(event.action) {
+          case OPENED:
+            return Event.PULL_REQUEST_OPEN;
+          case CLOSED:
+            return Event.PULL_REQUEST_CLOSE;
+        }
+        throw new IllegalArgumentException(event.action.name());
       }
 
       @Override
@@ -238,9 +244,9 @@ public final class ApplyFeature implements Listener {
   public void review(final PullRequestReviewEvent event) throws IOException {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
     final Supplier<Set<ActorType>> actorTypes = Suppliers.memoize(() -> new ActorType.Collector()
-      .author(event.pull_request.user.equals(event.review.user))
-      .collaborator(this.permission.get(event.repository, event.review.user).write())
-      .self(event.review.user.login.equalsIgnoreCase(this.selfUser.login))
+      .author(event.sender.equals(event.review.user))
+      .collaborator(this.permission.get(event.repository, event.sender).write())
+      .self(event.sender.login.equalsIgnoreCase(this.selfUser.login))
       .get());
     final BulkActions applicators = new BulkActions(issue);
     this.configuration.applicators(new IssueQuery() {
