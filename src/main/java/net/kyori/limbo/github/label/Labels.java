@@ -23,20 +23,26 @@
  */
 package net.kyori.limbo.github.label;
 
-import com.google.common.base.Suppliers;
-import net.kyori.igloo.v3.Issue;
-import net.kyori.igloo.v3.Label;
-import net.kyori.lunar.exception.Exceptions;
+import net.kyori.limbo.github.api.model.Issue;
+import net.kyori.limbo.github.api.model.Label;
+import net.kyori.limbo.github.api.model.PullRequest;
 
 import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public interface Labels {
-  static Supplier<Collection<String>> labels(final Issue issue) {
-    return Suppliers.memoize(Exceptions.rethrowSupplier(() -> StreamSupport.stream(issue.labels().all().spliterator(), false)
-      .map(Label::name)
-      .collect(Collectors.toSet()))::get);
+  static Collection<String> labels(final Issue issue) {
+    return labels(issue.labels);
+  }
+
+  static Collection<String> labels(final PullRequest pr) {
+    return labels(pr.labels);
+  }
+
+  static Collection<String> labels(final List<Label> labels) {
+    return labels.stream()
+      .map(label -> label.name)
+      .collect(Collectors.toSet());
   }
 }

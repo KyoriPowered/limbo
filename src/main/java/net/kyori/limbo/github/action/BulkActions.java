@@ -31,6 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,14 +67,14 @@ public class BulkActions {
     this.actions.addAll(actions);
   }
 
-  public void apply(final Map<String, Object> commentTokens) throws IOException {
-    this.applyLabels();
+  public void apply(final Context context, final Map<String, Object> commentTokens) throws IOException {
+    this.applyLabels(context.existingLabels());
     this.applyComment(commentTokens);
     this.applyState();
     this.applyLock();
   }
 
-  private void applyLabels() throws IOException {
+  private void applyLabels(final Collection<String> existing) throws IOException {
     final class Labels {
       private final Set<String> add = BulkActions.this.actions.stream()
         .flatMap(action -> action.addLabels().stream())
@@ -91,11 +92,17 @@ public class BulkActions {
         this.add.removeAll(this.remove);
         this.remove.removeAll(add);
       }
+
+      private void removeExisting() {
+        this.add.removeAll(existing);
+        this.remove.removeAll(existing);
+      }
     }
 
     final Labels labels = new Labels();
     if(!labels.isEmpty()) {
       labels.removeConflicts();
+      labels.removeExisting();
 
       if(!labels.remove.isEmpty()) {
         this.issue.labels().set(
@@ -158,5 +165,9 @@ public class BulkActions {
         }
       }
     }
+  }
+
+  public interface Context {
+    Collection<String> existingLabels();
   }
 }

@@ -32,28 +32,33 @@ import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.git.GitTokens;
 import net.kyori.limbo.git.actor.ActorType;
 import net.kyori.limbo.git.event.Event;
-import net.kyori.limbo.git.repository.RepositoryId;
-import net.kyori.limbo.github.action.BulkActions;
 import net.kyori.limbo.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.github.api.event.IssuesEvent;
 import net.kyori.limbo.github.api.event.PullRequestEvent;
 import net.kyori.limbo.github.api.event.PullRequestReviewEvent;
 import net.kyori.limbo.github.api.model.User;
-import net.kyori.limbo.github.issue.IssueQuery;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 public final class ApplyFeature implements Listener {
+  private static final Set<IssuesEvent.Action> ISSUES_EVENT_ACTIONS = EnumSet.of(
+    IssuesEvent.Action.CLOSED,
+    IssuesEvent.Action.OPENED,
+    IssuesEvent.Action.LABELED,
+    IssuesEvent.Action.UNLABELED
+  );
+  private static final Set<PullRequestEvent.Action> PULL_REQUEST_EVENT_ACTIONS = EnumSet.of(
+    PullRequestEvent.Action.CLOSED,
+    PullRequestEvent.Action.OPENED
+  );
   private final ApplyFeatureConfiguration configuration;
   private final Repositories repositories;
   private final RepositoryPermissionCache permission;
@@ -68,180 +73,118 @@ public final class ApplyFeature implements Listener {
   }
 
   @Subscribe
-  public void openClose(final IssuesEvent event) throws IOException {
-    if(event.action != IssuesEvent.Action.CLOSED && event.action != IssuesEvent.Action.OPENED) {
+  public void issues(final IssuesEvent event) throws IOException {
+    if(!ISSUES_EVENT_ACTIONS.contains(event.action)) {
       return;
     }
-    final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
 
-    final BulkActions applicators = new BulkActions(issue);
-    applicators.addAll(
-      this.configuration.applicators(
-        new IssueQueryImpl(
-          event.repository,
-          event.action.asEvent(event.issue.pull_request != null),
-          Suppliers.memoize(() -> new ActorType.Collector()
-            .author(event.sender, event.issue.user)
-            .collaborator(this.permission.get(event.repository, event.sender).write())
-            .self(event.sender, this.selfUser)
-            .get()),
-          Labels.labels(issue)
-        ),
-        event.issue.body
+    final ApplyContext context = ApplyContext.builder()
+      .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
+      .repository(event.repository)
+      .event(event.action.asEvent(event.issue.pull_request != null))
+      .actorTypes(
+        Suppliers.memoize(() -> new ActorType.Collector()
+          .author(event.sender, event.issue.user)
+          .collaborator(this.permission.get(event.repository, event.sender).write())
+          .self(event.sender, this.selfUser)
+          .get())
       )
-    );
-    applicators.apply(ImmutableMap.of(
-      Tokens.AUTHOR, event.issue.user.login,
-      GitTokens.REPOSITORY_USER, event.repository.owner,
-      GitTokens.REPOSITORY_NAME, event.repository.name
-    ));
-  }
-
-  @Subscribe
-  public void label(final IssuesEvent event) throws IOException {
-    if(event.action != IssuesEvent.Action.LABELED && event.action != IssuesEvent.Action.UNLABELED) {
-      return;
-    }
-    final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-
-    final BulkActions applicators = new BulkActions(issue);
-    applicators.addAll(
-      this.configuration.applicators(
-        new IssueQueryImpl(
-          event.repository,
-          event.action.asEvent(event.issue.pull_request != null),
-          Suppliers.memoize(() -> new ActorType.Collector()
-            .author(event.sender, event.issue.user)
-            .collaborator(this.permission.get(event.repository, event.sender).write())
-            .self(event.sender, this.selfUser)
-            .get()),
-          Labels.labels(issue)
-        ),
-        event.issue.body
-      )
-    );
-    applicators.apply(ImmutableMap.of(
-      Tokens.AUTHOR, event.issue.user.login,
-      GitTokens.REPOSITORY_USER, event.repository.owner,
-      GitTokens.REPOSITORY_NAME, event.repository.name
-    ));
+      .labels(Labels.labels(event.issue))
+      .build();
+    context.applicators(this.configuration, event.issue.body)
+      .apply(
+        context,
+        ImmutableMap.of(
+          Tokens.AUTHOR, event.issue.user.login,
+          GitTokens.REPOSITORY_USER, event.repository.owner,
+          GitTokens.REPOSITORY_NAME, event.repository.name
+        )
+      );
   }
 
   @Subscribe
   public void openClose(final PullRequestEvent event) throws IOException {
-    if(event.action != PullRequestEvent.Action.CLOSED && event.action != PullRequestEvent.Action.OPENED) {
+    if(!PULL_REQUEST_EVENT_ACTIONS.contains(event.action)) {
       return;
     }
-    final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
 
-    final BulkActions applicators = new BulkActions(issue);
-    applicators.addAll(
-      this.configuration.applicators(
-        new IssueQueryImpl(
-          event.repository,
-          event.action.asEvent(),
-          Suppliers.memoize(() -> new ActorType.Collector()
-            .author(event.sender, event.pull_request.user)
-            .collaborator(this.permission.get(event.repository, event.sender).write())
-            .self(event.sender, this.selfUser)
-            .get()),
-          Labels.labels(issue)
-        ),
-        event.pull_request.body
+    final ApplyContext context = ApplyContext.builder()
+      .issue(this.repositories.get(event.repository).issues().get(event.pull_request.number))
+      .repository(event.repository)
+      .event(event.action.asEvent())
+      .actorTypes(
+        Suppliers.memoize(() -> new ActorType.Collector()
+          .author(event.sender, event.pull_request.user)
+          .collaborator(this.permission.get(event.repository, event.sender).write())
+          .self(event.sender, this.selfUser)
+          .get())
       )
-    );
-    applicators.apply(ImmutableMap.of(
-      Tokens.AUTHOR, event.pull_request.user.login,
-      GitTokens.REPOSITORY_USER, event.repository.owner,
-      GitTokens.REPOSITORY_NAME, event.repository.name
-    ));
+      .labels(Labels.labels(event.pull_request))
+      .build();
+    context.applicators(this.configuration, event.pull_request.body)
+      .apply(
+        context,
+        ImmutableMap.of(
+          Tokens.AUTHOR, event.pull_request.user.login,
+          GitTokens.REPOSITORY_USER, event.repository.owner,
+          GitTokens.REPOSITORY_NAME, event.repository.name
+        )
+      );
   }
 
   @Subscribe
   public void comment(final IssueCommentEvent event) throws IOException {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
 
-    final BulkActions applicators = new BulkActions(issue);
-    applicators.addAll(
-      this.configuration.applicators(
-        new IssueQueryImpl(
-          event.repository,
-          event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT,
-          Suppliers.memoize(() -> new ActorType.Collector()
-            .author(event.issue.user, event.comment.user)
-            .collaborator(this.permission.get(event.repository, event.comment.user).write())
-            .self(event.comment.user, this.selfUser)
-            .get()),
-          Labels.labels(issue)
-        ),
-        event.comment.body
+    final ApplyContext context = ApplyContext.builder()
+      .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
+      .repository(event.repository)
+      .event(event.issue.pull_request != null ? Event.PULL_REQUEST_COMMENT : Event.ISSUE_COMMENT)
+      .actorTypes(
+        Suppliers.memoize(() -> new ActorType.Collector()
+          .author(event.issue.user, event.comment.user)
+          .collaborator(this.permission.get(event.repository, event.comment.user).write())
+          .self(event.comment.user, this.selfUser)
+          .get())
       )
-    );
-    applicators.apply(ImmutableMap.of(
-      Tokens.AUTHOR, event.issue.user.login,
-      GitTokens.REPOSITORY_USER, event.repository.owner,
-      GitTokens.REPOSITORY_NAME, event.repository.name
-    ));
+      .labels(Labels.labels(event.issue))
+      .build();
+    context.applicators(this.configuration, event.comment.body)
+      .apply(
+        context,
+        ImmutableMap.of(
+          Tokens.AUTHOR, event.issue.user.login,
+          GitTokens.REPOSITORY_USER, event.repository.owner,
+          GitTokens.REPOSITORY_NAME, event.repository.name
+        )
+      );
   }
 
   @Subscribe
   public void review(final PullRequestReviewEvent event) throws IOException {
     final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
 
-    final BulkActions applicators = new BulkActions(issue);
-    applicators.addAll(
-      this.configuration.applicators(
-        new IssueQueryImpl(
-          event.repository,
-          event.action.asEvent(),
-          Suppliers.memoize(() -> new ActorType.Collector()
-            .author(event.sender, event.review.user)
-            .collaborator(this.permission.get(event.repository, event.sender).write())
-            .self(event.sender, this.selfUser)
-            .get()),
-          Labels.labels(issue)
-        ),
-        event.review.body
+    final ApplyContext context = ApplyContext.builder()
+      .issue(this.repositories.get(event.repository).issues().get(event.pull_request.number))
+      .repository(event.repository)
+      .event(event.action.asEvent())
+      .actorTypes(
+        Suppliers.memoize(() -> new ActorType.Collector()
+          .author(event.sender, event.review.user)
+          .collaborator(this.permission.get(event.repository, event.sender).write())
+          .self(event.sender, this.selfUser)
+          .get())
       )
-    );
-    applicators.apply(ImmutableMap.of(
-      Tokens.AUTHOR, event.pull_request.user.login,
-      GitTokens.REPOSITORY_USER, event.repository.owner,
-      GitTokens.REPOSITORY_NAME, event.repository.name
-    ));
-  }
-
-  final class IssueQueryImpl implements IssueQuery {
-    private final RepositoryId repository;
-    private final Event event;
-    private final Supplier<Set<ActorType>> actorTypes;
-    private final Supplier<Collection<String>> labels;
-
-    IssueQueryImpl(final RepositoryId repository, final Event event, final Supplier<Set<ActorType>> actorTypes, final Supplier<Collection<String>> labels) {
-      this.repository = repository;
-      this.event = event;
-      this.actorTypes = actorTypes;
-      this.labels = labels;
-    }
-
-    @Override
-    public @NonNull RepositoryId repository() {
-      return this.repository;
-    }
-
-    @Override
-    public @NonNull Event event() {
-      return this.event;
-    }
-
-    @Override
-    public @NonNull Set<ActorType> actorTypes() {
-      return this.actorTypes.get();
-    }
-
-    @Override
-    public Collection<String> labels() {
-      return this.labels.get();
-    }
+      .labels(Labels.labels(event.pull_request))
+      .build();
+    context.applicators(this.configuration, event.review.body)
+      .apply(
+        context,
+        ImmutableMap.of(
+          Tokens.AUTHOR, event.pull_request.user.login,
+          GitTokens.REPOSITORY_USER, event.repository.owner,
+          GitTokens.REPOSITORY_NAME, event.repository.name
+        )
+      );
   }
 }
