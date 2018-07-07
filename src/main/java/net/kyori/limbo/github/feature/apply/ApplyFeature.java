@@ -40,10 +40,12 @@ import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
+import net.kyori.lunar.exception.Exceptions;
 
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -78,28 +80,36 @@ public final class ApplyFeature implements Listener {
       return;
     }
 
-    final ApplyContext context = ApplyContext.builder()
-      .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
-      .repository(event.repository)
-      .event(event.action.asEvent(event.issue.pull_request != null))
-      .actorTypes(
-        Suppliers.memoize(() -> new ActorType.Collector()
-          .author(event.sender, event.issue.user)
-          .collaborator(this.permission.get(event.repository, event.sender).write())
-          .self(event.sender, this.selfUser)
-          .get())
-      )
-      .labels(Labels.labels(event.issue))
-      .build();
-    context.applicators(this.configuration, event.issue.body)
-      .apply(
-        context,
-        ImmutableMap.of(
-          Tokens.AUTHOR, event.issue.user.login,
-          GitTokens.REPOSITORY_USER, event.repository.owner,
-          GitTokens.REPOSITORY_NAME, event.repository.name
+    final Consumer<Event> consumer = Exceptions.rethrowConsumer(e -> {
+      final ApplyContext context = ApplyContext.builder()
+        .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
+        .repository(event.repository)
+        .event(e)
+        .actorTypes(
+          Suppliers.memoize(() -> new ActorType.Collector()
+            .author(event.sender, event.issue.user)
+            .collaborator(this.permission.get(event.repository, event.sender).write())
+            .self(event.sender, this.selfUser)
+            .get())
         )
-      );
+        .labels(Labels.labels(event.issue))
+        .build();
+      context.applicators(this.configuration, event.issue.body)
+        .apply(
+          context,
+          ImmutableMap.of(
+            Tokens.AUTHOR, event.issue.user.login,
+            GitTokens.REPOSITORY_USER, event.repository.owner,
+            GitTokens.REPOSITORY_NAME, event.repository.name
+          )
+        );
+    });
+    consumer.accept(event.action.asEvent(event.issue.pull_request != null));
+    if(event.action == IssuesEvent.Action.OPENED) {
+      if(!event.issue.labels.isEmpty()) {
+        consumer.accept(IssuesEvent.Action.LABELED.asEvent(event.issue.pull_request != null));
+      }
+    }
   }
 
   @Subscribe

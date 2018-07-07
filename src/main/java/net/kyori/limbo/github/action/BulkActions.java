@@ -95,7 +95,6 @@ public class BulkActions {
 
       private void removeExisting() {
         this.add.removeAll(existing);
-        this.remove.removeAll(existing);
       }
     }
 
