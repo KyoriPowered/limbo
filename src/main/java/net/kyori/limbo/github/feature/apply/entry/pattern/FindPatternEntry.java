@@ -39,9 +39,9 @@ public final class FindPatternEntry extends PatternEntry {
   }
 
   @Override
-  public void collect(final String string, final List<Action> actions) {
-    final Matcher matcher = this.pattern.matcher(string);
-    if(!matcher.find() || this.escaped(matcher, string)) {
+  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
+    final Matcher matcher = this.pattern.matcher(fullString);
+    if(!matcher.find() || this.escaped(matcher, fullString)) {
       return;
     }
     actions.add(this.action);

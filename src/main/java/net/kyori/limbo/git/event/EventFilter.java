@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.git.event;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.fragment.filter.FilterResponse;
 import net.kyori.fragment.filter.TypedFilter;
@@ -43,5 +44,12 @@ public final class EventFilter implements TypedFilter<EventQuery> {
   @Override
   public @NonNull FilterResponse typedQuery(final @NonNull EventQuery query) {
     return FilterResponse.from(query.event().equals(this.event));
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .addValue(this.event)
+      .toString();
   }
 }

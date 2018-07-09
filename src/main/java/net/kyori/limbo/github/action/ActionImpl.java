@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.github.action;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.IssuePartial;
 import net.kyori.igloo.v3.Label;
@@ -107,5 +108,16 @@ import java.util.stream.StreamSupport;
         }
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("state", this.state)
+      .add("comment", this.comment)
+      .add("addLabels", this.addLabels)
+      .add("removeLabels", this.removeLabels)
+      .add("lock", this.lock)
+      .toString();
   }
 }

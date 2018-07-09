@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry.normal;
+package net.kyori.limbo.github.feature.apply.entry.trigger;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
@@ -29,16 +29,16 @@ import net.kyori.limbo.github.feature.apply.entry.Entry;
 
 import java.util.List;
 
-public final class NormalEntry extends Entry.Impl {
+public final class TriggerEntry extends Entry.Impl {
   private final Action action;
 
-  /* package */ NormalEntry(final Filter filter, final Action action) {
+  /* package */ TriggerEntry(final Filter filter, final Action action) {
     super(filter);
     this.action = action;
   }
 
   @Override
-  public void collect(final String string, final List<Action> actions) {
+  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
     actions.add(this.action);
   }
 }

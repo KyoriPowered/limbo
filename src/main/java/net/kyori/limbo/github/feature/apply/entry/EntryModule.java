@@ -26,8 +26,9 @@ package net.kyori.limbo.github.feature.apply.entry;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.MapBinder;
-import net.kyori.limbo.github.feature.apply.entry.normal.NormalEntryParser;
+import net.kyori.limbo.github.feature.apply.entry.command.CommandEntryParser;
 import net.kyori.limbo.github.feature.apply.entry.pattern.PatternEntryParser;
+import net.kyori.limbo.github.feature.apply.entry.trigger.TriggerEntryParser;
 import net.kyori.violet.DuplexModule;
 import net.kyori.xml.node.parser.Parser;
 import net.kyori.xml.node.parser.ParserBinder;
@@ -38,8 +39,9 @@ public final class EntryModule extends DuplexModule {
     final ParserBinder parsers = new ParserBinder(this.publicBinder());
     parsers.bindParser(Entry.class).to(EntryParser.class);
 
-    this.bindEntry("normal").to(NormalEntryParser.class);
+    this.bindEntry("command").to(CommandEntryParser.class);
     this.bindEntry("pattern").to(PatternEntryParser.class);
+    this.bindEntry("trigger").to(TriggerEntryParser.class);
   }
 
   private LinkedBindingBuilder<Parser<? extends Entry>> bindEntry(final String id) {

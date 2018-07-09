@@ -21,46 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry.pattern;
+package net.kyori.limbo.github.feature.apply.entry.command;
 
+import com.google.common.collect.MoreCollectors;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.Parser;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-public final class WherePatternEntry extends PatternEntry {
-  private static final Collection<Action> NULL = Collections.singleton(null);
-  private final List<Where> where;
+import javax.inject.Inject;
 
-  /* package */ WherePatternEntry(final Filter filter, final Pattern pattern, final List<Where> where) {
-    super(filter, pattern);
-    this.where = where;
+public final class CommandEntryParser implements Parser<CommandEntry> {
+  private final Parser<Filter> filterParser;
+  private final Parser<Action> actionParser;
+
+  @Inject
+  private CommandEntryParser(final Parser<Filter> filterParser, final Parser<Action> actionParser) {
+    this.filterParser = filterParser;
+    this.actionParser = actionParser;
   }
 
   @Override
-  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
-    final Matcher matcher = this.pattern.matcher(fullString);
-    if(!matcher.find() || this.escaped(matcher, fullString)) {
-      return;
-    }
-    for(final Where where : this.where) {
-      actions.add(where.actions.get(matcher.group(where.group)));
-    }
-    actions.removeAll(NULL);
-  }
-
-  static class Where {
-    final int group;
-    final Map<String, Action> actions;
-
-    Where(final int group, final Map<String, Action> actions) {
-      this.group = group;
-      this.actions = actions;
-    }
+  public @NonNull CommandEntry throwingParse(final @NonNull Node node) {
+    final Filter filter = this.filterParser.parse(node.nodes("filter").flatMap(Node::nodes).one().required());
+    final List<String> commands = node.nodes("command").map(Node::value).collect(Collectors.toList());
+    final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
+    return new CommandEntry(filter, commands, action);
   }
 }

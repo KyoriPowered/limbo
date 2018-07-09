@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.git.actor;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.fragment.filter.FilterResponse;
 import net.kyori.fragment.filter.TypedFilter;
@@ -43,5 +44,12 @@ public final class ActorTypeFilter implements TypedFilter<ActorTypeQuery> {
   @Override
   public @NonNull FilterResponse typedQuery(final @NonNull ActorTypeQuery query) {
     return FilterResponse.from(query.actorTypes().contains(this.actor));
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .addValue(this.actor)
+      .toString();
   }
 }

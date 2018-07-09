@@ -31,7 +31,7 @@ import java.util.List;
 public interface Entry {
   Filter filter();
 
-  void collect(final String string, final List<Action> actions);
+  void collect(final String fullString, final List<String> strings, final List<Action> actions);
 
   abstract class Impl implements Entry {
     final Filter filter;

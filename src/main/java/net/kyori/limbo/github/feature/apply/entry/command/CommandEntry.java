@@ -21,31 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry.normal;
+package net.kyori.limbo.github.feature.apply.entry.command;
 
-import com.google.common.collect.MoreCollectors;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.parser.Parser;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import net.kyori.limbo.github.feature.apply.entry.Entry;
 
-import javax.inject.Inject;
+import java.util.List;
 
-public final class NormalEntryParser implements Parser<NormalEntry> {
-  private final Parser<Filter> filterParser;
-  private final Parser<Action> actionParser;
+public final class CommandEntry extends Entry.Impl {
+  private final List<String> commands;
+  private final Action action;
 
-  @Inject
-  private NormalEntryParser(final Parser<Filter> filterParser, final Parser<Action> actionParser) {
-    this.filterParser = filterParser;
-    this.actionParser = actionParser;
+  /* package */ CommandEntry(final Filter filter, final List<String> commands, final Action action) {
+    super(filter);
+    this.commands = commands;
+    this.action = action;
   }
 
   @Override
-  public @NonNull NormalEntry throwingParse(final @NonNull Node node) {
-    final Filter filter = this.filterParser.parse(node.nodes("filter").flatMap(Node::nodes).one().required());
-    final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
-    return new NormalEntry(filter, action);
+  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
+    for(final String command : this.commands) {
+      for(final String string : strings) {
+        if(string.trim().startsWith(command)) {
+          actions.add(this.action);
+          return;
+        }
+      }
+    }
   }
 }
