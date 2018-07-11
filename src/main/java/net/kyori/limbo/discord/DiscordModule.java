@@ -26,11 +26,14 @@ package net.kyori.limbo.discord;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Provides;
+import net.kyori.fragment.filter.FilterBinder;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.client.Client;
 import net.kyori.limbo.discord.action.ActionModule;
 import net.kyori.limbo.discord.embed.EmbedParser;
 import net.kyori.limbo.discord.feature.gir.GitHubIssueRefFeatureModule;
+import net.kyori.limbo.discord.feature.rp.RolePingModule;
+import net.kyori.limbo.discord.filter.RoleFilterParser;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.polar.ForPolar;
 import net.kyori.polar.PolarModule;
@@ -52,12 +55,16 @@ public final class DiscordModule extends DuplexModule {
     final FacetBinder facets = new FacetBinder(this.publicBinder());
     facets.addBinding().to(ClientConnector.class);
 
+    final FilterBinder filters = new FilterBinder(this.publicBinder());
+    filters.bindFilter("role").to(RoleFilterParser.class);
+
     final ParserBinder parsers = new ParserBinder(this.publicBinder());
     parsers.bindParser(Embed.class).to(EmbedParser.class);
 
     this.install(new ActionModule());
 
     this.install(new GitHubIssueRefFeatureModule());
+    this.install(new RolePingModule());
   }
 
   @ForPolar
