@@ -23,6 +23,8 @@
  */
 package net.kyori.limbo.discord;
 
+import net.kyori.kassel.user.Activity;
+import net.kyori.kassel.user.Status;
 import net.kyori.polar.PolarConfiguration;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -35,6 +37,7 @@ public class DiscordConfiguration implements PolarConfiguration {
   private boolean enabled;
   private int shards;
   private String token;
+  private Presence presence;
 
   public boolean isEnabled() {
     return this.enabled;
@@ -68,5 +71,43 @@ public class DiscordConfiguration implements PolarConfiguration {
 
   public void setToken(final String token) {
     this.token = token;
+  }
+
+  public Presence getPresence() {
+    return this.presence;
+  }
+
+  public void setPresence(final Presence presence) {
+    this.presence = presence;
+  }
+
+  public static class Presence {
+    private Status status = Status.ONLINE;
+    private Activity activityType;
+    private String activityName;
+
+    public Status getStatus() {
+      return this.status;
+    }
+
+    public void setStatus(final Status status) {
+      this.status = status;
+    }
+
+    public Activity getActivityType() {
+      return this.activityType;
+    }
+
+    public void setActivityType(final Activity activityType) {
+      this.activityType = activityType;
+    }
+
+    public String getActivityName() {
+      return this.activityName;
+    }
+
+    public void setActivityName(final String activityName) {
+      this.activityName = activityName;
+    }
   }
 }

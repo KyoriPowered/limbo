@@ -23,13 +23,18 @@
  */
 package net.kyori.limbo.discord;
 
+import net.kyori.event.Subscribe;
 import net.kyori.kassel.client.Client;
+import net.kyori.kassel.client.shard.Shard;
+import net.kyori.kassel.client.shard.event.ShardConnectedEvent;
+import net.kyori.kassel.client.shard.event.ShardResumedEvent;
+import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
 import net.kyori.membrane.facet.Connectable;
 
 import javax.inject.Inject;
 
-/* package */ final class ClientConnector implements Activatable, Connectable {
+public final class ClientConnector implements Activatable, Connectable, Listener {
   private final DiscordConfiguration discord;
   private final Client client;
 
@@ -52,5 +57,22 @@ import javax.inject.Inject;
   @Override
   public void disconnect() {
     this.client.disconnect();
+  }
+
+  @Subscribe
+  public void connected(final ShardConnectedEvent event) {
+    this.refreshPresence(event.shard());
+  }
+
+  @Subscribe
+  public void resumed(final ShardResumedEvent event) {
+    this.refreshPresence(event.shard());
+  }
+
+  private void refreshPresence(final Shard shard) {
+    final DiscordConfiguration.Presence presence = this.discord.getPresence();
+    if(presence != null) {
+      shard.presence(presence.getStatus(), presence.getActivityType(), presence.getActivityName());
+    }
   }
 }
