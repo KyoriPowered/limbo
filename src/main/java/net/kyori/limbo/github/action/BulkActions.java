@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.github.action;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.IssuePartial;
 import net.kyori.igloo.v3.Label;
@@ -164,6 +165,13 @@ public class BulkActions {
         }
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .addValue(this.actions)
+      .toString();
   }
 
   public interface Context {

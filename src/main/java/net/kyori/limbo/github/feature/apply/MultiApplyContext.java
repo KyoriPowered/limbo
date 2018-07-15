@@ -24,62 +24,37 @@
 package net.kyori.limbo.github.feature.apply;
 
 import net.kyori.igloo.v3.Issue;
-import net.kyori.limbo.git.actor.ActorType;
-import net.kyori.limbo.git.event.Event;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.BulkActions;
-import net.kyori.limbo.github.issue.IssueQuery;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-/* package */ class ApplyContext implements BulkActions.Context {
+/* package */ class MultiApplyContext implements BulkActions.Context {
   private final Builder builder;
+  private final BulkActions applicators;
 
   /* package */ static Builder builder() {
     return new Builder();
   }
 
-  private ApplyContext(final Builder builder) {
+  private MultiApplyContext(final Builder builder) {
     this.builder = builder;
+    this.applicators = new BulkActions(builder.issue);
   }
 
-  /* package */ BulkActions applicators(final ApplyFeatureConfiguration config, final String string) {
-    final BulkActions applicators = new BulkActions(this.builder.issue);
-    this.gatherApplicators(config, string).accept(applicators);
-    return applicators;
+  /* package */ ApplyContext.Builder child() {
+    return ApplyContext.builder()
+      .repository(this.builder.repository)
+      .issue(this.builder.issue);
   }
 
-  /* package */ Consumer<BulkActions> gatherApplicators(final ApplyFeatureConfiguration config, final String string) {
-    return applicators -> applicators.addAll(
-      config.applicators(
-        new IssueQuery() {
-          @Override
-          public @NonNull RepositoryId repository() {
-            return ApplyContext.this.builder.repository;
-          }
+  /* package */ BulkActions applicators() {
+    return this.applicators;
+  }
 
-          @Override
-          public @NonNull Event event() {
-            return ApplyContext.this.builder.event;
-          }
-
-          @Override
-          public @NonNull Set<ActorType> actorTypes() {
-            return ApplyContext.this.builder.actorTypes.get();
-          }
-
-          @Override
-          public Collection<String> labels() {
-            return ApplyContext.this.builder.labels;
-          }
-        },
-        string
-      )
-    );
+  /* package */ void collectApplicators(final Consumer<BulkActions> applicators) {
+    applicators.accept(this.applicators);
   }
 
   @Override
@@ -90,8 +65,6 @@ import java.util.function.Supplier;
   /* package */ static class Builder {
     private Issue issue;
     private RepositoryId repository;
-    private Event event;
-    private Supplier<Set<ActorType>> actorTypes;
     private Collection<String> labels;
 
     /* package */ Builder issue(final Issue issue) {
@@ -104,23 +77,13 @@ import java.util.function.Supplier;
       return this;
     }
 
-    /* package */ Builder event(final Event event) {
-      this.event = event;
-      return this;
-    }
-
-    /* package */ Builder actorTypes(final Supplier<Set<ActorType>> actorTypes) {
-      this.actorTypes = actorTypes;
-      return this;
-    }
-
     /* package */ Builder labels(final Collection<String> labels) {
       this.labels = labels;
       return this;
     }
 
-    /* package */ ApplyContext build() {
-      return new ApplyContext(this);
+    /* package */ MultiApplyContext build() {
+      return new MultiApplyContext(this);
     }
   }
 }
