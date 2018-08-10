@@ -26,7 +26,6 @@ package net.kyori.limbo.github.feature.apply;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import net.kyori.event.Subscribe;
-import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.git.GitTokens;
@@ -40,6 +39,7 @@ import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
+import net.kyori.lunar.Pair;
 import net.kyori.lunar.exception.Exceptions;
 
 import java.io.IOException;
@@ -96,7 +96,8 @@ public final class ApplyFeature implements Listener {
             .get())
         )
         .build();
-      mac.collectApplicators(context.gatherApplicators(this.configuration, event.issue.body));
+      mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.TITLE, event.issue.title));
+      mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.DESCRIPTION, event.issue.body));
     });
     consumer.accept(event.action.asEvent(event.issue.pull_request != null));
     if(event.action == IssuesEvent.Action.OPENED) {
@@ -134,7 +135,7 @@ public final class ApplyFeature implements Listener {
       )
       .labels(Labels.labels(event.pull_request))
       .build();
-    context.applicators(this.configuration, event.pull_request.body)
+    context.applicators(this.configuration, Pair.of(SearchScope.TITLE, event.pull_request.title), Pair.of(SearchScope.DESCRIPTION, event.pull_request.body))
       .apply(
         context,
         ImmutableMap.of(
@@ -147,8 +148,6 @@ public final class ApplyFeature implements Listener {
 
   @Subscribe
   public void comment(final IssueCommentEvent event) throws IOException {
-    final Issue issue = this.repositories.get(event.repository).issues().get(event.issue.number);
-
     final ApplyContext context = ApplyContext.builder()
       .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
       .repository(event.repository)
@@ -162,7 +161,7 @@ public final class ApplyFeature implements Listener {
       )
       .labels(Labels.labels(event.issue))
       .build();
-    context.applicators(this.configuration, event.comment.body)
+    context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.comment.body))
       .apply(
         context,
         ImmutableMap.of(
@@ -175,8 +174,6 @@ public final class ApplyFeature implements Listener {
 
   @Subscribe
   public void review(final PullRequestReviewEvent event) throws IOException {
-    final Issue issue = this.repositories.get(event.repository).issues().get(event.pull_request.number);
-
     final ApplyContext context = ApplyContext.builder()
       .issue(this.repositories.get(event.repository).issues().get(event.pull_request.number))
       .repository(event.repository)
@@ -190,7 +187,7 @@ public final class ApplyFeature implements Listener {
       )
       .labels(Labels.labels(event.pull_request))
       .build();
-    context.applicators(this.configuration, event.review.body)
+    context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.review.body))
       .apply(
         context,
         ImmutableMap.of(

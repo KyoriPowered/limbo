@@ -25,6 +25,7 @@ package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.SearchScope;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,8 +34,8 @@ import java.util.regex.Pattern;
 public final class FindPatternEntry extends PatternEntry {
   private final Action action;
 
-  /* package */ FindPatternEntry(final Filter filter, final Pattern pattern, final Action action) {
-    super(filter, pattern);
+  /* package */ FindPatternEntry(final Filter filter, final SearchScope scope, final Pattern pattern, final Action action) {
+    super(filter, scope, pattern);
     this.action = action;
   }
 

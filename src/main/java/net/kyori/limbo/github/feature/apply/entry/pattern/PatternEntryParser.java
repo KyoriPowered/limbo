@@ -27,6 +27,7 @@ import com.google.common.collect.MoreCollectors;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
+import net.kyori.limbo.github.feature.apply.SearchScope;
 import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
@@ -46,13 +47,15 @@ import javax.inject.Named;
 public final class PatternEntryParser implements Parser<PatternEntry> {
   private final Parser<Filter> filterParser;
   private final EnumParser<Type> typeParser;
+  private final EnumParser<SearchScope> scopeParser;
   private final Parser<Action> actionParser;
   private final User identity;
 
   @Inject
-  private PatternEntryParser(final Parser<Filter> filterParser, final EnumParser<Type> typeParser, final Parser<Action> actionParser, final @Named("identity") User identity) {
+  private PatternEntryParser(final Parser<Filter> filterParser, final EnumParser<Type> typeParser, final EnumParser<SearchScope> scopeParser, final Parser<Action> actionParser, final @Named("identity") User identity) {
     this.filterParser = filterParser;
     this.typeParser = typeParser;
+    this.scopeParser = scopeParser;
     this.actionParser = actionParser;
     this.identity = identity;
   }
@@ -61,10 +64,11 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
   public @NonNull PatternEntry throwingParse(final @NonNull Node node) throws XMLException {
     final Type type = this.typeParser.parse(node.nodes("type").one().required());
     final Filter filter = this.filterParser.parse(node.nodes("filter").flatMap(Node::nodes).one().required());
+    final SearchScope scope = this.scopeParser.parse(node.nodes("scope").one().optional()).orElse(SearchScope.DESCRIPTION);
     final Pattern pattern = this.pattern(node);
     if(type == Type.FIND) {
       final Action action = this.actionParser.parse(node.elements("action").collect(MoreCollectors.onlyElement()));
-      return new FindPatternEntry(filter, pattern, action);
+      return new FindPatternEntry(filter, scope, pattern, action);
     } else if(type == Type.WHERE) {
       final List<WherePatternEntry.Where> where = node.elements("where")
         .map(Exceptions.rethrowFunction(group -> {
@@ -78,7 +82,7 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
           return new WherePatternEntry.Where(id, actions);
         }))
         .collect(Collectors.toList());
-      return new WherePatternEntry(filter, pattern, where);
+      return new WherePatternEntry(filter, scope, pattern, where);
     } else {
       throw new IllegalArgumentException(type.name());
     }

@@ -21,36 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry.pattern;
+package net.kyori.limbo.github.feature.apply.entry;
 
-import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.feature.apply.SearchScope;
-import net.kyori.limbo.github.feature.apply.entry.Entry;
-import net.kyori.limbo.github.feature.apply.entry.ScopedEntry;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public abstract class PatternEntry extends Entry.Impl implements ScopedEntry {
-  private static final char ESCAPE_CHARACTER = '`';
-  private final SearchScope scope;
-  final Pattern pattern;
-
-  /* package */ PatternEntry(final Filter filter, final SearchScope scope, final Pattern pattern) {
-    super(filter);
-    this.scope = scope;
-    this.pattern = pattern;
-  }
-
-  @Override
-  public @NonNull SearchScope scope() {
-    return this.scope;
-  }
-
-  boolean escaped(final Matcher matcher, final String string) {
-    return matcher.start() != 0
-      && string.charAt(matcher.start() - 1) == ESCAPE_CHARACTER
-      && string.charAt(matcher.end()) == ESCAPE_CHARACTER;
-  }
+public interface ScopedEntry extends Entry {
+  @NonNull SearchScope scope();
 }

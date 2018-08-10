@@ -29,6 +29,7 @@ import net.kyori.limbo.git.event.Event;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.BulkActions;
 import net.kyori.limbo.github.issue.IssueQuery;
+import net.kyori.lunar.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
@@ -47,13 +48,16 @@ import java.util.function.Supplier;
     this.builder = builder;
   }
 
-  /* package */ BulkActions applicators(final ApplyFeatureConfiguration config, final String string) {
+  @SafeVarargs
+  /* package */ final BulkActions applicators(final ApplyFeatureConfiguration config, final Pair<SearchScope, String>... scopes) {
     final BulkActions applicators = new BulkActions(this.builder.issue);
-    this.gatherApplicators(config, string).accept(applicators);
+    for(final Pair<SearchScope, String> entry : scopes) {
+      this.gatherApplicators(config, entry.left(), entry.right()).accept(applicators);
+    }
     return applicators;
   }
 
-  /* package */ Consumer<BulkActions> gatherApplicators(final ApplyFeatureConfiguration config, final String string) {
+  /* package */ Consumer<BulkActions> gatherApplicators(final ApplyFeatureConfiguration config, final SearchScope scope, final String string) {
     return applicators -> applicators.addAll(
       config.applicators(
         new IssueQuery() {
@@ -77,6 +81,7 @@ import java.util.function.Supplier;
             return ApplyContext.this.builder.labels;
           }
         },
+        scope,
         string
       )
     );

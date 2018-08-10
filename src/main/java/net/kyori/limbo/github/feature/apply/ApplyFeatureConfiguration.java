@@ -27,6 +27,7 @@ import com.google.common.base.Splitter;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.entry.ScopedEntry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -40,16 +41,21 @@ import javax.inject.Singleton;
   private static final Splitter NEWLINE_PATTERN = Splitter.on('\n');
   final Collection<Entry> entries = new ArrayList<>();
 
-  public List<Action> applicators(final FilterQuery query, final String string) {
-    return this.applicators(query, string, NEWLINE_PATTERN.splitToList(string));
+  public List<Action> applicators(final FilterQuery query, final SearchScope scope, final String string) {
+    return this.applicators(query, scope, string, NEWLINE_PATTERN.splitToList(string));
   }
 
-  private List<Action> applicators(final FilterQuery query, final String string, final List<String> strings) {
+  private List<Action> applicators(final FilterQuery query, final SearchScope scope, final String string, final List<String> strings) {
     final List<Action> applicators = new ArrayList<>();
     for(final Entry entry : this.entries) {
       if(entry.filter == null || entry.filter.allowed(query)) {
         for(final net.kyori.limbo.github.feature.apply.entry.Entry action : entry.actions) {
           if(action.filter().allowed(query)) {
+            if(action instanceof ScopedEntry) {
+              if(((ScopedEntry) action).scope() != scope) {
+                continue;
+              }
+            }
             action.collect(string, strings, applicators);
           }
         }

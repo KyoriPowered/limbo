@@ -25,6 +25,7 @@ package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.SearchScope;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,8 +38,8 @@ public final class WherePatternEntry extends PatternEntry {
   private static final Collection<Action> NULL = Collections.singleton(null);
   private final List<Where> where;
 
-  /* package */ WherePatternEntry(final Filter filter, final Pattern pattern, final List<Where> where) {
-    super(filter, pattern);
+  /* package */ WherePatternEntry(final Filter filter, final SearchScope scope, final Pattern pattern, final List<Where> where) {
+    super(filter, scope, pattern);
     this.where = where;
   }
 
