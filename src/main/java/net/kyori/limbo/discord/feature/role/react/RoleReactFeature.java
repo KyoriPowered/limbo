@@ -21,37 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.discord.feature.role.react;
 
-import com.google.common.collect.ImmutableMap;
 import net.kyori.event.Subscribe;
-import net.kyori.kassel.channel.TextChannel;
-import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
+import net.kyori.kassel.channel.message.emoji.Emoji;
+import net.kyori.kassel.channel.message.event.ChannelMessageReactionAddEvent;
+import net.kyori.kassel.channel.message.event.ChannelMessageReactionRemoveEvent;
 import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.channel.GuildTextChannel;
+import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.guild.role.Role;
-import net.kyori.kassel.guild.role.RolePartial;
-import net.kyori.kassel.user.User;
+import net.kyori.kassel.snowflake.Snowflaked;
 import net.kyori.limbo.discord.DiscordConfiguration;
-import net.kyori.limbo.discord.action.Action;
-import net.kyori.limbo.discord.embed.EmbedRenderer;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
-import net.kyori.limbo.util.Tokens;
+import net.kyori.lunar.EvenMoreObjects;
 import net.kyori.lunar.Optionals;
 import net.kyori.membrane.facet.Activatable;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.OptionalLong;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-public final class RolePingFeature implements Activatable, Listener {
+public final class RoleReactFeature implements Activatable, Listener {
   private final DiscordConfiguration discord;
   private final Configuration configuration;
 
   @Inject
-  private RolePingFeature(final DiscordConfiguration discord, final Configuration configuration) {
+  private RoleReactFeature(final DiscordConfiguration discord, final Configuration configuration) {
     this.discord = discord;
     this.configuration = configuration;
   }
@@ -62,42 +63,31 @@ public final class RolePingFeature implements Activatable, Listener {
   }
 
   @Subscribe
-  public void message(final ChannelMessageCreateEvent event) {
+  public void react(final ChannelMessageReactionAddEvent event) {
     Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
       final Guild guild = channel.guild();
-      final User author = event.message().author();
-      guild.member(author.id()).ifPresent(member -> {
-        final String content = event.message().content();
-        for(final Role memberRole : member.roles().all().collect(Collectors.toSet())) {
-          final Optional<Configuration.SearchResult> searchResult = this.configuration.search((RoleQuery) () -> memberRole, content);
-          if(searchResult.isPresent()) {
-            final Configuration.Search search = searchResult.get().search;
-            guild.role(search.role).ifPresent(role -> this.ping(author, role, channel, search.action, searchResult.get().content));
-            return;
-          }
-        }
-      });
+      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), Member.Roles::add));
     });
   }
 
-  private void ping(final User source, final Role role, final TextChannel channel, final Action action, final String content) {
-    action.message().ifPresent(message -> {
-      final boolean mentionable = role.mentionable();
-      if(!mentionable) {
-        role.edit((RolePartial.MentionablePartial) () -> true);
-      }
-
-      channel.message(
-        Tokens.format(message.content(), ImmutableMap.of(
-          RolePingTokens.MESSAGE, content,
-          RolePingTokens.SOURCE, source.mention(),
-          RolePingTokens.ROLE, role.mention()
-        ))
-      ).thenRun(() -> {
-        if(!mentionable) {
-          role.edit((RolePartial.MentionablePartial) () -> false);
-        }
-      });
+  @Subscribe
+  public void react(final ChannelMessageReactionRemoveEvent event) {
+    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
+      final Guild guild = channel.guild();
+      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), Member.Roles::remove));
     });
+  }
+
+  private void react(final Guild guild, final Member member, final Snowflaked message, final Emoji emoji, final BiConsumer<Member.Roles, Role> consumer) {
+    for(final Role memberRole : EvenMoreObjects.<List<Role>>make(new ArrayList<>(), list -> {
+      list.addAll(member.roles().all().collect(Collectors.toSet()));
+      list.add(null); // @everyone
+    })) {
+      final OptionalLong maybeRole = this.configuration.search(memberRole != null ? (RoleQuery) () -> memberRole : null, message, emoji);
+      if(maybeRole.isPresent()) {
+        guild.role(maybeRole.getAsLong()).ifPresent(role -> consumer.accept(member.roles(), role));
+        return;
+      }
+    }
   }
 }
