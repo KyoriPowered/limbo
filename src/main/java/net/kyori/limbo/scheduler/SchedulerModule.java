@@ -41,7 +41,7 @@ public final class SchedulerModule extends AbstractModule {
     final ThreadFactory factory = new ThreadFactoryBuilder()
       .setNameFormat("Limbo Executor - %d")
       .build();
-    return Executors.newScheduledThreadPool(0, factory);
+    return Executors.newScheduledThreadPool(processors(), factory);
   }
 
   @Provides
@@ -50,6 +50,10 @@ public final class SchedulerModule extends AbstractModule {
     final ThreadFactory factory = new ThreadFactoryBuilder()
       .setNameFormat("Limbo Scheduler - %d")
       .build();
-    return Executors.newScheduledThreadPool(0, factory);
+    return Executors.newScheduledThreadPool(processors(), factory);
+  }
+
+  private static int processors() {
+    return Runtime.getRuntime().availableProcessors();
   }
 }
