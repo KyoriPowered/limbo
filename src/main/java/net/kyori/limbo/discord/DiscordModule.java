@@ -32,6 +32,7 @@ import net.kyori.kassel.client.Client;
 import net.kyori.limbo.discord.action.ActionModule;
 import net.kyori.limbo.discord.embed.EmbedParser;
 import net.kyori.limbo.discord.feature.gir.GitHubIssueRefFeatureModule;
+import net.kyori.limbo.discord.feature.role.auto.AutoRoleModule;
 import net.kyori.limbo.discord.feature.role.react.RoleReactModule;
 import net.kyori.limbo.discord.feature.rp.RolePingModule;
 import net.kyori.limbo.discord.filter.RoleFilterParser;
@@ -65,6 +66,7 @@ public final class DiscordModule extends DuplexModule {
     this.install(new ActionModule());
 
     this.install(new GitHubIssueRefFeatureModule());
+    this.install(new AutoRoleModule());
     this.install(new RolePingModule());
     this.install(new RoleReactModule());
   }
