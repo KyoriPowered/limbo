@@ -28,5 +28,7 @@ import net.kyori.fragment.filter.FilterQuery;
 import java.util.Collection;
 
 public interface LabelQuery extends FilterQuery {
-  Collection<String> labels();
+  Collection<String> oldLabels();
+
+  Collection<String> newLabels();
 }

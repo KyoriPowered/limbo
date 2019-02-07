@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import com.google.common.base.Predicates;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import net.kyori.event.Subscribe;
@@ -43,6 +44,7 @@ import net.kyori.lunar.Pair;
 import net.kyori.lunar.exception.Exceptions;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -95,6 +97,8 @@ public final class ApplyFeature implements Listener {
             .self(event.sender, this.selfUser)
             .get())
         )
+        .oldLabels(Labels.labels(event.issue, event.label == null ? Predicates.alwaysTrue() : Predicates.not(label -> event.label.name.equals(label))))
+        .newLabels(event.label != null ? event.label.name : null)
         .build();
       mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.TITLE, event.issue.title));
       mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.DESCRIPTION, event.issue.body));
@@ -133,7 +137,7 @@ public final class ApplyFeature implements Listener {
           .self(event.sender, this.selfUser)
           .get())
       )
-      .labels(Labels.labels(event.pull_request))
+      .oldLabels(Labels.labels(event.pull_request))
       .build();
     context.applicators(this.configuration, Pair.of(SearchScope.TITLE, event.pull_request.title), Pair.of(SearchScope.DESCRIPTION, event.pull_request.body))
       .apply(
@@ -159,7 +163,7 @@ public final class ApplyFeature implements Listener {
           .self(event.comment.user, this.selfUser)
           .get())
       )
-      .labels(Labels.labels(event.issue))
+      .oldLabels(Labels.labels(event.issue))
       .build();
     context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.comment.body))
       .apply(
@@ -185,7 +189,7 @@ public final class ApplyFeature implements Listener {
           .self(event.sender, this.selfUser)
           .get())
       )
-      .labels(Labels.labels(event.pull_request))
+      .oldLabels(Labels.labels(event.pull_request))
       .build();
     context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.review.body))
       .apply(

@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.git.label;
 
+import com.google.common.collect.Iterables;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.fragment.filter.FilterResponse;
 import net.kyori.fragment.filter.TypedFilter;
@@ -30,9 +31,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class LabelFilter implements TypedFilter<LabelQuery> {
   private final String label;
+  private final Context context;
 
-  /* package */ LabelFilter(final String label) {
+  /* package */ LabelFilter(final String label, final Context context) {
     this.label = label;
+    this.context = context;
   }
 
   @Override
@@ -41,7 +44,22 @@ public final class LabelFilter implements TypedFilter<LabelQuery> {
   }
 
   @Override
-  public @NonNull FilterResponse typedQuery(@NonNull LabelQuery query) {
-    return FilterResponse.from(query.labels().contains(this.label));
+  public @NonNull FilterResponse typedQuery(final @NonNull LabelQuery query) {
+    switch(this.context) {
+      case ANY:
+        return FilterResponse.from(Iterables.contains(Iterables.concat(query.oldLabels(), query.newLabels()), this.label));
+      case OLD:
+        return FilterResponse.from(query.oldLabels().contains(this.label));
+      case NEW:
+        return FilterResponse.from(query.newLabels().contains(this.label));
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  public enum Context {
+    ANY,
+    OLD,
+    NEW;
   }
 }

@@ -25,15 +25,24 @@ package net.kyori.limbo.git.label;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.xml.node.Node;
+import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public final class LabelFilterParser implements Parser<Filter> {
+  private final EnumParser<LabelFilter.Context> contextParser;
+
+  @Inject
+  private LabelFilterParser(final EnumParser<LabelFilter.Context> contextParser) {
+    this.contextParser = contextParser;
+  }
+
   @Override
   public @NonNull LabelFilter throwingParse(final @NonNull Node node) {
-    return new LabelFilter(node.value());
+    return new LabelFilter(node.value(), node.attribute("context").map(this.contextParser).optional(LabelFilter.Context.ANY));
   }
 }

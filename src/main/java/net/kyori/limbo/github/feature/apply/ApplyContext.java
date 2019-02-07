@@ -33,9 +33,12 @@ import net.kyori.lunar.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import javax.validation.constraints.Null;
 
 /* package */ class ApplyContext implements BulkActions.Context {
   private final Builder builder;
@@ -77,8 +80,13 @@ import java.util.function.Supplier;
           }
 
           @Override
-          public Collection<String> labels() {
-            return ApplyContext.this.builder.labels;
+          public Collection<String> oldLabels() {
+            return ApplyContext.this.builder.oldLabels;
+          }
+
+          @Override
+          public Collection<String> newLabels() {
+            return ApplyContext.this.builder.newLabels;
           }
         },
         scope,
@@ -89,7 +97,7 @@ import java.util.function.Supplier;
 
   @Override
   public Collection<String> existingLabels() {
-    return this.builder.labels;
+    return this.builder.oldLabels;
   }
 
   /* package */ static class Builder {
@@ -97,7 +105,8 @@ import java.util.function.Supplier;
     private RepositoryId repository;
     private Event event;
     private Supplier<Set<ActorType>> actorTypes;
-    private Collection<String> labels;
+    private Collection<String> oldLabels = Collections.emptySet();
+    private Collection<String> newLabels = Collections.emptySet();
 
     /* package */ Builder issue(final Issue issue) {
       this.issue = issue;
@@ -119,8 +128,20 @@ import java.util.function.Supplier;
       return this;
     }
 
-    /* package */ Builder labels(final Collection<String> labels) {
-      this.labels = labels;
+    /* package */ Builder oldLabels(final Collection<String> oldLabels) {
+      this.oldLabels = oldLabels;
+      return this;
+    }
+
+    /* package */ Builder newLabels(final @Null String newLabel) {
+      if(newLabel != null) {
+        return this.newLabels(Collections.singleton(newLabel));
+      }
+      return this;
+    }
+
+    /* package */ Builder newLabels(final Collection<String> newLabels) {
+      this.newLabels = newLabels;
       return this;
     }
 

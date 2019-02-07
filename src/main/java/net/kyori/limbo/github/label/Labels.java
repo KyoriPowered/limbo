@@ -29,11 +29,16 @@ import net.kyori.limbo.github.api.model.PullRequest;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface Labels {
   static Collection<String> labels(final Issue issue) {
     return labels(issue.labels);
+  }
+
+  static Collection<String> labels(final Issue issue, final Predicate<String> predicate) {
+    return labels(issue.labels, predicate);
   }
 
   static Collection<String> labels(final PullRequest pr) {
@@ -43,6 +48,13 @@ public interface Labels {
   static Collection<String> labels(final List<Label> labels) {
     return labels.stream()
       .map(label -> label.name)
+      .collect(Collectors.toSet());
+  }
+
+  static Collection<String> labels(final List<Label> labels, final Predicate<String> predicate) {
+    return labels.stream()
+      .map(label -> label.name)
+      .filter(predicate)
       .collect(Collectors.toSet());
   }
 }
