@@ -27,7 +27,7 @@ import com.google.common.base.MoreObjects;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.IssuePartial;
 import net.kyori.igloo.v3.Label;
-import net.kyori.lunar.exception.Exceptions;
+import net.kyori.lambda.function.ThrowingConsumer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class BulkActions {
   }
 
   private void applyComment(final Map<String, Object> tokens) {
-    this.actions.forEach(Exceptions.rethrowConsumer(action -> {
+    this.actions.forEach(ThrowingConsumer.of(action -> {
       final Action.Comment comment = action.comment();
       if(comment != null) {
         this.issue.comments().post(() -> comment.render(tokens));

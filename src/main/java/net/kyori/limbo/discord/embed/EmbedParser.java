@@ -24,7 +24,7 @@
 package net.kyori.limbo.discord.embed;
 
 import net.kyori.kassel.channel.message.embed.Embed;
-import net.kyori.lunar.exception.Exceptions;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
@@ -45,7 +45,7 @@ public final class EmbedParser implements Parser<Embed> {
     node.nodes("title").one().ifPresent(title -> builder.title(title.value()));
     node.nodes("description").one().ifPresent(description -> builder.description(description.value()));
     node.nodes("url").one().ifPresent(url -> builder.url(url.value()));
-    node.nodes("color").one().ifPresent(Exceptions.rethrowConsumer(color -> {
+    node.nodes("color").one().ifPresent(ThrowingConsumer.of(color -> {
       final String string = color.value();
       if(string.charAt(0) != '#') {
         throw new XMLException(color, "Color must be a hex value");

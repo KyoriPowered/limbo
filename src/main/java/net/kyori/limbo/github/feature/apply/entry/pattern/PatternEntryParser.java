@@ -25,10 +25,10 @@ package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import com.google.common.collect.MoreCollectors;
 import net.kyori.fragment.filter.Filter;
+import net.kyori.lambda.function.ThrowingFunction;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.feature.apply.SearchScope;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;
@@ -71,7 +71,7 @@ public final class PatternEntryParser implements Parser<PatternEntry> {
       return new FindPatternEntry(filter, scope, pattern, action);
     } else if(type == Type.WHERE) {
       final List<WherePatternEntry.Where> where = node.elements("where")
-        .map(Exceptions.rethrowFunction(group -> {
+        .map(ThrowingFunction.of(group -> {
           final int id = Integer.parseInt(group.requireAttribute("group").value());
           final Map<String, Action> actions = new HashMap<>();
           group.elements("match")

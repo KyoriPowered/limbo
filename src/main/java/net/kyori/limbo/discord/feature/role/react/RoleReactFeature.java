@@ -32,12 +32,15 @@ import net.kyori.kassel.guild.channel.GuildTextChannel;
 import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.snowflake.Snowflaked;
+import net.kyori.lambda.Composer;
+import net.kyori.lambda.Optionals;
 import net.kyori.limbo.discord.DiscordConfiguration;
+import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
-import net.kyori.lunar.EvenMoreObjects;
-import net.kyori.lunar.Optionals;
 import net.kyori.membrane.facet.Activatable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 public final class RoleReactFeature implements Activatable, Listener {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RoleReactFeature.class);
   private final DiscordConfiguration discord;
   private final Configuration configuration;
 
@@ -66,7 +70,10 @@ public final class RoleReactFeature implements Activatable, Listener {
   public void react(final ChannelMessageReactionAddEvent event) {
     Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
       final Guild guild = channel.guild();
-      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), Member.Roles::add));
+      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
+        LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(member.user()), member.user().id(), role.name(), role.id());
+        roles.add(role);
+      }));
     });
   }
 
@@ -74,12 +81,15 @@ public final class RoleReactFeature implements Activatable, Listener {
   public void react(final ChannelMessageReactionRemoveEvent event) {
     Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
       final Guild guild = channel.guild();
-      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), Member.Roles::remove));
+      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
+        LOGGER.info("Removing \"{}\" ({}) from role \"{}\" ({})", FunkyTown.globalName(member.user()), member.user().id(), role.name(), role.id());
+        roles.remove(role);
+      }));
     });
   }
 
   private void react(final Guild guild, final Member member, final Snowflaked message, final Emoji emoji, final BiConsumer<Member.Roles, Role> consumer) {
-    for(final Role memberRole : EvenMoreObjects.<List<Role>>make(new ArrayList<>(), list -> {
+    for(final Role memberRole : Composer.<List<Role>>accept(new ArrayList<>(), list -> {
       list.addAll(member.roles().all().collect(Collectors.toSet()));
       list.add(null); // @everyone
     })) {

@@ -27,9 +27,13 @@ import net.kyori.event.Subscribe;
 import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.guild.member.event.GuildMemberAddEvent;
+import net.kyori.kassel.user.User;
 import net.kyori.limbo.discord.DiscordConfiguration;
+import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.stream.LongStream;
@@ -37,6 +41,7 @@ import java.util.stream.LongStream;
 import javax.inject.Inject;
 
 public final class AutoRoleFeature implements Activatable, Listener {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AutoRoleFeature.class);
   private final DiscordConfiguration discord;
   private final Configuration configuration;
 
@@ -55,13 +60,17 @@ public final class AutoRoleFeature implements Activatable, Listener {
   public void add(final GuildMemberAddEvent event) {
     final Guild guild = event.guild();
     final Member member = event.member();
+    final User user = member.user();
 
-    this.configuration.search(guild, member.user()).ifPresent(roles -> {
+    this.configuration.search(guild, user).ifPresent(roles -> {
       LongStream.of(roles.toLongArray())
         .mapToObj(guild::role)
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .forEach(role -> member.roles().add(role));
+        .forEach(role -> {
+          LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(user), user.id(), role.name(), role.id());
+          member.roles().add(role);
+        });
     });
   }
 }

@@ -26,8 +26,8 @@ package net.kyori.limbo.discord.feature.role.auto;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.kassel.snowflake.Snowflake;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
@@ -50,7 +50,7 @@ public final class AutoRoleProcessor implements Processor {
       .elements("discord")
       .flatMap(Node::elements)
       .flatMap(new BranchLeafNodeFlattener("auto-roles", "auto-role"))
-      .forEach(Exceptions.rethrowConsumer(auto -> {
+      .forEach(ThrowingConsumer.of(auto -> {
         final @Snowflake long guild = auto.nodes("guild").one().map(this.longParser).required();
         final @Snowflake long user = auto.nodes("user").one().map(this.longParser).required();
         final LongSet roles = new LongArraySet();

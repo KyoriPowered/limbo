@@ -25,8 +25,8 @@ package net.kyori.limbo.github.action;
 
 import com.google.common.base.Joiner;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
-import net.kyori.lunar.Optionals;
-import net.kyori.lunar.exception.Exceptions;
+import net.kyori.lambda.Optionals;
+import net.kyori.lambda.function.ThrowingFunction;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -101,12 +101,12 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .flatMap(Node::nodes)
       .named("token")
       .stream()
-      .map(Exceptions.rethrowFunction(token -> new AbstractMap.SimpleImmutableEntry<>(token.requireAttribute("name").value(), token.requireAttribute("value").value())))
+      .map(ThrowingFunction.of(token -> new AbstractMap.SimpleImmutableEntry<>(token.requireAttribute("name").value(), token.requireAttribute("value").value())))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     final @Nullable String comment = Optionals.first(
       node.nodes("src")
         .one()
-        .map(Exceptions.rethrowFunction(src -> readMessage(this.root.resolve("message").resolve(src.value()))))
+        .map(ThrowingFunction.of(src -> readMessage(this.root.resolve("message").resolve(src.value()))))
         .optional(),
       node.nodes("value")
         .one()

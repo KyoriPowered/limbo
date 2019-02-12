@@ -24,8 +24,8 @@
 package net.kyori.limbo.git.repository;
 
 import net.kyori.feature.FeatureDefinitionContext;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
@@ -47,6 +47,6 @@ public final class RepositoriesProcessor implements Processor {
   public void process(final Node node) {
     node.elements()
       .flatMap(new BranchLeafNodeFlattener("repositories", "repository"))
-      .forEach(Exceptions.rethrowConsumer(entry -> this.context.get().define(RepositoryId.class, entry, this.parser.parse(entry))));
+      .forEach(ThrowingConsumer.of(entry -> this.context.get().define(RepositoryId.class, entry, this.parser.parse(entry))));
   }
 }

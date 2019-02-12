@@ -21,42 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.xml;
+package net.kyori.limbo.discord;
 
-import net.kyori.lambda.exception.Exceptions;
-import net.kyori.lambda.function.ThrowingConsumer;
-import net.kyori.membrane.facet.Connectable;
-import net.kyori.xml.XMLException;
-import net.kyori.xml.document.factory.DocumentFactory;
-import net.kyori.xml.node.Node;
+import net.kyori.kassel.user.User;
 
-import java.nio.file.Path;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-public final class FeatureProcessor implements Connectable {
-  private final DocumentFactory factory;
-  private final Set<Processor> processors;
-  private final Path path;
-
-  @Inject
-  private FeatureProcessor(final DocumentFactory factory, final Set<Processor> processors, final @Named("config") Path path) {
-    this.factory = factory;
-    this.processors = processors;
-    this.path = path;
-  }
-
-  @Override
-  public void connect() {
-    final Node node;
-    try {
-      node = Node.of(this.factory.read(this.path.resolve("features.xml")).getRootElement());
-    } catch(final XMLException e) {
-      throw Exceptions.rethrow(e);
-    }
-
-    this.processors.forEach(ThrowingConsumer.of(processor -> processor.process(node)));
+public interface FunkyTown {
+  static String globalName(final User user) {
+    return String.format("%s#%s", user.username(), user.discriminator());
   }
 }

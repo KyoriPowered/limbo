@@ -32,13 +32,12 @@ import net.kyori.kassel.guild.channel.GuildTextChannel;
 import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.guild.role.RolePartial;
 import net.kyori.kassel.user.User;
+import net.kyori.lambda.Optionals;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
-import net.kyori.limbo.discord.embed.EmbedRenderer;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.util.Tokens;
-import net.kyori.lunar.Optionals;
 import net.kyori.membrane.facet.Activatable;
 
 import java.util.Optional;

@@ -30,7 +30,7 @@ import com.google.inject.multibindings.Multibinder;
 import net.kyori.feature.FeatureDefinitionContext;
 import net.kyori.feature.FeatureDefinitionContextImpl;
 import net.kyori.fragment.filter.FilterModule;
-import net.kyori.lunar.EvenMoreObjects;
+import net.kyori.lambda.Composer;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
 import net.kyori.xml.document.factory.DocumentFactory;
@@ -63,7 +63,7 @@ public final class XmlModule extends AbstractModule {
   @Singleton
   DocumentFactory documentFactory(final @Named("config") Path path) {
     return DocumentFactory.builder()
-      .builder(EvenMoreObjects.make(new SAXBuilder(), builder -> builder.setJDOMFactory(new LocatedJDOMFactory())))
+      .builder(Composer.accept(new SAXBuilder(), builder -> builder.setJDOMFactory(new LocatedJDOMFactory())))
       .includePaths(path.resolve("include"))
       .build();
   }

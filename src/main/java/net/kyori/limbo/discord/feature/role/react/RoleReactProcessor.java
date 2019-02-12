@@ -25,8 +25,8 @@ package net.kyori.limbo.discord.feature.role.react;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
@@ -52,7 +52,7 @@ public final class RoleReactProcessor implements Processor {
       .elements("discord")
       .flatMap(Node::elements)
       .flatMap(new BranchLeafNodeFlattener("role-reacts", "role-react"))
-      .forEach(Exceptions.rethrowConsumer(ping -> {
+      .forEach(ThrowingConsumer.of(ping -> {
         final @Snowflake long message = ping.nodes("message").one().map(this.longParser).required();
         final String emoji = ping.nodes("emoji").one().map(Node::value).required();
         final @Nullable Filter filter = this.filterParser.parse(ping.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);

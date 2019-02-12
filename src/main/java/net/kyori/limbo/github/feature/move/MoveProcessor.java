@@ -24,11 +24,11 @@
 package net.kyori.limbo.github.feature.move;
 
 import net.kyori.feature.parser.FeatureDefinitionParser;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.element.Elements;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
@@ -63,7 +63,7 @@ public final class MoveProcessor implements Processor {
       .named("move")
       .flatMap(Node::elements)
       .map(Elements::inherited)
-      .forEach(Exceptions.rethrowConsumer(entry -> {
+      .forEach(ThrowingConsumer.of(entry -> {
         final Pattern pattern = Pattern.compile(String.format(entry.requireAttribute("pattern").value(), this.identity.login));
 
         final @Nullable RepositoryId sourceRepository = entry.elements("source").flatMap(source -> source.nodes("repository")).one().map(this.repoParser::parse).required();

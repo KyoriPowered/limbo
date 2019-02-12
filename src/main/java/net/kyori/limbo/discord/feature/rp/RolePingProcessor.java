@@ -26,9 +26,9 @@ package net.kyori.limbo.discord.feature.rp;
 import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.lunar.exception.Exceptions;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
@@ -59,7 +59,7 @@ public final class RolePingProcessor implements Processor {
       .elements("discord")
       .flatMap(Node::elements)
       .flatMap(new BranchLeafNodeFlattener("role-pings", "role-ping"))
-      .forEach(Exceptions.rethrowConsumer(ping -> {
+      .forEach(ThrowingConsumer.of(ping -> {
         final Pattern pattern = ping.nodes("pattern").one().map(Node::value).map(Pattern::compile).required();
         final Set<String> ids = ping.nodes("id").map(Node::value).collect(Collectors.toSet());
         final Filter filter = this.filterParser.parse(ping.nodes("filter").flatMap(Node::nodes).one().required());

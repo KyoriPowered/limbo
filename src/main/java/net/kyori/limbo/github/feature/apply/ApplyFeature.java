@@ -28,6 +28,8 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import net.kyori.event.Subscribe;
 import net.kyori.igloo.v3.Repositories;
+import net.kyori.lambda.Pair;
+import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.git.GitTokens;
 import net.kyori.limbo.git.actor.ActorType;
@@ -40,11 +42,8 @@ import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
-import net.kyori.lunar.Pair;
-import net.kyori.lunar.exception.Exceptions;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -87,7 +86,7 @@ public final class ApplyFeature implements Listener {
       .issue(this.repositories.get(event.repository).issues().get(event.issue.number))
       .labels(Labels.labels(event.issue))
       .build();
-    final Consumer<Event> consumer = Exceptions.rethrowConsumer(e -> {
+    final Consumer<Event> consumer = ThrowingConsumer.of(e -> {
       final ApplyContext context = mac.child()
         .event(e)
         .actorTypes(
