@@ -66,7 +66,7 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
   public void message(final ChannelMessageCreateEvent event) {
     Optionals.cast(event.channel(), TextChannel.class).ifPresent(channel -> this.configuration.search(event.message().content()).ifPresent(search -> {
       final Issue issue = this.repositories.get(new GitHubRepositoryIdImpl(search.repository)).issues().get(search.number);
-      final @Nullable PullRequest pr = issue.pullRequest().orElse(null);
+      final /* @Nullable */ PullRequest pr = issue.pullRequest().orElse(null);
       final Action action = this.configuration.actionFor(issue, pr);
       action.message().ifPresent(message -> channel.message(
         message.content(),
