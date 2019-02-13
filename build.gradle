@@ -45,6 +45,7 @@ repositories {
 
 dependencies {
   compile 'com.google.guava:guava:23.6-jre'
+  compile 'com.google.http-client:google-http-client:1.28.0'
   compile 'net.kyori:event:1.1.0-SNAPSHOT'
   compile 'net.kyori:fragment:1.0.0-SNAPSHOT'
   compile 'net.kyori:igloo:1.0.0-SNAPSHOT'

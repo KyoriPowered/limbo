@@ -77,6 +77,7 @@ public final class GitHubModule extends DuplexModule {
     return GitHub.builder()
       .gson(gson)
       .token(environment.elements("github").one().required().requireAttribute("token").value())
+      .http(request -> request.setLoggingEnabled(false)) // o_o
       .build();
   }
 
