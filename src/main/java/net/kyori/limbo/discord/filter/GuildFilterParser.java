@@ -21,42 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply;
+package net.kyori.limbo.discord.filter;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.limbo.github.feature.apply.entry.Entry;
-import net.kyori.limbo.xml.Processor;
+import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.inject.Inject;
 
-public final class ApplyProcessor implements Processor {
-  private final ApplyFeatureConfiguration configuration;
-  private final Parser<Filter> filterParser;
-  private final Parser<Entry> entryParser;
+public final class GuildFilterParser implements Parser<GuildFilter> {
+  private final Parser<Long> longParser;
 
   @Inject
-  private ApplyProcessor(final ApplyFeatureConfiguration configuration, final Parser<Filter> filterParser, final Parser<Entry> entryParser) {
-    this.configuration = configuration;
-    this.filterParser = filterParser;
-    this.entryParser = entryParser;
+  private GuildFilterParser(final Parser<Long> longParser) {
+    this.longParser = longParser;
   }
 
   @Override
-  public void process(final Node node) {
-    node
-      .elements("github")
-      .flatMap(Node::elements)
-      .named("apply")
-      .flatMap(Node::elements)
-      .forEach(entry -> {
-        final /* @Nullable */ Filter filter = this.filterParser.parse(entry.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
-        final List<Entry> entries = entry.elements("actions").flatMap(Node::elements).map(this.entryParser::parse).collect(Collectors.toList());
-        this.configuration.entries.add(new ApplyFeatureConfiguration.Entry(filter, entries));
-      });
+  public GuildFilter throwingParse(final @NonNull Node node) throws XMLException {
+    return new GuildFilter(this.longParser.parse(node));
   }
 }

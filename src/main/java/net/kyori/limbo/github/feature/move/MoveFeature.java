@@ -35,7 +35,6 @@ import net.kyori.limbo.github.api.model.Repository;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +62,13 @@ public final class MoveFeature implements Listener {
   public void move(final IssueCommentEvent event) throws IOException {
     final Repository sourceRepository = event.repository;
 
-    final MoveConfiguration.@Nullable Entry source = this.configuration.source(sourceRepository);
+    final MoveConfiguration./* @Nullable */ Entry source = this.configuration.source(sourceRepository);
     if(source == null) {
       LOGGER.error("Could not find source entry for '{}'", sourceRepository);
       return;
     }
 
-    final MoveConfiguration.@Nullable Target target = source.target(event.comment.body);
+    final MoveConfiguration./* @Nullable */ Target target = source.target(event.comment.body);
     if(target == null) {
       LOGGER.error("Could not find target entry for '{}'", source);
       return;

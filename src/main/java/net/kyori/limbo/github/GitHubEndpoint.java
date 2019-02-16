@@ -84,7 +84,7 @@ public final class GitHubEndpoint {
   ) {
     final byte[] payload = body.getBytes(StandardCharsets.UTF_8);
     if(this.verifySignature(xHubSignature, payload)) {
-      final @Nullable Class<? extends Event> event = this.event(xGitHubEvent);
+      final /* @Nullable */ Class<? extends Event> event = this.event(xGitHubEvent);
       if(event != null) {
         this.bus.post(this.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(payload)), event));
       } else {

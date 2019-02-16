@@ -57,7 +57,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
 
   @Override
   public @NonNull Action realThrowingParse(final @NonNull Node node) {
-    final Action.@Nullable State state = pickOne(
+    final Action./* @Nullable */ State state = pickOne(
       node.attribute("open")
         .map(Node::value)
         .map(Boolean::valueOf)
@@ -69,7 +69,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
         .optional(false),
       Action.State.CLOSE
     );
-    final Action.@Nullable Comment comment = node.elements("comment")
+    final Action./* @Nullable */ Comment comment = node.elements("comment")
       .one()
       .map(this::parseComment)
       .optional(null);
@@ -81,7 +81,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .flatMap(label -> label.elements("remove"))
       .map(Node::value)
       .collect(Collectors.toSet());
-    final Action.@Nullable Lock lock = pickOne(
+    final Action./* @Nullable */ Lock lock = pickOne(
       node.attribute("lock")
         .map(Node::value)
         .map(Boolean::valueOf)
@@ -103,7 +103,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .stream()
       .map(ThrowingFunction.of(token -> new AbstractMap.SimpleImmutableEntry<>(token.requireAttribute("name").value(), token.requireAttribute("value").value())))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    final @Nullable String comment = Optionals.first(
+    final /* @Nullable */ String comment = Optionals.first(
       node.nodes("src")
         .one()
         .map(ThrowingFunction.of(src -> readMessage(this.root.resolve("message").resolve(src.value()))))

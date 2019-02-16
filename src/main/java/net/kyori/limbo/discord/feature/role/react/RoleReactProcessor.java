@@ -30,7 +30,6 @@ import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.inject.Inject;
 
@@ -55,7 +54,7 @@ public final class RoleReactProcessor implements Processor {
       .forEach(ThrowingConsumer.of(ping -> {
         final @Snowflake long message = ping.nodes("message").one().map(this.longParser).required();
         final String emoji = ping.nodes("emoji").one().map(Node::value).required();
-        final @Nullable Filter filter = this.filterParser.parse(ping.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
+        final /* @Nullable */ Filter filter = this.filterParser.parse(ping.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
         final @Snowflake long role = ping.nodes("role").one().map(this.longParser).required();
         this.configuration.reactions.add(new Configuration.Reaction(message, emoji, filter, role));
       }));

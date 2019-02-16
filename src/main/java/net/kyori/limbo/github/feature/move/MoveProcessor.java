@@ -32,7 +32,6 @@ import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.element.Elements;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -66,13 +65,13 @@ public final class MoveProcessor implements Processor {
       .forEach(ThrowingConsumer.of(entry -> {
         final Pattern pattern = Pattern.compile(String.format(entry.requireAttribute("pattern").value(), this.identity.login));
 
-        final @Nullable RepositoryId sourceRepository = entry.elements("source").flatMap(source -> source.nodes("repository")).one().map(this.repoParser::parse).required();
+        final /* @Nullable */ RepositoryId sourceRepository = entry.elements("source").flatMap(source -> source.nodes("repository")).one().map(this.repoParser::parse).required();
         final Action sourceAction = entry.elements("source").flatMap(source -> source.nodes("action")).one().map(this.actionParser::parse).required();
 
         final List<MoveConfiguration.Target> targets = entry.elements()
           .flatMap(new BranchLeafNodeFlattener("targets", "target"))
           .map(target -> {
-            final @Nullable RepositoryId repository = target.nodes("repository").one().map(this.repoParser::parse).required();
+            final /* @Nullable */ RepositoryId repository = target.nodes("repository").one().map(this.repoParser::parse).required();
             final Action action = target.nodes("action").one().map(this.actionParser::parse).required();
             return new MoveConfiguration.Target(repository, action);
           })

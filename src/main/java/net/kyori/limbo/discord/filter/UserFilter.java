@@ -21,29 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry;
+package net.kyori.limbo.discord.filter;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.limbo.github.action.Action;
-import net.kyori.limbo.github.feature.apply.CollectContext;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.fragment.filter.FilterResponse;
+import net.kyori.fragment.filter.TypedFilter;
+import net.kyori.kassel.snowflake.Snowflake;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.List;
+public final class UserFilter implements TypedFilter<UserQuery> {
+  private final @Snowflake long user;
 
-public interface Entry {
-  Filter filter();
+  public UserFilter(final @Snowflake long user) {
+    this.user = user;
+  }
 
-  void collect(final CollectContext context, final List<Action> actions);
+  @Override
+  public boolean queryable(final @NonNull FilterQuery query) {
+    return query instanceof UserQuery;
+  }
 
-  abstract class Impl implements Entry {
-    final Filter filter;
-
-    public Impl(final Filter filter) {
-      this.filter = filter;
-    }
-
-    @Override
-    public Filter filter() {
-      return this.filter;
-    }
+  @Override
+  public @NonNull FilterResponse typedQuery(final @NonNull UserQuery query) {
+    return FilterResponse.from(query.user().id() == this.user);
   }
 }

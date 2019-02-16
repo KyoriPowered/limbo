@@ -25,7 +25,7 @@ package net.kyori.limbo.discord.feature.role.auto;
 
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.kyori.kassel.snowflake.Snowflake;
+import net.kyori.fragment.filter.Filter;
 import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.node.Node;
@@ -36,11 +36,13 @@ import javax.inject.Inject;
 
 public final class AutoRoleProcessor implements Processor {
   private final Configuration configuration;
+  private final Parser<Filter> filterParser;
   private final Parser<Long> longParser;
 
   @Inject
-  private AutoRoleProcessor(final Configuration configuration, final Parser<Long> longParser) {
+  private AutoRoleProcessor(final Configuration configuration, final Parser<Filter> filterParser, final Parser<Long> longParser) {
     this.configuration = configuration;
+    this.filterParser = filterParser;
     this.longParser = longParser;
   }
 
@@ -51,11 +53,10 @@ public final class AutoRoleProcessor implements Processor {
       .flatMap(Node::elements)
       .flatMap(new BranchLeafNodeFlattener("auto-roles", "auto-role"))
       .forEach(ThrowingConsumer.of(auto -> {
-        final @Snowflake long guild = auto.nodes("guild").one().map(this.longParser).required();
-        final @Snowflake long user = auto.nodes("user").one().map(this.longParser).required();
+        final /* @Nullable */ Filter filter = this.filterParser.parse(auto.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
         final LongSet roles = new LongArraySet();
         auto.nodes("role").map(this.longParser).forEach(roles::add);
-        this.configuration.entries.add(new Configuration.Entry(guild, user, roles));
+        this.configuration.entries.add(new Configuration.Entry(filter, roles));
       }));
   }
 }

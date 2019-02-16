@@ -25,6 +25,7 @@ package net.kyori.limbo.github.feature.apply.entry.trigger;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.CollectContext;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public final class TriggerEntry extends Entry.Impl {
   }
 
   @Override
-  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
+  public void collect(final CollectContext context, final List<Action> actions) {
     actions.add(this.action);
   }
 }

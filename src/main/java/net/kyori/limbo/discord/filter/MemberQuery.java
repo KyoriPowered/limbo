@@ -21,29 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry;
+package net.kyori.limbo.discord.filter;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.limbo.github.action.Action;
-import net.kyori.limbo.github.feature.apply.CollectContext;
+import net.kyori.kassel.guild.member.Member;
+import net.kyori.kassel.user.User;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.List;
+public interface MemberQuery extends GuildQuery, UserQuery {
+  @NonNull Member member();
 
-public interface Entry {
-  Filter filter();
-
-  void collect(final CollectContext context, final List<Action> actions);
-
-  abstract class Impl implements Entry {
-    final Filter filter;
-
-    public Impl(final Filter filter) {
-      this.filter = filter;
-    }
-
-    @Override
-    public Filter filter() {
-      return this.filter;
-    }
+  @Override
+  default @NonNull User user() {
+    return this.member().user();
   }
 }

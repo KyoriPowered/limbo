@@ -24,9 +24,8 @@
 package net.kyori.limbo.discord.feature.role.auto;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.kyori.kassel.guild.Guild;
-import net.kyori.kassel.snowflake.Snowflake;
-import net.kyori.kassel.user.User;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.fragment.filter.FilterQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
@@ -39,9 +38,9 @@ import javax.inject.Singleton;
 /* package */ final class Configuration {
   final List<Entry> entries = new ArrayList<>();
 
-  @NonNull Optional<LongSet> search(final Guild guild, final User user) {
+  @NonNull Optional<LongSet> search(final FilterQuery query) {
     for(final Entry entry : this.entries) {
-      if(entry.guild == guild.id() && entry.user == user.id()) {
+      if(entry.filter.allowed(query)) {
         return Optional.of(entry.roles);
       }
     }
@@ -49,13 +48,11 @@ import javax.inject.Singleton;
   }
 
   static class Entry {
-    final @Snowflake long guild;
-    final @Snowflake long user;
+    final Filter filter;
     final LongSet roles;
 
-    Entry(final @Snowflake long guild, final @Snowflake long user, final @NonNull LongSet roles) {
-      this.guild = guild;
-      this.user = user;
+    Entry(final Filter filter, final @NonNull LongSet roles) {
+      this.filter = filter;
       this.roles = roles;
     }
   }

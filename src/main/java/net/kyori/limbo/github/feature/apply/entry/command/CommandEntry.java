@@ -25,6 +25,7 @@ package net.kyori.limbo.github.feature.apply.entry.command;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.CollectContext;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
 
 import java.util.List;
@@ -40,9 +41,9 @@ public final class CommandEntry extends Entry.Impl {
   }
 
   @Override
-  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
+  public void collect(final CollectContext context, final List<Action> actions) {
     for(final String command : this.commands) {
-      for(final String string : strings) {
+      for(final String string : context.strings) {
         if(string.trim().startsWith(command)) {
           actions.add(this.action);
           return;

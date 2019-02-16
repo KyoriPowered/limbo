@@ -35,7 +35,9 @@ import net.kyori.limbo.discord.feature.gir.GitHubIssueRefFeatureModule;
 import net.kyori.limbo.discord.feature.role.auto.AutoRoleModule;
 import net.kyori.limbo.discord.feature.role.react.RoleReactModule;
 import net.kyori.limbo.discord.feature.rp.RolePingModule;
+import net.kyori.limbo.discord.filter.GuildFilterParser;
 import net.kyori.limbo.discord.filter.RoleFilterParser;
+import net.kyori.limbo.discord.filter.UserFilterParser;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.polar.ForPolar;
 import net.kyori.polar.PolarModule;
@@ -58,7 +60,9 @@ public final class DiscordModule extends DuplexModule {
     facets.addBinding().to(ClientConnector.class);
 
     final FilterBinder filters = new FilterBinder(this.publicBinder());
+    filters.bindFilter("guild").to(GuildFilterParser.class);
     filters.bindFilter("role").to(RoleFilterParser.class);
+    filters.bindFilter("user").to(UserFilterParser.class);
 
     final ParserBinder parsers = new ParserBinder(this.publicBinder());
     parsers.bindParser(Embed.class).to(EmbedParser.class);

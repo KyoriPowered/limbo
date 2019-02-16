@@ -23,7 +23,6 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
-import com.google.common.base.Splitter;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.github.action.Action;
@@ -38,14 +37,13 @@ import javax.inject.Singleton;
 
 @Singleton
 /* package */ final class ApplyFeatureConfiguration {
-  private static final Splitter NEWLINE_PATTERN = Splitter.on('\n');
   final Collection<Entry> entries = new ArrayList<>();
 
-  public List<Action> applicators(final FilterQuery query, final SearchScope scope, final String string) {
-    return this.applicators(query, scope, string, NEWLINE_PATTERN.splitToList(string));
+  public List<Action> applicators(final FilterQuery query, final SearchScope scope, final @Nullable String string) {
+    return this.applicators(query, scope, new CollectContext(string));
   }
 
-  private List<Action> applicators(final FilterQuery query, final SearchScope scope, final String string, final List<String> strings) {
+  private List<Action> applicators(final FilterQuery query, final SearchScope scope, final CollectContext context) {
     final List<Action> applicators = new ArrayList<>();
     for(final Entry entry : this.entries) {
       if(entry.filter == null || entry.filter.allowed(query)) {
@@ -56,7 +54,7 @@ import javax.inject.Singleton;
                 continue;
               }
             }
-            action.collect(string, strings, applicators);
+            action.collect(context, applicators);
           }
         }
       }

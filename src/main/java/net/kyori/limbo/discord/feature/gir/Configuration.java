@@ -52,7 +52,7 @@ import javax.inject.Singleton;
       final Matcher matcher = search.pattern.matcher(string);
       if(matcher.find()) {
         final String tag = matcher.group(1).toLowerCase(Locale.ENGLISH);
-        final @Nullable RepositoryId repository = search.repositories.stream().filter(rid -> rid.tags().contains(tag)).findAny().orElse(null);
+        final /* @Nullable */ RepositoryId repository = search.repositories.stream().filter(rid -> rid.tags().contains(tag)).findAny().orElse(null);
         if(repository != null) {
           try {
             final int number = Integer.parseInt(matcher.group(2));

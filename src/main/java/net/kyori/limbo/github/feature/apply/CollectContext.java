@@ -21,29 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.github.feature.apply.entry;
+package net.kyori.limbo.github.feature.apply;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.limbo.github.action.Action;
-import net.kyori.limbo.github.feature.apply.CollectContext;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
-public interface Entry {
-  Filter filter();
+public class CollectContext {
+  private static final Splitter NEWLINE_PATTERN = Splitter.on('\n');
+  public final String string;
+  public final List<String> strings;
 
-  void collect(final CollectContext context, final List<Action> actions);
-
-  abstract class Impl implements Entry {
-    final Filter filter;
-
-    public Impl(final Filter filter) {
-      this.filter = filter;
-    }
-
-    @Override
-    public Filter filter() {
-      return this.filter;
-    }
+  public CollectContext(final @Nullable String string) {
+    this.string = Strings.nullToEmpty(string);
+    this.strings = NEWLINE_PATTERN.splitToList(this.string);
   }
 }

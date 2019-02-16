@@ -27,7 +27,6 @@ import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public final class EntryParser implements Parser<Entry> {
 
   @Override
   public @NonNull Entry throwingParse(final @NonNull Node node) throws XMLException {
-    final @Nullable Parser<? extends Entry> parser = this.parsers.get(node.name());
+    final /* @Nullable */ Parser<? extends Entry> parser = this.parsers.get(node.name());
     if(parser == null) {
       throw new XMLException(node, "Could not find action parser: " + node.name());
     }

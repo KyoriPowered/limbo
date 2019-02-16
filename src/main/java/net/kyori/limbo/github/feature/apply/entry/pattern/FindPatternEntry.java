@@ -25,6 +25,7 @@ package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.CollectContext;
 import net.kyori.limbo.github.feature.apply.SearchScope;
 
 import java.util.List;
@@ -40,9 +41,9 @@ public final class FindPatternEntry extends PatternEntry {
   }
 
   @Override
-  public void collect(final String fullString, final List<String> strings, final List<Action> actions) {
-    final Matcher matcher = this.pattern.matcher(fullString);
-    if(!matcher.find() || this.escaped(matcher, fullString)) {
+  public void collect(final CollectContext context, final List<Action> actions) {
+    final Matcher matcher = this.pattern.matcher(context.string);
+    if(!matcher.find() || this.escaped(matcher, context.string)) {
       return;
     }
     actions.add(this.action);

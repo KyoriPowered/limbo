@@ -28,7 +28,6 @@ import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
 
@@ -50,7 +49,7 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .one()
       .map(m -> {
         final String content = m.nodes("content").one().map(Node::value).optional("");
-        final @Nullable Embed embed = m.nodes("embed").one().map(this.embedParser::parse).optional(null);
+        final /* @Nullable */ Embed embed = m.nodes("embed").one().map(this.embedParser::parse).optional(null);
         return new Action.Message() {
           @Override
           public @NonNull String content() {
