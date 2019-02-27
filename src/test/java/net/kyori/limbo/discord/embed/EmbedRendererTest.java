@@ -48,7 +48,7 @@ class EmbedRendererTest {
         .footerText("${footer_text}")
         .footerIcon("${footer_icon}")
         .build(),
-      s -> s.replaceAll("\\$\\{.*}", "bar")
+      EmbedRenderer.Operators.of(s -> s.replaceAll("\\$\\{.*}", "bar"))
     );
     assertEquals("bar", string(embed.title()));
     assertEquals("bar", string(embed.description()));
@@ -83,19 +83,21 @@ class EmbedRendererTest {
         .footerText("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} ${footer_icon}")
         .footerIcon("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} ${footer_icon}")
         .build(),
-      string -> string.replace("${title}", "title"),
-      string -> string.replace("${description}", "description"),
-      string -> string.replace("${url}", "url"),
-      string -> string.replace("${author_name}", "author_name"),
-      string -> string.replace("${author_url}", "author_url"),
-      string -> string.replace("${author_icon}", "author_icon"),
-      string -> string.replace("${image_url}", "image_url"),
-      string -> string.replace("${thumbnail_url}", "thumbnail_url"),
-      string -> string.replace("${field_name}", "field_name"),
-      string -> string.replace("${field_value}", "field_value"),
-      string -> string.replace("${footer_text}", "footer_text"),
-      string -> string.replace("${footer_icon}", "footer_icon")
+      EmbedRenderer.Operators.create()
+        .title(string -> string.replace("${title}", "title"))
+        .description(string -> string.replace("${description}", "description"))
+        .url(string -> string.replace("${url}", "url"))
+        .authorName(string -> string.replace("${author_name}", "author_name"))
+        .authorUrl(string -> string.replace("${author_url}", "author_url"))
+        .authorIcon(string -> string.replace("${author_icon}", "author_icon"))
+        .imageUrl(string -> string.replace("${image_url}", "image_url"))
+        .thumbnailUrl(string -> string.replace("${thumbnail_url}", "thumbnail_url"))
+        .fieldName(string -> string.replace("${field_name}", "field_name"))
+        .fieldValue(string -> string.replace("${field_value}", "field_value"))
+        .footerText(string -> string.replace("${footer_text}", "footer_text"))
+        .footerIcon(string -> string.replace("${footer_icon}", "footer_icon"))
     );
+
     assertEquals("title ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} ${footer_icon}", string(embed.title()));
     assertEquals("${title} description ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} ${footer_icon}", string(embed.description()));
     assertEquals("${title} ${description} url ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} ${footer_icon}", string(embed.url()));
@@ -106,6 +108,8 @@ class EmbedRendererTest {
     assertEquals("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} thumbnail_url ${field_name} ${field_value} ${footer_text} ${footer_icon}", string(embed.thumbnail().flatMap(Embed.Thumbnail::url)));
     assertEquals("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} field_name ${field_value} ${footer_text} ${footer_icon}", embed.fields().get(0).name());
     assertEquals("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} field_value ${footer_text} ${footer_icon}", embed.fields().get(0).value());
+    assertEquals("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} footer_text ${footer_icon}", string(embed.footer().flatMap(Embed.Footer::text)));
+    assertEquals("${title} ${description} ${url} ${author_name} ${author_url} ${author_icon} ${image_url} ${thumbnail_url} ${field_name} ${field_value} ${footer_text} footer_icon", string(embed.footer().flatMap(Embed.Footer::icon)));
   }
 
   @Test

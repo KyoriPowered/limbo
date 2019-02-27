@@ -25,4 +25,5 @@ package net.kyori.limbo.discord.feature.gir;
 
 /* package */ interface GitHubIssueRefTokens {
   String TAG = "tag";
+  String AUTHOR = "author";
 }

@@ -30,36 +30,32 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public interface EmbedRenderer {
-  static Embed render(final Embed.Builder builder, final Embed embed, final UnaryOperator<String> renderer) {
-    return render(builder, embed, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer);
-  }
-
   static Embed render(final Embed embed, final UnaryOperator<String> renderer) {
-    return render(embed, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer, renderer);
+    return render(embed, Operators.of(renderer));
   }
 
-  static Embed render(final Embed embed, final UnaryOperator<String> title, final UnaryOperator<String> description, final UnaryOperator<String> url, final UnaryOperator<String> authorName, final UnaryOperator<String> authorUrl, final UnaryOperator<String> authorIcon, final UnaryOperator<String> imageUrl, final UnaryOperator<String> thumbnailUrl, final UnaryOperator<String> fieldName, final UnaryOperator<String> fieldValue, final UnaryOperator<String> footerText, final UnaryOperator<String> footerIcon) {
+  static Embed render(final Embed embed, final Operators operators) {
     final Embed.Builder builder = Embed.builder();
-    return render(builder, embed, title, description, url, authorName, authorUrl, authorIcon, imageUrl, thumbnailUrl, fieldName, fieldValue, footerText, footerIcon);
+    return render(builder, embed, operators);
   }
 
-  static Embed render(final Embed.Builder builder, final Embed embed, final UnaryOperator<String> title, final UnaryOperator<String> description, final UnaryOperator<String> url, final UnaryOperator<String> authorName, final UnaryOperator<String> authorUrl, final UnaryOperator<String> authorIcon, final UnaryOperator<String> imageUrl, final UnaryOperator<String> thumbnailUrl, final UnaryOperator<String> fieldName, final UnaryOperator<String> fieldValue, final UnaryOperator<String> footerText, final UnaryOperator<String> footerIcon) {
-    apply(embed.title(), title, builder::title);
-    apply(embed.description(), description, builder::description);
-    apply(embed.url(), url, builder::url);
+  static Embed render(final Embed.Builder builder, final Embed embed, final Operators operators) {
+    apply(embed.title(), operators.title, builder::title);
+    apply(embed.description(), operators.description, builder::description);
+    apply(embed.url(), operators.url, builder::url);
     embed.color().ifPresent(builder::color);
     embed.timestamp().ifPresent(builder::timestamp);
     embed.author().ifPresent(author -> {
-      apply(author.name(), authorName, builder::authorName);
-      apply(author.url(), authorUrl, builder::authorUrl);
-      apply(author.icon(), authorIcon, builder::authorIcon);
+      apply(author.name(), operators.authorName, builder::authorName);
+      apply(author.url(), operators.authorUrl, builder::authorUrl);
+      apply(author.icon(), operators.authorIcon, builder::authorIcon);
     });
-    embed.image().ifPresent(image -> apply(image.url(), imageUrl, builder::imageUrl));
-    embed.thumbnail().ifPresent(thumbnail -> apply(thumbnail.url(), thumbnailUrl, builder::thumbnailUrl));
-    embed.fields().forEach(field -> builder.field(fieldName.apply(field.name()), fieldValue.apply(field.value())));
+    embed.image().ifPresent(image -> apply(image.url(), operators.imageUrl, builder::imageUrl));
+    embed.thumbnail().ifPresent(thumbnail -> apply(thumbnail.url(), operators.thumbnailUrl, builder::thumbnailUrl));
+    embed.fields().forEach(field -> builder.field(operators.fieldName.apply(field.name()), operators.fieldValue.apply(field.value())));
     embed.footer().ifPresent(footer -> {
-      apply(footer.text(), footerText, builder::footerText);
-      apply(footer.icon(), footerIcon, builder::footerIcon);
+      apply(footer.text(), operators.footerText, builder::footerText);
+      apply(footer.icon(), operators.footerIcon, builder::footerIcon);
     });
     return builder.build();
   }
@@ -70,10 +66,108 @@ public interface EmbedRenderer {
 
   static Embed edited(final Embed original, final Embed source, final UnaryOperator<String> renderer) {
     final Embed.Builder builder = original.toBuilder();
-    return render(builder, source, renderer);
+    return render(builder, source, Operators.of(renderer));
   }
 
   static void apply(final Optional<String> oldValue, final UnaryOperator<String> newValue, final Consumer<String> setter) {
     oldValue.ifPresent(value -> setter.accept(newValue.apply(value)));
+  }
+
+  class Operators {
+    UnaryOperator<String> title;
+    UnaryOperator<String> description;
+    UnaryOperator<String> url;
+    UnaryOperator<String> authorName;
+    UnaryOperator<String> authorUrl;
+    UnaryOperator<String> authorIcon;
+    UnaryOperator<String> imageUrl;
+    UnaryOperator<String> thumbnailUrl;
+    UnaryOperator<String> fieldName;
+    UnaryOperator<String> fieldValue;
+    UnaryOperator<String> footerText;
+    UnaryOperator<String> footerIcon;
+
+    public static Operators create() {
+      return new Operators(UnaryOperator.identity());
+    }
+
+    public static Operators of(final UnaryOperator<String> operator) {
+      return new Operators(operator);
+    }
+
+    private Operators(final UnaryOperator<String> operator) {
+      this.title = operator;
+      this.description = operator;
+      this.url = operator;
+      this.authorName = operator;
+      this.authorUrl = operator;
+      this.authorIcon = operator;
+      this.imageUrl = operator;
+      this.thumbnailUrl = operator;
+      this.fieldName = operator;
+      this.fieldValue = operator;
+      this.footerText = operator;
+      this.footerIcon = operator;
+    }
+
+    public Operators title(final UnaryOperator<String> title) {
+      this.title = title;
+      return this;
+    }
+
+    public Operators description(final UnaryOperator<String> description) {
+      this.description = description;
+      return this;
+    }
+
+    public Operators url(final UnaryOperator<String> url) {
+      this.url = url;
+      return this;
+    }
+
+    public Operators authorName(final UnaryOperator<String> authorName) {
+      this.authorName = authorName;
+      return this;
+    }
+
+    public Operators authorUrl(final UnaryOperator<String> authorUrl) {
+      this.authorUrl = authorUrl;
+      return this;
+    }
+
+    public Operators authorIcon(final UnaryOperator<String> authorIcon) {
+      this.authorIcon = authorIcon;
+      return this;
+    }
+
+    public Operators imageUrl(final UnaryOperator<String> imageUrl) {
+      this.imageUrl = imageUrl;
+      return this;
+    }
+
+    public Operators thumbnailUrl(final UnaryOperator<String> thumbnailUrl) {
+      this.thumbnailUrl = thumbnailUrl;
+      return this;
+    }
+
+    public Operators fieldName(final UnaryOperator<String> fieldName) {
+      this.fieldName = fieldName;
+      return this;
+    }
+
+    public Operators fieldValue(final UnaryOperator<String> fieldValue) {
+      this.fieldValue = fieldValue;
+      return this;
+    }
+
+    public Operators footerText(final UnaryOperator<String> footerText) {
+      this.footerText = footerText;
+      return this;
+    }
+
+    public Operators footerIcon(final UnaryOperator<String> footerIcon) {
+      this.footerIcon = footerIcon;
+      return this;
+    }
   }
 }

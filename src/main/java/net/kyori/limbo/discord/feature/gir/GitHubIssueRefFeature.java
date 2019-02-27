@@ -70,15 +70,24 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
       action.message().ifPresent(message -> channel.message(
         message.content(),
         message.embed()
-          .map(embed -> EmbedRenderer.render(embed, string -> Tokens.format(string, ImmutableMap.of(
-            IssueTokens.BODY, StringUtils.truncate(issue.body(), Embed.MAX_DESCRIPTION_LENGTH),
-            IssueTokens.NUMBER, issue.number(),
-            GitHubIssueRefTokens.TAG, search.tag,
-            IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2),
-            IssueTokens.URL, issue.html_url()
-          ))))
+          .map(embed -> EmbedRenderer.render(embed, EmbedRenderer.Operators.of(string -> Tokens.format(string, ImmutableMap.<String, Object>builder()
+            .put(GitHubIssueRefTokens.AUTHOR, issue.user().login())
+            .put(IssueTokens.BODY, body(issue.body()))
+            .put(IssueTokens.NUMBER, issue.number())
+            .put(GitHubIssueRefTokens.TAG, search.tag)
+            .put(IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2))
+            .put(IssueTokens.URL, issue.html_url())
+            .build()))))
           .orElse(null)
       ));
     }));
+  }
+
+  private static String body(final String body) {
+    final String truncated = StringUtils.truncate(body, Embed.MAX_DESCRIPTION_LENGTH - "...".length());
+    if(!body.equals(truncated)) {
+      return truncated + "...";
+    }
+    return body;
   }
 }
