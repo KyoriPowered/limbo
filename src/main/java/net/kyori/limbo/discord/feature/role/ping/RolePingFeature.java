@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.discord.feature.role.ping;
 
 import com.google.common.collect.ImmutableMap;
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.TextChannel;
 import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
 import net.kyori.kassel.guild.Guild;
@@ -32,13 +32,13 @@ import net.kyori.kassel.guild.channel.GuildTextChannel;
 import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.guild.role.RolePartial;
 import net.kyori.kassel.user.User;
-import net.kyori.lambda.Optionals;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
+import net.kyori.mu.Optionals;
 
 import java.util.Optional;
 import java.util.stream.Collectors;

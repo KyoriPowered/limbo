@@ -24,14 +24,13 @@
 package net.kyori.limbo.discord.feature.gir;
 
 import com.google.common.collect.ImmutableMap;
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.PullRequest;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.kassel.channel.TextChannel;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
-import net.kyori.lambda.Optionals;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.embed.EmbedRenderer;
@@ -40,6 +39,7 @@ import net.kyori.limbo.git.issue.IssueTokens;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
+import net.kyori.mu.Optionals;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;

@@ -25,8 +25,9 @@ package net.kyori.limbo.github.action;
 
 import com.google.common.base.Joiner;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
-import net.kyori.lambda.Optionals;
-import net.kyori.lambda.function.ThrowingFunction;
+import net.kyori.limbo.xml.Xml;
+import net.kyori.mu.Optionals;
+import net.kyori.mu.function.ThrowingFunction;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -58,15 +59,9 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
   @Override
   public @NonNull Action realThrowingParse(final @NonNull Node node) {
     final Action./* @Nullable */ State state = pickOne(
-      node.attribute("open")
-        .map(Node::value)
-        .map(Boolean::valueOf)
-        .optional(false),
+      Xml.attrBoolean(node, "open", false),
       Action.State.OPEN,
-      node.attribute("close")
-        .map(Node::value)
-        .map(Boolean::valueOf)
-        .optional(false),
+      Xml.attrBoolean(node, "close", false),
       Action.State.CLOSE
     );
     final Action./* @Nullable */ Comment comment = node.elements("comment")
@@ -82,15 +77,9 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .map(Node::value)
       .collect(Collectors.toSet());
     final Action./* @Nullable */ Lock lock = pickOne(
-      node.attribute("lock")
-        .map(Node::value)
-        .map(Boolean::valueOf)
-        .optional(false),
+      Xml.attrBoolean(node, "lock", false),
       Action.Lock.LOCK,
-      node.attribute("unlock")
-        .map(Node::value)
-        .map(Boolean::valueOf)
-        .optional(false),
+      Xml.attrBoolean(node, "unlock", false),
       Action.Lock.UNLOCK
     );
     return new ActionImpl(state, comment, addLabels, removeLabels, lock);

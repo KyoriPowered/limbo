@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.message.emoji.Emoji;
 import net.kyori.kassel.channel.message.event.ChannelMessageReactionAddEvent;
 import net.kyori.kassel.channel.message.event.ChannelMessageReactionRemoveEvent;
@@ -32,13 +32,13 @@ import net.kyori.kassel.guild.channel.GuildTextChannel;
 import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.snowflake.Snowflaked;
-import net.kyori.lambda.Composer;
-import net.kyori.lambda.Optionals;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
+import net.kyori.mu.Composer;
+import net.kyori.mu.Optionals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -66,11 +66,11 @@ public final class GitHubEndpoint {
   private static final String X_HUB_SIGNATURE = "X-Hub-Signature";
   private final byte[] key;
   private final Gson gson;
-  private final EventBus<Object, Object> bus;
+  private final EventBus<Object> bus;
 
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Inject
-  private GitHubEndpoint(final @Named("env") Node environment, final Gson gson, final EventBus<Object, Object> bus) throws XMLException {
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+  private GitHubEndpoint(final @Named("env") Node environment, final Gson gson, final EventBus<Object> bus) throws XMLException {
     this.key = environment.elements("github").one().required().requireAttribute("key").value().getBytes(StandardCharsets.UTF_8);
     this.gson = gson;
     this.bus = bus;

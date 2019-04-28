@@ -24,7 +24,6 @@
 package net.kyori.limbo.event;
 
 import com.google.inject.Provides;
-import net.kyori.event.ASMEventExecutorFactory;
 import net.kyori.event.EventBus;
 import net.kyori.event.SimpleEventBus;
 import net.kyori.membrane.facet.FacetBinder;
@@ -41,7 +40,7 @@ public final class EventModule extends AbstractModule {
 
   @Provides
   @Singleton
-  EventBus<Object, Object> bus() {
-    return new SimpleEventBus<>(new ASMEventExecutorFactory<>());
+  EventBus<Object> bus() {
+    return new SimpleEventBus<>(Object.class);
   }
 }

@@ -21,10 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.xml;
 
-/* package */ interface RolePingTokens {
-  String MESSAGE = "message";
-  String ROLE = "role";
-  String SOURCE = "source";
+import net.kyori.xml.node.Node;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+public interface Xml {
+  static boolean attrBoolean(final @NonNull Node node, final @NonNull String name, final boolean defaultValue) {
+    return node.attribute(name)
+      .map(Node::value)
+      .map(Boolean::valueOf)
+      .optional(defaultValue);
+  }
 }

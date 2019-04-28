@@ -25,8 +25,8 @@ package net.kyori.limbo.discord.feature.role.react;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
-import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.xml.Processor;
+import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;

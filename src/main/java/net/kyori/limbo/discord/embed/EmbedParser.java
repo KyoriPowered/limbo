@@ -24,7 +24,7 @@
 package net.kyori.limbo.discord.embed;
 
 import net.kyori.kassel.channel.message.embed.Embed;
-import net.kyori.lambda.function.ThrowingConsumer;
+import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;

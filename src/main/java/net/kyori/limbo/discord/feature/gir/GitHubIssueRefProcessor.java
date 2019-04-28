@@ -24,10 +24,10 @@
 package net.kyori.limbo.discord.feature.gir;
 
 import net.kyori.feature.parser.FeatureDefinitionParser;
-import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.xml.Processor;
+import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 
 import java.util.List;

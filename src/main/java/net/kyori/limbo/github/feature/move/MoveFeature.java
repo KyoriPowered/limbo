@@ -24,7 +24,7 @@
 package net.kyori.limbo.github.feature.move;
 
 import com.google.common.collect.ImmutableMap;
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.RepositoryId;

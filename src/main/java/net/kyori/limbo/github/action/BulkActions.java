@@ -27,7 +27,7 @@ import com.google.common.base.MoreObjects;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.IssuePartial;
 import net.kyori.igloo.v3.Label;
-import net.kyori.lambda.function.ThrowingConsumer;
+import net.kyori.mu.function.ThrowingConsumer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -155,7 +155,7 @@ public class BulkActions {
         .filter(action -> action.lock() == Action.Lock.LOCK)
         .count();
       final long unlock = this.actions.stream()
-        .filter(action -> action.lock() == Action.Lock.LOCK)
+        .filter(action -> action.lock() == Action.Lock.UNLOCK)
         .count();
       if(lock > 0 || unlock > 0) {
         if(lock > unlock) {

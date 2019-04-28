@@ -23,9 +23,9 @@
  */
 package net.kyori.limbo.xml;
 
-import net.kyori.lambda.exception.Exceptions;
-import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.membrane.facet.Connectable;
+import net.kyori.mu.exception.Exceptions;
+import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;

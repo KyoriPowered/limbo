@@ -21,32 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.repository;
+package net.kyori.limbo.discord.feature.role.ping;
 
-import net.kyori.feature.FeatureDefinitionContext;
 import net.kyori.limbo.xml.Processor;
-import net.kyori.mu.function.ThrowingConsumer;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
-import net.kyori.xml.node.parser.Parser;
+import net.kyori.membrane.facet.FacetBinder;
+import net.kyori.violet.DuplexModule;
+import net.kyori.violet.SetBinder;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
-public final class RepositoriesProcessor implements Processor {
-  private final Provider<FeatureDefinitionContext> context;
-  private final Parser<RepositoryId> parser;
-
-  @Inject
-  private RepositoriesProcessor(final Provider<FeatureDefinitionContext> context, final Parser<RepositoryId> parser) {
-    this.context = context;
-    this.parser = parser;
-  }
-
+public final class RolePingModule extends DuplexModule {
   @Override
-  public void process(final Node node) {
-    node.elements()
-      .flatMap(new BranchLeafNodeFlattener("repositories", "repository"))
-      .forEach(ThrowingConsumer.of(entry -> this.context.get().define(RepositoryId.class, entry, this.parser.parse(entry))));
+  protected void configure() {
+    final FacetBinder facets = new FacetBinder(this.publicBinder());
+    facets.addBinding().to(RolePingFeature.class);
+
+    final SetBinder<Processor> processors = new SetBinder<>(this.publicBinder(), Processor.class);
+    processors.addBinding().to(RolePingProcessor.class);
   }
 }

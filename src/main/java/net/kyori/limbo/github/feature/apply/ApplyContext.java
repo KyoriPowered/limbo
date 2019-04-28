@@ -24,12 +24,12 @@
 package net.kyori.limbo.github.feature.apply;
 
 import net.kyori.igloo.v3.Issue;
-import net.kyori.lambda.Pair;
 import net.kyori.limbo.git.actor.ActorType;
 import net.kyori.limbo.git.event.Event;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.BulkActions;
 import net.kyori.limbo.github.issue.IssueQuery;
+import net.kyori.mu.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;

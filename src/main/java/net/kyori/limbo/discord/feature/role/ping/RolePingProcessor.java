@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.discord.feature.role.ping;
 
 import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
-import net.kyori.lambda.function.ThrowingConsumer;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.xml.Processor;
+import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;

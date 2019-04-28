@@ -25,10 +25,10 @@ package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import com.google.common.collect.MoreCollectors;
 import net.kyori.fragment.filter.Filter;
-import net.kyori.lambda.function.ThrowingFunction;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.feature.apply.SearchScope;
+import net.kyori.mu.function.ThrowingFunction;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;

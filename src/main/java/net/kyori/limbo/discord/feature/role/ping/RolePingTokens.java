@@ -21,20 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.discord.feature.role.ping;
 
-import net.kyori.limbo.xml.Processor;
-import net.kyori.membrane.facet.FacetBinder;
-import net.kyori.violet.DuplexModule;
-import net.kyori.violet.SetBinder;
-
-public final class RolePingModule extends DuplexModule {
-  @Override
-  protected void configure() {
-    final FacetBinder facets = new FacetBinder(this.publicBinder());
-    facets.addBinding().to(RolePingFeature.class);
-
-    final SetBinder<Processor> processors = new SetBinder<>(this.publicBinder(), Processor.class);
-    processors.addBinding().to(RolePingProcessor.class);
-  }
+/* package */ interface RolePingTokens {
+  String MESSAGE = "message";
+  String ROLE = "role";
+  String SOURCE = "source";
 }

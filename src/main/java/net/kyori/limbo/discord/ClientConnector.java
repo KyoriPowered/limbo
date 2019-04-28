@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.discord;
 
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.client.Client;
 import net.kyori.kassel.client.shard.Shard;
 import net.kyori.kassel.client.shard.event.ShardConnectedEvent;

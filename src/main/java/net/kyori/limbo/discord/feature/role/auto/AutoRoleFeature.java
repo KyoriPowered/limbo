@@ -23,7 +23,7 @@
  */
 package net.kyori.limbo.discord.feature.role.auto;
 
-import net.kyori.event.Subscribe;
+import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.guild.member.event.GuildMemberAddEvent;

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.feature.rp;
+package net.kyori.limbo.discord.feature.role.ping;
 
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
