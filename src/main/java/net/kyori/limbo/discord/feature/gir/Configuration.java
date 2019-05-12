@@ -23,10 +23,15 @@
  */
 package net.kyori.limbo.discord.feature.gir;
 
+import net.kyori.fragment.filter.Filter;
+import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.PullRequest;
+import net.kyori.kassel.guild.Guild;
 import net.kyori.limbo.discord.action.Action;
+import net.kyori.limbo.discord.filter.GuildQuery;
 import net.kyori.limbo.git.repository.RepositoryId;
+import net.kyori.limbo.git.repository.RepositoryQuery;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -47,18 +52,32 @@ import javax.inject.Singleton;
   @MonotonicNonNull Action mergedAction;
   @MonotonicNonNull Action closedAction;
 
-  @NonNull Optional<SearchResult> search(final String string) {
+  @NonNull Optional<SearchResult> search(final Guild guild, final String string) {
     for(final Search search : this.searches) {
       final Matcher matcher = search.pattern.matcher(string);
       if(matcher.find()) {
         final String tag = matcher.group(1).toLowerCase(Locale.ENGLISH);
         final /* @Nullable */ RepositoryId repository = search.repositories.stream().filter(rid -> rid.tags().contains(tag)).findAny().orElse(null);
-        if(repository != null) {
-          try {
-            final int number = Integer.parseInt(matcher.group(2));
-            return Optional.of(new SearchResult(tag.toUpperCase(Locale.ENGLISH), repository, number));
-          } catch(final NumberFormatException ignored) {
+        if(repository == null) {
+          continue;
+        }
+        if(search.filter != null && search.filter.denied(new Query() {
+          @Override
+          public @NonNull Guild guild() {
+            return guild;
           }
+
+          @Override
+          public @NonNull RepositoryId repository() {
+            return repository;
+          }
+        })) {
+          continue;
+        }
+        try {
+          final int number = Integer.parseInt(matcher.group(2));
+          return Optional.of(new SearchResult(tag.toUpperCase(Locale.ENGLISH), repository, number));
+        } catch(final NumberFormatException ignored) {
         }
       }
     }
@@ -76,11 +95,16 @@ import javax.inject.Singleton;
     throw new IllegalStateException("no action");
   }
 
+  interface Query extends GuildQuery, RepositoryQuery {
+  }
+
   static class Search {
+    final Filter filter;
     final Pattern pattern;
     final List<RepositoryId> repositories;
 
-    Search(final Pattern pattern, final List<RepositoryId> repositories) {
+    Search(final Filter filter, final Pattern pattern, final List<RepositoryId> repositories) {
+      this.filter = filter;
       this.pattern = pattern;
       this.repositories = repositories;
     }

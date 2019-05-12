@@ -28,9 +28,9 @@ import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.PullRequest;
 import net.kyori.igloo.v3.Repositories;
-import net.kyori.kassel.channel.TextChannel;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
+import net.kyori.kassel.guild.channel.GuildTextChannel;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.embed.EmbedRenderer;
@@ -63,7 +63,7 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
 
   @Subscribe
   public void message(final ChannelMessageCreateEvent event) {
-    Optionals.cast(event.channel(), TextChannel.class).ifPresent(channel -> this.configuration.search(event.message().content()).ifPresent(search -> {
+    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> this.configuration.search(channel.guild(), event.message().content()).ifPresent(search -> {
       final Issue issue = this.repositories.get(new GitHubRepositoryIdImpl(search.repository)).issues().get(search.number);
       final /* @Nullable */ PullRequest pr = issue.pullRequest().orElse(null);
       final Action action = this.configuration.actionFor(issue, pr);
