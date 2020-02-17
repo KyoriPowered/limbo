@@ -25,14 +25,12 @@ package net.kyori.limbo.scheduler;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Provides;
-import net.kyori.violet.AbstractModule;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-
 import javax.inject.Singleton;
+import net.kyori.violet.AbstractModule;
 
 public final class SchedulerModule extends AbstractModule {
   @Provides

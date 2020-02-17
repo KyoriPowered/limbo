@@ -24,6 +24,17 @@
 package net.kyori.limbo.github.action;
 
 import com.google.common.base.Joiner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.limbo.xml.Xml;
 import net.kyori.mu.Optionals;
@@ -33,22 +44,9 @@ import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 @Singleton
 public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<Action> implements Parser<Action> {
-  private static final Joiner JOINER = Joiner.on('\n');
+  private static final Joiner NEWLINE_JOINER = Joiner.on('\n');
   private final Path root;
 
   @Inject
@@ -68,14 +66,8 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       .one()
       .map(this::parseComment)
       .optional(null);
-    final Set<String> addLabels = node.elements("label")
-      .flatMap(label -> label.elements("add"))
-      .map(Node::value)
-      .collect(Collectors.toSet());
-    final Set<String> removeLabels = node.elements("label")
-      .flatMap(label -> label.elements("remove"))
-      .map(Node::value)
-      .collect(Collectors.toSet());
+    final Set<String> addLabels = labels(node, "add");
+    final Set<String> removeLabels = labels(node, "remove");
     final Action./* @Nullable */ Lock lock = pickOne(
       Xml.attrBoolean(node, "lock", false),
       Action.Lock.LOCK,
@@ -83,6 +75,13 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
       Action.Lock.UNLOCK
     );
     return new ActionImpl(state, comment, addLabels, removeLabels, lock);
+  }
+
+  private static Set<String> labels(final Node node, final String type) {
+    return node.elements("label")
+      .flatMap(label -> label.elements(type))
+      .map(Node::value)
+      .collect(Collectors.toSet());
   }
 
   private Action.Comment parseComment(final Node node) {
@@ -123,6 +122,6 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
   }
 
   private static String readMessage(final Path path) throws IOException {
-    return JOINER.join(Files.readAllLines(path));
+    return NEWLINE_JOINER.join(Files.readAllLines(path));
   }
 }

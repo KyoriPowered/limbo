@@ -23,14 +23,13 @@
  */
 package net.kyori.limbo.github.feature.apply.entry.pattern;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.feature.apply.SearchScope;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
 import net.kyori.limbo.github.feature.apply.entry.ScopedEntry;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class PatternEntry extends Entry.Impl implements ScopedEntry {
   private static final char ESCAPE_CHARACTER = '`';

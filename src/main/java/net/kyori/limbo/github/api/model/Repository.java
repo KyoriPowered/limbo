@@ -24,12 +24,11 @@
 package net.kyori.limbo.github.api.model;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.limbo.github.repository.GitHubRepositoryId;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import net.kyori.limbo.github.repository.GitHubRepositoryId;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class Repository implements GitHubRepositoryId {
   public User owner;
@@ -49,12 +48,12 @@ public final class Repository implements GitHubRepositoryId {
   }
 
   @Override
-  public String user() {
+  public @NonNull String user() {
     return this.owner.login;
   }
 
   @Override
-  public String repo() {
+  public @NonNull String repo() {
     return this.name;
   }
 
@@ -68,7 +67,7 @@ public final class Repository implements GitHubRepositoryId {
     if(this == other) {
       return true;
     }
-    if(other == null || !(other instanceof GitHubRepositoryId)) {
+    if(!(other instanceof GitHubRepositoryId)) {
       return false;
     }
     final GitHubRepositoryId that = (GitHubRepositoryId) other;

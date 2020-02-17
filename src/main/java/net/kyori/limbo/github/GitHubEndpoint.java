@@ -23,7 +23,19 @@
  */
 package net.kyori.limbo.github;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.kyori.event.EventBus;
 import net.kyori.limbo.github.api.event.Event;
 import net.kyori.limbo.github.api.event.Events;
@@ -31,6 +43,7 @@ import net.kyori.limbo.github.api.event.IssueCommentEvent;
 import net.kyori.limbo.github.api.event.IssuesEvent;
 import net.kyori.limbo.github.api.event.PullRequestEvent;
 import net.kyori.limbo.github.api.event.PullRequestReviewEvent;
+import net.kyori.limbo.util.Hex;
 import net.kyori.limbo.web.SimpleError;
 import net.kyori.lunar.crypt.Algorithms;
 import net.kyori.xml.XMLException;
@@ -45,23 +58,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.xml.bind.DatatypeConverter;
-
 @Controller
 @Singleton
 public final class GitHubEndpoint {
   private static final Logger LOGGER = LoggerFactory.getLogger(GitHubEndpoint.class);
+  private static final Map<String, Class<? extends Event>> EVENTS = ImmutableMap.<String, Class<? extends Event>>builder()
+    .put(Events.ISSUE_COMMENT, IssueCommentEvent.class)
+    .put(Events.ISSUES, IssuesEvent.class)
+    .put(Events.PULL_REQUEST, PullRequestEvent.class)
+    .put(Events.PULL_REQUEST_REVIEW, PullRequestReviewEvent.class)
+    .build();
   private static final String X_GITHUB_EVENT = "X-GitHub-Event";
   private static final String X_HUB_SIGNATURE = "X-Hub-Signature";
   private final byte[] key;
@@ -97,17 +103,7 @@ public final class GitHubEndpoint {
   }
 
   private @Nullable Class<? extends Event> event(final String type) {
-    switch(type) {
-      case Events.ISSUE_COMMENT:
-        return IssueCommentEvent.class;
-      case Events.ISSUES:
-        return IssuesEvent.class;
-      case Events.PULL_REQUEST:
-        return PullRequestEvent.class;
-      case Events.PULL_REQUEST_REVIEW:
-        return PullRequestReviewEvent.class;
-    }
-    return null;
+    return EVENTS.get(type);
   }
 
   private boolean verifySignature(final @Nullable String signature, final byte[] payload) {
@@ -121,7 +117,7 @@ public final class GitHubEndpoint {
       final SecretKeySpec key = new SecretKeySpec(this.key, Algorithms.HMAC_SHA1);
       final Mac mac = Mac.getInstance(Algorithms.HMAC_SHA1);
       mac.init(key);
-      return DatatypeConverter.printHexBinary(mac.doFinal(payload)).equalsIgnoreCase(signature.substring(5));
+      return Hex.asHex(mac.doFinal(payload)).equalsIgnoreCase(signature.substring(5));
     } catch(final InvalidKeyException | NoSuchAlgorithmException e) {
       return false;
     }

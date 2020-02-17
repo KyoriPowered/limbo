@@ -23,17 +23,16 @@
  */
 package net.kyori.limbo.github.feature.apply.entry.pattern;
 
-import net.kyori.fragment.filter.Filter;
-import net.kyori.limbo.github.action.Action;
-import net.kyori.limbo.github.feature.apply.CollectContext;
-import net.kyori.limbo.github.feature.apply.SearchScope;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.limbo.github.action.Action;
+import net.kyori.limbo.github.feature.apply.CollectContext;
+import net.kyori.limbo.github.feature.apply.SearchScope;
 
 public final class WherePatternEntry extends PatternEntry {
   private static final Collection<Action> NULL = Collections.singleton(null);

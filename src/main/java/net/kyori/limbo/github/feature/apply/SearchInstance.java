@@ -21,24 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.filter;
+package net.kyori.limbo.github.feature.apply;
 
-import javax.inject.Inject;
-import net.kyori.xml.XMLException;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.parser.Parser;
-import org.checkerframework.checker.nullness.qual.NonNull;
+final class SearchInstance {
+  final SearchScope scope;
+  final String query;
 
-public final class GuildFilterParser implements Parser<GuildFilter> {
-  private final Parser<Long> longParser;
-
-  @Inject
-  private GuildFilterParser(final Parser<Long> longParser) {
-    this.longParser = longParser;
-  }
-
-  @Override
-  public GuildFilter throwingParse(final @NonNull Node node) throws XMLException {
-    return new GuildFilter(this.longParser.parse(node));
+  public SearchInstance(final SearchScope scope, final String query) {
+    this.scope = scope;
+    this.query = query;
   }
 }

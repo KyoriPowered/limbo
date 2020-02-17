@@ -24,6 +24,13 @@
 package net.kyori.limbo.github.feature.apply.entry.pattern;
 
 import com.google.common.collect.MoreCollectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.api.model.User;
@@ -34,15 +41,6 @@ import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 public final class PatternEntryParser implements Parser<PatternEntry> {
   private final Parser<Filter> filterParser;

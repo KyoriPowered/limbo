@@ -25,6 +25,10 @@ package net.kyori.limbo;
 
 import com.google.inject.Module;
 import com.google.inject.Provides;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.kyori.limbo.discord.DiscordModule;
 import net.kyori.limbo.event.EventModule;
 import net.kyori.limbo.git.GitModule;
@@ -37,12 +41,6 @@ import net.kyori.violet.DuplexBinder;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 public final class LimboModule extends AbstractModule {
   @Override

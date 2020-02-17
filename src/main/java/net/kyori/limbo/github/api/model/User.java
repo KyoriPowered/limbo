@@ -24,7 +24,6 @@
 package net.kyori.limbo.github.api.model;
 
 import com.google.common.base.MoreObjects;
-
 import java.util.Objects;
 
 public final class User {

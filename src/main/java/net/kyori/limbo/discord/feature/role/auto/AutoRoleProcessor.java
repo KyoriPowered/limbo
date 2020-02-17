@@ -25,14 +25,13 @@ package net.kyori.limbo.discord.feature.role.auto;
 
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
-
-import javax.inject.Inject;
 
 public final class AutoRoleProcessor implements Processor {
   private final Configuration configuration;

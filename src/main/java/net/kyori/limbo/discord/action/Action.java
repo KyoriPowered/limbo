@@ -25,16 +25,15 @@ package net.kyori.limbo.discord.action;
 
 import net.kyori.feature.FeatureDefinition;
 import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Optional;
-
 public interface Action extends FeatureDefinition {
-  @NonNull Optional<Message> message();
+  @NonNull Maybe<Message> message();
 
   interface Message {
     @NonNull String content();
 
-    @NonNull Optional<Embed> embed();
+    @NonNull Maybe<Embed> embed();
   }
 }

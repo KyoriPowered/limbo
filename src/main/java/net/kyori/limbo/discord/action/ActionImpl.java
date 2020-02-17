@@ -23,10 +23,9 @@
  */
 package net.kyori.limbo.discord.action;
 
+import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.Optional;
 
 /* package */ final class ActionImpl implements Action {
   private final @Nullable Message message;
@@ -36,7 +35,7 @@ import java.util.Optional;
   }
 
   @Override
-  public @NonNull Optional<Message> message() {
-    return Optional.ofNullable(this.message);
+  public @NonNull Maybe<Message> message() {
+    return Maybe.maybe(this.message);
   }
 }

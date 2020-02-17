@@ -23,11 +23,10 @@
  */
 package net.kyori.limbo.xml;
 
+import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
-
-import javax.inject.Inject;
 
 public final class FiltersProcessor implements Processor {
   private final Parser<Filter> parser;

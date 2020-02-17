@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.discord;
 
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.client.Client;
 import net.kyori.kassel.client.shard.Shard;
@@ -31,8 +32,6 @@ import net.kyori.kassel.client.shard.event.ShardResumedEvent;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
 import net.kyori.membrane.facet.Connectable;
-
-import javax.inject.Inject;
 
 public final class ClientConnector implements Activatable, Connectable, Listener {
   private final DiscordConfiguration discord;

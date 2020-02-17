@@ -23,81 +23,87 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.limbo.git.actor.ActorType;
 import net.kyori.limbo.git.event.Event;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.BulkActions;
 import net.kyori.limbo.github.issue.IssueQuery;
-import net.kyori.mu.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import javax.validation.constraints.Null;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /* package */ class ApplyContext implements BulkActions.Context {
-  private final Builder builder;
+  private final Issue issue;
+  private final RepositoryId repository;
+  private final Event event;
+  private final Supplier<Set<ActorType>> actorTypes;
+  private final Collection<String> oldLabels;
+  private final Collection<String> newLabels;
 
   /* package */ static Builder builder() {
     return new Builder();
   }
 
   private ApplyContext(final Builder builder) {
-    this.builder = builder;
+    this.issue = builder.issue;
+    this.repository = builder.repository;
+    this.event = builder.event;
+    this.actorTypes = builder.actorTypes;
+    this.oldLabels = builder.oldLabels;
+    this.newLabels = builder.newLabels;
   }
 
-  @SafeVarargs
-  /* package */ final BulkActions applicators(final ApplyFeatureConfiguration config, final Pair<SearchScope, String>... scopes) {
-    final BulkActions applicators = new BulkActions(this.builder.issue);
-    for(final Pair<SearchScope, String> entry : scopes) {
-      this.gatherApplicators(config, entry.left(), entry.right()).accept(applicators);
+  /* package */ final BulkActions applicators(final ApplyFeatureConfiguration config, final SearchInstance... searches) {
+    final BulkActions applicators = new BulkActions(this.issue);
+    for(final SearchInstance search : searches) {
+      this.gatherApplicators(config, search).accept(applicators);
     }
     return applicators;
   }
 
-  /* package */ Consumer<BulkActions> gatherApplicators(final ApplyFeatureConfiguration config, final SearchScope scope, final String string) {
+  /* package */ Consumer<BulkActions> gatherApplicators(final ApplyFeatureConfiguration config, final SearchInstance search) {
     return applicators -> applicators.addAll(
       config.applicators(
         new IssueQuery() {
           @Override
           public @NonNull RepositoryId repository() {
-            return ApplyContext.this.builder.repository;
+            return ApplyContext.this.repository;
           }
 
           @Override
           public @NonNull Event event() {
-            return ApplyContext.this.builder.event;
+            return ApplyContext.this.event;
           }
 
           @Override
           public @NonNull Set<ActorType> actorTypes() {
-            return ApplyContext.this.builder.actorTypes.get();
+            return ApplyContext.this.actorTypes.get();
           }
 
           @Override
           public Collection<String> oldLabels() {
-            return ApplyContext.this.builder.oldLabels;
+            return ApplyContext.this.oldLabels;
           }
 
           @Override
           public Collection<String> newLabels() {
-            return ApplyContext.this.builder.newLabels;
+            return ApplyContext.this.newLabels;
           }
         },
-        scope,
-        string
+        search.scope,
+        search.query
       )
     );
   }
 
   @Override
   public Collection<String> existingLabels() {
-    return this.builder.oldLabels;
+    return this.oldLabels;
   }
 
   /* package */ static class Builder {
@@ -133,7 +139,7 @@ import javax.validation.constraints.Null;
       return this;
     }
 
-    /* package */ Builder newLabels(final @Null String newLabel) {
+    /* package */ Builder newLabels(final @Nullable String newLabel) {
       if(newLabel != null) {
         return this.newLabels(Collections.singleton(newLabel));
       }

@@ -23,11 +23,10 @@
  */
 package net.kyori.limbo.discord.embed;
 
-import net.kyori.kassel.channel.message.embed.Embed;
-
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
+import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.mu.Maybe;
 
 public interface EmbedRenderer {
   static Embed render(final Embed embed, final UnaryOperator<String> renderer) {
@@ -43,17 +42,17 @@ public interface EmbedRenderer {
     apply(embed.title(), operators.title, builder::title);
     apply(embed.description(), operators.description, builder::description);
     apply(embed.url(), operators.url, builder::url);
-    embed.color().ifPresent(builder::color);
-    embed.timestamp().ifPresent(builder::timestamp);
-    embed.author().ifPresent(author -> {
+    embed.color().ifJust(builder::color);
+    embed.timestamp().ifJust(builder::timestamp);
+    embed.author().ifJust(author -> {
       apply(author.name(), operators.authorName, builder::authorName);
       apply(author.url(), operators.authorUrl, builder::authorUrl);
       apply(author.icon(), operators.authorIcon, builder::authorIcon);
     });
-    embed.image().ifPresent(image -> apply(image.url(), operators.imageUrl, builder::imageUrl));
-    embed.thumbnail().ifPresent(thumbnail -> apply(thumbnail.url(), operators.thumbnailUrl, builder::thumbnailUrl));
+    embed.image().ifJust(image -> apply(image.url(), operators.imageUrl, builder::imageUrl));
+    embed.thumbnail().ifJust(thumbnail -> apply(thumbnail.url(), operators.thumbnailUrl, builder::thumbnailUrl));
     embed.fields().forEach(field -> builder.field(operators.fieldName.apply(field.name()), operators.fieldValue.apply(field.value())));
-    embed.footer().ifPresent(footer -> {
+    embed.footer().ifJust(footer -> {
       apply(footer.text(), operators.footerText, builder::footerText);
       apply(footer.icon(), operators.footerIcon, builder::footerIcon);
     });
@@ -69,8 +68,8 @@ public interface EmbedRenderer {
     return render(builder, source, Operators.of(renderer));
   }
 
-  static void apply(final Optional<String> oldValue, final UnaryOperator<String> newValue, final Consumer<String> setter) {
-    oldValue.ifPresent(value -> setter.accept(newValue.apply(value)));
+  static void apply(final Maybe<String> oldValue, final UnaryOperator<String> newValue, final Consumer<String> setter) {
+    oldValue.ifJust(value -> setter.accept(newValue.apply(value)));
   }
 
   class Operators {

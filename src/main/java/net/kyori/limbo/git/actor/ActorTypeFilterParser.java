@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo.git.actor;
 
+import javax.inject.Inject;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import javax.inject.Inject;
 
 public final class ActorTypeFilterParser implements Parser<ActorTypeFilter> {
   private final EnumParser<ActorType> parser;

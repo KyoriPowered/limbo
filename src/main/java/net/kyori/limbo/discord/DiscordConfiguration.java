@@ -23,9 +23,13 @@
  */
 package net.kyori.limbo.discord;
 
+import com.google.common.collect.Sets;
+import java.util.EnumSet;
+import java.util.Set;
 import net.kyori.kassel.user.Activity;
 import net.kyori.kassel.user.Status;
 import net.kyori.polar.PolarConfiguration;
+import net.kyori.polar.gateway.GatewayIntent;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -37,6 +41,7 @@ public class DiscordConfiguration implements PolarConfiguration {
   private boolean enabled;
   private int shards;
   private String token;
+  private boolean privileged;
   private Presence presence;
 
   public boolean isEnabled() {
@@ -71,6 +76,25 @@ public class DiscordConfiguration implements PolarConfiguration {
 
   public void setToken(final String token) {
     this.token = token;
+  }
+
+  @Override
+  public @NonNull Set<GatewayIntent> intents() {
+    if(this.isPrivileged()) {
+      return Sets.union(
+        GatewayIntent.defaults(),
+        EnumSet.of(GatewayIntent.GUILD_MEMBERS)
+      );
+    }
+    return PolarConfiguration.super.intents();
+  }
+
+  public boolean isPrivileged() {
+    return this.privileged;
+  }
+
+  public void setPrivileged(final boolean privileged) {
+    this.privileged = privileged;
   }
 
   public Presence getPresence() {

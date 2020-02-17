@@ -23,16 +23,14 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 public final class ApplyProcessor implements Processor {
   private final ApplyFeatureConfiguration configuration;

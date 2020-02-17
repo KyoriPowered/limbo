@@ -23,14 +23,13 @@
  */
 package net.kyori.limbo.github.feature.apply.entry.pattern;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.feature.apply.CollectContext;
 import net.kyori.limbo.github.feature.apply.SearchScope;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class FindPatternEntry extends PatternEntry {
   private final Action action;

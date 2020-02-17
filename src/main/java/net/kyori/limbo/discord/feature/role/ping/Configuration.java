@@ -23,26 +23,24 @@
  */
 package net.kyori.limbo.discord.feature.role.ping;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.kassel.snowflake.Snowflake;
 import net.kyori.limbo.discord.action.Action;
+import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Singleton;
 
 @Singleton
 /* package */ final class Configuration {
   final List<Search> searches = new ArrayList<>();
 
-  @NonNull Optional<SearchResult> search(final FilterQuery query, final String string) {
+  @NonNull Maybe<SearchResult> search(final FilterQuery query, final String string) {
     for(final Search search : this.searches) {
       final Matcher matcher = search.pattern.matcher(string);
       if(matcher.find()) {
@@ -51,11 +49,11 @@ import javax.inject.Singleton;
           continue;
         }
         if(search.filter.allowed(query)) {
-          return Optional.of(new SearchResult(search, matcher.group(2)));
+          return Maybe.just(new SearchResult(search, matcher.group(2)));
         }
       }
     }
-    return Optional.empty();
+    return Maybe.nothing();
   }
 
   static class Search {

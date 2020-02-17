@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo.github.repository;
 
+import java.util.Objects;
+import java.util.Set;
 import net.kyori.limbo.git.repository.AbstractRepositoryId;
 import net.kyori.limbo.git.repository.RepositoryId;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Objects;
-import java.util.Set;
 
 public class GitHubRepositoryIdImpl extends AbstractRepositoryId implements GitHubRepositoryId {
   public GitHubRepositoryIdImpl(final RepositoryId id) {

@@ -23,10 +23,9 @@
  */
 package net.kyori.limbo.git.actor;
 
-import net.kyori.limbo.github.api.model.User;
-
 import java.util.EnumSet;
 import java.util.Set;
+import net.kyori.limbo.github.api.model.User;
 
 public enum ActorType {
   /**

@@ -23,15 +23,13 @@
  */
 package net.kyori.limbo.github.feature.apply.entry;
 
+import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public final class EntryParser implements Parser<Entry> {

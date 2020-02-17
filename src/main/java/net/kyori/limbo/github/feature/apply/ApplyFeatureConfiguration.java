@@ -23,21 +23,18 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.feature.apply.entry.ScopedEntry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.inject.Singleton;
-
 @Singleton
 /* package */ final class ApplyFeatureConfiguration {
-  final Collection<Entry> entries = new ArrayList<>();
+  final List<Entry> entries = new ArrayList<>();
 
   public List<Action> applicators(final FilterQuery query, final SearchScope scope, final @Nullable String string) {
     return this.applicators(query, scope, new CollectContext(string));

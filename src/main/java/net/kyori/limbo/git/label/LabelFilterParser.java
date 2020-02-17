@@ -23,14 +23,13 @@
  */
 package net.kyori.limbo.git.label;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public final class LabelFilterParser implements Parser<Filter> {

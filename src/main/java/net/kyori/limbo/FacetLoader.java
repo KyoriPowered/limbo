@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import net.kyori.membrane.facet.internal.Facets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 @Component
 final class FacetLoader {

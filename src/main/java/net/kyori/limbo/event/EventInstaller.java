@@ -23,14 +23,13 @@
  */
 package net.kyori.limbo.event;
 
+import javax.inject.Inject;
 import net.kyori.event.EventBus;
 import net.kyori.event.method.MethodSubscriptionAdapter;
 import net.kyori.event.method.SimpleMethodSubscriptionAdapter;
 import net.kyori.event.method.asm.ASMEventExecutorFactory;
 import net.kyori.membrane.facet.Enableable;
 import net.kyori.membrane.facet.internal.Facets;
-
-import javax.inject.Inject;
 
 /* package */ final class EventInstaller implements Enableable {
   private final MethodSubscriptionAdapter<Object> bus;

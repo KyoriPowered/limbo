@@ -24,10 +24,9 @@
 package net.kyori.limbo.http;
 
 import com.google.inject.Provides;
+import javax.inject.Singleton;
 import net.kyori.violet.AbstractModule;
 import okhttp3.OkHttpClient;
-
-import javax.inject.Singleton;
 
 public final class HttpModule extends AbstractModule {
   @Provides

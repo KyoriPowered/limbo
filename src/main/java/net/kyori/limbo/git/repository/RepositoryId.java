@@ -23,10 +23,9 @@
  */
 package net.kyori.limbo.git.repository;
 
+import java.util.Set;
 import net.kyori.feature.FeatureDefinition;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Set;
 
 public interface RepositoryId extends FeatureDefinition {
   /**

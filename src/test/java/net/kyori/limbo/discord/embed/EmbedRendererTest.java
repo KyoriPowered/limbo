@@ -24,6 +24,7 @@
 package net.kyori.limbo.discord.embed;
 
 import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.mu.Maybe;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -130,7 +131,7 @@ class EmbedRendererTest {
     assertEquals("footer_a", string(embed.footer().flatMap(Embed.Footer::text)));
   }
 
-  private static String string(final Optional<String> string) {
-    return string.orElse("null");
+  private static String string(final Maybe<String> string) {
+    return string.orDefault("null");
   }
 }

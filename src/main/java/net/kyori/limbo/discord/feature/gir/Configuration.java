@@ -23,8 +23,13 @@
  */
 package net.kyori.limbo.discord.feature.gir;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.PullRequest;
 import net.kyori.kassel.guild.Guild;
@@ -32,18 +37,10 @@ import net.kyori.limbo.discord.action.Action;
 import net.kyori.limbo.discord.filter.GuildQuery;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.git.repository.RepositoryQuery;
+import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Singleton;
 
 @Singleton
 /* package */ final class Configuration {
@@ -52,7 +49,7 @@ import javax.inject.Singleton;
   @MonotonicNonNull Action mergedAction;
   @MonotonicNonNull Action closedAction;
 
-  @NonNull Optional<SearchResult> search(final Guild guild, final String string) {
+  @NonNull Maybe<SearchResult> search(final Guild guild, final String string) {
     for(final Search search : this.searches) {
       final Matcher matcher = search.pattern.matcher(string);
       if(matcher.find()) {
@@ -76,12 +73,12 @@ import javax.inject.Singleton;
         }
         try {
           final int number = Integer.parseInt(matcher.group(2));
-          return Optional.of(new SearchResult(tag.toUpperCase(Locale.ENGLISH), repository, number));
+          return Maybe.just(new SearchResult(tag.toUpperCase(Locale.ENGLISH), repository, number));
         } catch(final NumberFormatException ignored) {
         }
       }
     }
-    return Optional.empty();
+    return Maybe.nothing();
   }
 
   Action actionFor(final Issue issue, final @Nullable PullRequest pr) {

@@ -23,6 +23,10 @@
  */
 package net.kyori.limbo.discord.feature.role.ping;
 
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
@@ -32,12 +36,6 @@ import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
-
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 public final class RolePingProcessor implements Processor {
   private final Configuration configuration;

@@ -23,6 +23,10 @@
  */
 package net.kyori.limbo.git.repository;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.feature.reference.ReferenceFinder;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
@@ -31,12 +35,6 @@ import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.EnumParser;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public final class RepositoryIdParser extends AbstractInjectedFeatureDefinitionParser<RepositoryId> implements Parser<RepositoryId> {

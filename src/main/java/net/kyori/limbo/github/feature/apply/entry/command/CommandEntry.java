@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo.github.feature.apply.entry.command;
 
+import java.util.List;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.feature.apply.CollectContext;
 import net.kyori.limbo.github.feature.apply.entry.Entry;
-
-import java.util.List;
 
 public final class CommandEntry extends Entry.Impl {
   private final List<String> commands;

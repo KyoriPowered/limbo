@@ -23,18 +23,16 @@
  */
 package net.kyori.limbo.xml;
 
+import java.nio.file.Path;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.kyori.membrane.facet.Connectable;
 import net.kyori.mu.exception.Exceptions;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;
-
-import java.nio.file.Path;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 public final class FeatureProcessor implements Connectable {
   private final DocumentFactory factory;

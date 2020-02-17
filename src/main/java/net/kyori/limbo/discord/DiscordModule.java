@@ -26,6 +26,8 @@ package net.kyori.limbo.discord;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Provides;
+import java.awt.Color;
+import java.time.Instant;
 import net.kyori.fragment.filter.FilterBinder;
 import net.kyori.kassel.channel.message.embed.Embed;
 import net.kyori.kassel.client.Client;
@@ -45,9 +47,6 @@ import net.kyori.polar.util.ColorSerializer;
 import net.kyori.polar.util.InstantSerializer;
 import net.kyori.violet.DuplexModule;
 import net.kyori.xml.node.parser.ParserBinder;
-
-import java.awt.Color;
-import java.time.Instant;
 
 public final class DiscordModule extends DuplexModule {
   @Override

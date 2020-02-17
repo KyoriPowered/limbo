@@ -23,9 +23,8 @@
  */
 package net.kyori.limbo.git.label;
 
-import net.kyori.fragment.filter.FilterQuery;
-
 import java.util.Collection;
+import net.kyori.fragment.filter.FilterQuery;
 
 public interface LabelQuery extends FilterQuery {
   Collection<String> oldLabels();

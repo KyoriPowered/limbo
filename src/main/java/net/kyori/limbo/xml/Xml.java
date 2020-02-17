@@ -23,10 +23,24 @@
  */
 package net.kyori.limbo.xml;
 
+import java.util.function.Consumer;
 import net.kyori.xml.node.Node;
+import net.kyori.xml.node.stream.NodeStreamElement;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface Xml {
+  static void acceptOne(final Node node, final String name, final Consumer<String> consumer) {
+    acceptOne(node.node(name), consumer);
+  }
+
+  static void acceptOne(final NodeStreamElement<Node> node, final Consumer<String> consumer) {
+    node.map(Node::value).ifPresent(consumer);
+  }
+
+  static String requireOneString(final @NonNull Node node, final @NonNull String name) {
+    return node.node(name).required().value();
+  }
+
   static boolean attrBoolean(final @NonNull Node node, final @NonNull String name, final boolean defaultValue) {
     return node.attribute(name)
       .map(Node::value)

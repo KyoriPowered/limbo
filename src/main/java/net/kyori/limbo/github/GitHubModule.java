@@ -26,6 +26,9 @@ package net.kyori.limbo.github;
 import com.google.gson.Gson;
 import com.google.inject.Exposed;
 import com.google.inject.Provides;
+import java.nio.file.Path;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.kyori.igloo.v3.GitHub;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.Users;
@@ -38,11 +41,6 @@ import net.kyori.limbo.github.repository.cache.RepositoryPermissionCacheImpl;
 import net.kyori.violet.DuplexModule;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
-
-import java.nio.file.Path;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 public final class GitHubModule extends DuplexModule {
   @Override

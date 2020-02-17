@@ -23,16 +23,14 @@
  */
 package net.kyori.limbo.discord.action;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.kyori.feature.parser.AbstractInjectedFeatureDefinitionParser;
 import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.mu.Maybe;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<Action> implements Parser<Action> {
@@ -47,9 +45,9 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
   public @NonNull Action realThrowingParse(final @NonNull Node node) {
     final Action.Message message = node.nodes("message")
       .one()
-      .map(m -> {
-        final String content = m.nodes("content").one().map(Node::value).optional("");
-        final /* @Nullable */ Embed embed = m.nodes("embed").one().map(this.embedParser::parse).optional(null);
+      .map(msg -> {
+        final String content = msg.nodes("content").one().map(Node::value).optional("");
+        final /* @Nullable */ Embed embed = msg.nodes("embed").one().map(this.embedParser::parse).optional(null);
         return new Action.Message() {
           @Override
           public @NonNull String content() {
@@ -57,8 +55,8 @@ public final class ActionParser extends AbstractInjectedFeatureDefinitionParser<
           }
 
           @Override
-          public @NonNull Optional<Embed> embed() {
-            return Optional.ofNullable(embed);
+          public @NonNull Maybe<Embed> embed() {
+            return Maybe.maybe(embed);
           }
         };
       })

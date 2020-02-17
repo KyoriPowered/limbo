@@ -24,15 +24,14 @@
 package net.kyori.limbo.github.action;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 import net.kyori.feature.FeatureDefinition;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.limbo.util.Tokens;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 
 public interface Action extends FeatureDefinition {
   @Nullable State state();

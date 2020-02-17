@@ -23,10 +23,9 @@
  */
 package net.kyori.limbo.git.actor;
 
+import java.util.Set;
 import net.kyori.fragment.filter.FilterQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Set;
 
 public interface ActorTypeQuery extends FilterQuery {
   @NonNull Set<ActorType> actorTypes();

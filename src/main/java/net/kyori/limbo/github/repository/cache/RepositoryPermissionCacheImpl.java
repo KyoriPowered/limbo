@@ -25,18 +25,16 @@ package net.kyori.limbo.github.repository.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.kyori.igloo.v3.Collaborator;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.igloo.v3.RepositoryId;
 import net.kyori.igloo.v3.Users;
 import net.kyori.limbo.github.api.model.User;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public final class RepositoryPermissionCacheImpl implements RepositoryPermissionCache {

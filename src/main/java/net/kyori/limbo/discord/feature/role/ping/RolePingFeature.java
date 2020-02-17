@@ -24,8 +24,11 @@
 package net.kyori.limbo.discord.feature.role.ping;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.TextChannel;
+import net.kyori.kassel.channel.message.Message;
 import net.kyori.kassel.channel.message.event.ChannelMessageCreateEvent;
 import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.channel.GuildTextChannel;
@@ -38,12 +41,7 @@ import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
-import net.kyori.mu.Optionals;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
+import net.kyori.mu.Maybe;
 
 public final class RolePingFeature implements Activatable, Listener {
   private final DiscordConfiguration discord;
@@ -62,16 +60,17 @@ public final class RolePingFeature implements Activatable, Listener {
 
   @Subscribe
   public void message(final ChannelMessageCreateEvent event) {
-    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
+    Maybe.cast(event.channel(), GuildTextChannel.class).ifJust(channel -> {
       final Guild guild = channel.guild();
-      final User author = event.message().author();
-      guild.member(author.id()).ifPresent(member -> {
-        final String content = event.message().content();
+      final Message message = event.message();
+      final User author = message.author();
+      guild.member(author.id()).ifJust(member -> {
+        final String content = message.content();
         for(final Role memberRole : member.roles().all().collect(Collectors.toSet())) {
-          final Optional<Configuration.SearchResult> searchResult = this.configuration.search((RoleQuery) () -> memberRole, content);
-          if(searchResult.isPresent()) {
-            final Configuration.Search search = searchResult.get().search;
-            guild.role(search.role).ifPresent(role -> this.ping(author, role, channel, search.action, searchResult.get().content));
+          final Maybe<Configuration.SearchResult> searchResult = this.configuration.search((RoleQuery) () -> memberRole, content);
+          if(searchResult.isJust()) {
+            final Configuration.Search search = searchResult.orThrow().search;
+            guild.role(search.role).ifJust(role -> this.ping(author, role, channel, search.action, searchResult.orThrow().content));
             return;
           }
         }
@@ -80,7 +79,7 @@ public final class RolePingFeature implements Activatable, Listener {
   }
 
   private void ping(final User source, final Role role, final TextChannel channel, final Action action, final String content) {
-    action.message().ifPresent(message -> {
+    action.message().ifJust(message -> {
       final boolean mentionable = role.mentionable();
       if(!mentionable) {
         role.edit((RolePartial.MentionablePartial) () -> true);

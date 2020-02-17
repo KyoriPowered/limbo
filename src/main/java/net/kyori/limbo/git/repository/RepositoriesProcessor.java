@@ -23,15 +23,14 @@
  */
 package net.kyori.limbo.git.repository;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import net.kyori.feature.FeatureDefinitionContext;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 public final class RepositoriesProcessor implements Processor {
   private final Provider<FeatureDefinitionContext> context;

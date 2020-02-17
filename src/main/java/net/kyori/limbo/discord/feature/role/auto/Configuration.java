@@ -24,27 +24,25 @@
 package net.kyori.limbo.discord.feature.role.auto;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.kyori.fragment.filter.Filter;
-import net.kyori.fragment.filter.FilterQuery;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import javax.inject.Singleton;
+import net.kyori.fragment.filter.Filter;
+import net.kyori.fragment.filter.FilterQuery;
+import net.kyori.mu.Maybe;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 @Singleton
 /* package */ final class Configuration {
   final List<Entry> entries = new ArrayList<>();
 
-  @NonNull Optional<LongSet> search(final FilterQuery query) {
+  @NonNull Maybe<LongSet> search(final FilterQuery query) {
     for(final Entry entry : this.entries) {
       if(entry.filter.allowed(query)) {
-        return Optional.of(entry.roles);
+        return Maybe.just(entry.roles);
       }
     }
-    return Optional.empty();
+    return Maybe.nothing();
   }
 
   static class Entry {

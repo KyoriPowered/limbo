@@ -23,11 +23,10 @@
  */
 package net.kyori.limbo.github.feature.apply.entry;
 
+import java.util.List;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.limbo.github.feature.apply.CollectContext;
-
-import java.util.List;
 
 public interface Entry {
   Filter filter();

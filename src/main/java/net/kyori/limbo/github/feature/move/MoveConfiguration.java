@@ -23,17 +23,15 @@
  */
 package net.kyori.limbo.github.feature.move;
 
-import net.kyori.limbo.git.repository.RepositoryId;
-import net.kyori.limbo.github.action.Action;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.inject.Singleton;
+import net.kyori.limbo.git.repository.RepositoryId;
+import net.kyori.limbo.github.action.Action;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Singleton
 /* package */ final class MoveConfiguration {

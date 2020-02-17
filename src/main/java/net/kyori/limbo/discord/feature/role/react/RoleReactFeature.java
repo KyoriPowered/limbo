@@ -23,6 +23,12 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.OptionalLong;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.message.emoji.Emoji;
 import net.kyori.kassel.channel.message.event.ChannelMessageReactionAddEvent;
@@ -38,17 +44,9 @@ import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
 import net.kyori.mu.Composer;
-import net.kyori.mu.Optionals;
+import net.kyori.mu.Maybe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalLong;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 public final class RoleReactFeature implements Activatable, Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(RoleReactFeature.class);
@@ -68,9 +66,9 @@ public final class RoleReactFeature implements Activatable, Listener {
 
   @Subscribe
   public void react(final ChannelMessageReactionAddEvent event) {
-    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
+    Maybe.cast(event.channel(), GuildTextChannel.class).ifJust(channel -> {
       final Guild guild = channel.guild();
-      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
+      guild.member(event.user().id()).ifJust(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
         LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(member.user()), member.user().id(), role.name(), role.id());
         roles.add(role);
       }));
@@ -79,9 +77,9 @@ public final class RoleReactFeature implements Activatable, Listener {
 
   @Subscribe
   public void react(final ChannelMessageReactionRemoveEvent event) {
-    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> {
+    Maybe.cast(event.channel(), GuildTextChannel.class).ifJust(channel -> {
       final Guild guild = channel.guild();
-      guild.member(event.user().id()).ifPresent(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
+      guild.member(event.user().id()).ifJust(member -> this.react(guild, member, event.message(), event.emoji(), (roles, role) -> {
         LOGGER.info("Removing \"{}\" ({}) from role \"{}\" ({})", FunkyTown.globalName(member.user()), member.user().id(), role.name(), role.id());
         roles.remove(role);
       }));
@@ -95,7 +93,7 @@ public final class RoleReactFeature implements Activatable, Listener {
     })) {
       final OptionalLong maybeRole = this.configuration.search(memberRole != null ? (RoleQuery) () -> memberRole : null, message, emoji);
       if(maybeRole.isPresent()) {
-        guild.role(maybeRole.getAsLong()).ifPresent(role -> consumer.accept(member.roles(), role));
+        guild.role(maybeRole.getAsLong()).ifJust(role -> consumer.accept(member.roles(), role));
         return;
       }
     }

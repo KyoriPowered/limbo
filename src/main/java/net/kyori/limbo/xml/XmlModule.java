@@ -27,6 +27,9 @@ import com.google.inject.Key;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
+import java.nio.file.Path;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import net.kyori.feature.FeatureDefinitionContext;
 import net.kyori.feature.FeatureDefinitionContextImpl;
 import net.kyori.fragment.filter.FilterModule;
@@ -37,11 +40,6 @@ import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.parser.ParserModule;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.located.LocatedJDOMFactory;
-
-import java.nio.file.Path;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 public final class XmlModule extends AbstractModule {
   @Override

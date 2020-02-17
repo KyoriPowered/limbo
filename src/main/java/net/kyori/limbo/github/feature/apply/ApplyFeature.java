@@ -26,6 +26,12 @@ package net.kyori.limbo.github.feature.apply;
 import com.google.common.base.Predicates;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Repositories;
 import net.kyori.limbo.event.Listener;
@@ -40,16 +46,7 @@ import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
-import net.kyori.mu.Pair;
 import net.kyori.mu.function.ThrowingConsumer;
-
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 public final class ApplyFeature implements Listener {
   private static final Set<IssuesEvent.Action> ISSUES_EVENT_ACTIONS = EnumSet.of(
@@ -99,8 +96,8 @@ public final class ApplyFeature implements Listener {
         .oldLabels(Labels.labels(event.issue, event.label == null ? Predicates.alwaysTrue() : Predicates.not(label -> event.label.name.equals(label))))
         .newLabels(event.label != null ? event.label.name : null)
         .build();
-      mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.TITLE, event.issue.title));
-      mac.collectApplicators(context.gatherApplicators(this.configuration, SearchScope.DESCRIPTION, event.issue.body));
+      mac.collectApplicators(context.gatherApplicators(this.configuration, new SearchInstance(SearchScope.TITLE, event.issue.title)));
+      mac.collectApplicators(context.gatherApplicators(this.configuration, new SearchInstance(SearchScope.DESCRIPTION, event.issue.body)));
     });
     consumer.accept(event.action.asEvent(event.issue.pull_request != null));
     if(event.action == IssuesEvent.Action.OPENED) {
@@ -138,7 +135,7 @@ public final class ApplyFeature implements Listener {
       )
       .oldLabels(Labels.labels(event.pull_request))
       .build();
-    context.applicators(this.configuration, Pair.of(SearchScope.TITLE, event.pull_request.title), Pair.of(SearchScope.DESCRIPTION, event.pull_request.body))
+    context.applicators(this.configuration, new SearchInstance(SearchScope.TITLE, event.pull_request.title), new SearchInstance(SearchScope.DESCRIPTION, event.pull_request.body))
       .apply(
         context,
         ImmutableMap.of(
@@ -164,7 +161,7 @@ public final class ApplyFeature implements Listener {
       )
       .oldLabels(Labels.labels(event.issue))
       .build();
-    context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.comment.body))
+    context.applicators(this.configuration, new SearchInstance(SearchScope.DESCRIPTION, event.comment.body))
       .apply(
         context,
         ImmutableMap.of(
@@ -190,7 +187,7 @@ public final class ApplyFeature implements Listener {
       )
       .oldLabels(Labels.labels(event.pull_request))
       .build();
-    context.applicators(this.configuration, Pair.of(SearchScope.DESCRIPTION, event.review.body))
+    context.applicators(this.configuration, new SearchInstance(SearchScope.DESCRIPTION, event.review.body))
       .apply(
         context,
         ImmutableMap.of(

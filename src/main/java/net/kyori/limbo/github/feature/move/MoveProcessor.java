@@ -23,6 +23,11 @@
  */
 package net.kyori.limbo.github.feature.move;
 
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.kyori.feature.parser.FeatureDefinitionParser;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.Action;
@@ -32,13 +37,6 @@ import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.element.Elements;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
-
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 public final class MoveProcessor implements Processor {
   private final User identity;

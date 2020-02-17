@@ -24,6 +24,8 @@
 package net.kyori.limbo.discord.feature.gir;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.PullRequest;
@@ -39,10 +41,8 @@ import net.kyori.limbo.git.issue.IssueTokens;
 import net.kyori.limbo.github.repository.GitHubRepositoryIdImpl;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
-import net.kyori.mu.Optionals;
+import net.kyori.mu.Maybe;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.inject.Inject;
 
 public final class GitHubIssueRefFeature implements Activatable, Listener {
   private final DiscordConfiguration discord;
@@ -63,22 +63,25 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
 
   @Subscribe
   public void message(final ChannelMessageCreateEvent event) {
-    Optionals.cast(event.channel(), GuildTextChannel.class).ifPresent(channel -> this.configuration.search(channel.guild(), event.message().content()).ifPresent(search -> {
+    Maybe.cast(event.channel(), GuildTextChannel.class).ifJust(channel -> this.configuration.search(channel.guild(), event.message().content()).ifJust(search -> {
       final Issue issue = this.repositories.get(new GitHubRepositoryIdImpl(search.repository)).issues().get(search.number);
       final /* @Nullable */ PullRequest pr = issue.pullRequest().orElse(null);
       final Action action = this.configuration.actionFor(issue, pr);
-      action.message().ifPresent(message -> channel.message(
+      action.message().ifJust(message -> channel.message(
         message.content(),
         message.embed()
-          .map(embed -> EmbedRenderer.render(embed, EmbedRenderer.Operators.of(string -> Tokens.format(string, ImmutableMap.<String, Object>builder()
-            .put(GitHubIssueRefTokens.AUTHOR, issue.user().login())
-            .put(IssueTokens.BODY, body(issue.body()))
-            .put(IssueTokens.NUMBER, issue.number())
-            .put(GitHubIssueRefTokens.TAG, search.tag)
-            .put(IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2))
-            .put(IssueTokens.URL, issue.html_url())
-            .build()))))
-          .orElse(null)
+          .map(embed -> {
+            final Map<String, Object> tokens = ImmutableMap.<String, Object>builder()
+              .put(GitHubIssueRefTokens.AUTHOR, issue.user().login())
+              .put(IssueTokens.BODY, body(issue.body()))
+              .put(IssueTokens.NUMBER, issue.number())
+              .put(GitHubIssueRefTokens.TAG, search.tag)
+              .put(IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2))
+              .put(IssueTokens.URL, issue.html_url())
+              .build();
+            return EmbedRenderer.render(embed, EmbedRenderer.Operators.of(string -> Tokens.format(string, tokens)));
+          })
+          .orDefault(null)
       ));
     }));
   }

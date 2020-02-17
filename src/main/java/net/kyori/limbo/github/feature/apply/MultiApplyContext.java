@@ -23,15 +23,16 @@
  */
 package net.kyori.limbo.github.feature.apply;
 
+import java.util.Collection;
+import java.util.function.Consumer;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.limbo.git.repository.RepositoryId;
 import net.kyori.limbo.github.action.BulkActions;
 
-import java.util.Collection;
-import java.util.function.Consumer;
-
 /* package */ class MultiApplyContext implements BulkActions.Context {
-  private final Builder builder;
+  private final Issue issue;
+  private final RepositoryId repository;
+  private final Collection<String> labels;
   private final BulkActions applicators;
 
   /* package */ static Builder builder() {
@@ -39,14 +40,16 @@ import java.util.function.Consumer;
   }
 
   private MultiApplyContext(final Builder builder) {
-    this.builder = builder;
+    this.issue = builder.issue;
+    this.repository = builder.repository;
+    this.labels = builder.labels;
     this.applicators = new BulkActions(builder.issue);
   }
 
   /* package */ ApplyContext.Builder child() {
     return ApplyContext.builder()
-      .repository(this.builder.repository)
-      .issue(this.builder.issue);
+      .repository(this.repository)
+      .issue(this.issue);
   }
 
   /* package */ BulkActions applicators() {
@@ -59,7 +62,7 @@ import java.util.function.Consumer;
 
   @Override
   public Collection<String> existingLabels() {
-    return this.builder.labels;
+    return this.labels;
   }
 
   /* package */ static class Builder {

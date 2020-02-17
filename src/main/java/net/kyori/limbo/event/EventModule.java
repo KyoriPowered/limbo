@@ -24,12 +24,11 @@
 package net.kyori.limbo.event;
 
 import com.google.inject.Provides;
+import javax.inject.Singleton;
 import net.kyori.event.EventBus;
 import net.kyori.event.SimpleEventBus;
 import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
-
-import javax.inject.Singleton;
 
 public final class EventModule extends AbstractModule {
   @Override

@@ -24,6 +24,11 @@
 package net.kyori.limbo.github.feature.move;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.igloo.v3.Issue;
 import net.kyori.igloo.v3.Repositories;
@@ -37,13 +42,6 @@ import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
 
 public final class MoveFeature implements Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(MoveFeature.class);

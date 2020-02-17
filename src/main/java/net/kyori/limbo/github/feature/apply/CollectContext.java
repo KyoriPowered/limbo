@@ -25,9 +25,8 @@ package net.kyori.limbo.github.feature.apply;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CollectContext {
   private static final Splitter NEWLINE_PATTERN = Splitter.on('\n');

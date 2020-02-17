@@ -21,24 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.discord.filter;
+package net.kyori.limbo.util;
 
-import javax.inject.Inject;
-import net.kyori.xml.XMLException;
-import net.kyori.xml.node.Node;
-import net.kyori.xml.node.parser.Parser;
-import org.checkerframework.checker.nullness.qual.NonNull;
+public class Hex {
+  private static final char[] HEX = "0123456789ABCDEF".toCharArray();
 
-public final class GuildFilterParser implements Parser<GuildFilter> {
-  private final Parser<Long> longParser;
-
-  @Inject
-  private GuildFilterParser(final Parser<Long> longParser) {
-    this.longParser = longParser;
-  }
-
-  @Override
-  public GuildFilter throwingParse(final @NonNull Node node) throws XMLException {
-    return new GuildFilter(this.longParser.parse(node));
+  public static String asHex(final byte[] bytes) {
+    final StringBuilder sb = new StringBuilder(bytes.length * 2);
+    for(int i = 0, length = bytes.length; i < length; ++i) {
+      final byte bite = bytes[i];
+      sb.append(HEX[(bite >> 4) & 0xf]);
+      sb.append(HEX[bite & 0xf]);
+    }
+    return sb.toString();
   }
 }

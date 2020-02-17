@@ -23,6 +23,8 @@
  */
 package net.kyori.limbo.discord.feature.role.auto;
 
+import java.util.stream.LongStream;
+import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.member.Member;
@@ -33,14 +35,10 @@ import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.discord.filter.MemberQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
+import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
-import java.util.stream.LongStream;
-
-import javax.inject.Inject;
 
 public final class AutoRoleFeature implements Activatable, Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutoRoleFeature.class);
@@ -62,7 +60,6 @@ public final class AutoRoleFeature implements Activatable, Listener {
   public void add(final GuildMemberAddEvent event) {
     final Guild guild = event.guild();
     final Member member = event.member();
-    final User user = member.user();
 
     this.configuration.search(new MemberQuery() {
       @Override
@@ -74,11 +71,12 @@ public final class AutoRoleFeature implements Activatable, Listener {
       public @NonNull Member member() {
         return member;
       }
-    }).ifPresent(roles -> {
+    }).ifJust(roles -> {
+      final User user = member.user();
       LongStream.of(roles.toLongArray())
         .mapToObj(guild::role)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .filter(Maybe::isJust)
+        .map(Maybe::orThrow)
         .forEach(role -> {
           LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(user), user.id(), role.name(), role.id());
           member.roles().add(role);

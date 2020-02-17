@@ -24,9 +24,8 @@
 package net.kyori.limbo.github.api.model;
 
 import com.google.gson.annotations.SerializedName;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class Issue {
   public String html_url;

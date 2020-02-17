@@ -24,12 +24,6 @@
 package net.kyori.limbo.github.action;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.igloo.v3.Issue;
-import net.kyori.igloo.v3.IssuePartial;
-import net.kyori.igloo.v3.Label;
-import net.kyori.mu.function.ThrowingConsumer;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +33,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import net.kyori.igloo.v3.Issue;
+import net.kyori.igloo.v3.IssuePartial;
+import net.kyori.igloo.v3.Label;
+import net.kyori.mu.function.ThrowingConsumer;
+import net.kyori.mu.stream.MuStreams;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BulkActions {
   private final Issue issue;
@@ -109,7 +108,7 @@ public class BulkActions {
           Stream
             .concat(
               labels.add.stream(),
-              StreamSupport.stream(BulkActions.this.issue.labels().all().spliterator(), false)
+              MuStreams.of(BulkActions.this.issue.labels().all())
                 .map(Label::name)
             )
             .distinct()
@@ -132,12 +131,8 @@ public class BulkActions {
   }
 
   private void applyState() throws IOException {
-    final long close = this.actions.stream()
-      .filter(action -> action.state() == Action.State.CLOSE)
-      .count();
-    final long open = this.actions.stream()
-      .filter(action -> action.state() == Action.State.OPEN)
-      .count();
+    final long close = this.countActions(Action.State.CLOSE);
+    final long open = this.countActions(Action.State.OPEN);
     if(close > 0 || open > 0) {
       if(close > open) {
         this.issue.edit((IssuePartial.StatePartial) () -> Issue.State.CLOSED);
@@ -145,6 +140,12 @@ public class BulkActions {
         this.issue.edit((IssuePartial.StatePartial) () -> Issue.State.OPEN);
       }
     }
+  }
+
+  private long countActions(final Action.State state) {
+    return this.actions.stream()
+      .filter(action -> action.state() == state)
+      .count();
   }
 
   private void applyLock() throws IOException {

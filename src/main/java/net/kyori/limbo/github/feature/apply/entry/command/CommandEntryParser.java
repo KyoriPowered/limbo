@@ -24,16 +24,14 @@
 package net.kyori.limbo.github.feature.apply.entry.command;
 
 import com.google.common.collect.MoreCollectors;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.limbo.github.action.Action;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 public final class CommandEntryParser implements Parser<CommandEntry> {
   private final Parser<Filter> filterParser;

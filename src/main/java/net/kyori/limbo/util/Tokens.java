@@ -23,9 +23,8 @@
  */
 package net.kyori.limbo.util;
 
-import org.apache.commons.text.StrSubstitutor;
-
 import java.util.Map;
+import org.apache.commons.text.StrSubstitutor;
 
 public interface Tokens {
   String AUTHOR = "author";

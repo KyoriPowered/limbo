@@ -23,12 +23,11 @@
  */
 package net.kyori.limbo.discord.filter;
 
+import javax.inject.Inject;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import javax.inject.Inject;
 
 public final class UserFilterParser implements Parser<UserFilter> {
   private final Parser<Long> longParser;

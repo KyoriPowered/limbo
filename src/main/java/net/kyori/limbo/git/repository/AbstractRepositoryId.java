@@ -24,11 +24,10 @@
 package net.kyori.limbo.git.repository;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.lunar.EvenMoreObjects;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.Objects;
 import java.util.Set;
+import net.kyori.lunar.EvenMoreObjects;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public abstract class AbstractRepositoryId implements RepositoryId {
   private final String user;

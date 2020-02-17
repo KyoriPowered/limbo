@@ -24,18 +24,17 @@
 package net.kyori.limbo.github.action;
 
 import com.google.common.base.MoreObjects;
-import net.kyori.igloo.v3.Issue;
-import net.kyori.igloo.v3.IssuePartial;
-import net.kyori.igloo.v3.Label;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import net.kyori.igloo.v3.Issue;
+import net.kyori.igloo.v3.IssuePartial;
+import net.kyori.igloo.v3.Label;
+import net.kyori.mu.stream.MuStreams;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /* package */ final class ActionImpl implements Action {
   private final @Nullable State state;
@@ -83,7 +82,7 @@ import java.util.stream.StreamSupport;
       if(!this.removeLabels.isEmpty()) {
         issue.labels().set(Stream.concat(
           this.addLabels.stream(),
-          !this.removeLabels.isEmpty() ? StreamSupport.stream(issue.labels().all().spliterator(), false).map(Label::name) : Stream.empty()
+          !this.removeLabels.isEmpty() ? MuStreams.of(issue.labels().all()).map(Label::name) : Stream.empty()
         ).filter(label -> !this.removeLabels.contains(label)).collect(Collectors.toSet()));
       } else {
         issue.labels().add(this.addLabels);

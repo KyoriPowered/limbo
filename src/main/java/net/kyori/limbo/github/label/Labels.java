@@ -23,14 +23,13 @@
  */
 package net.kyori.limbo.github.label;
 
-import net.kyori.limbo.github.api.model.Issue;
-import net.kyori.limbo.github.api.model.Label;
-import net.kyori.limbo.github.api.model.PullRequest;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.kyori.limbo.github.api.model.Issue;
+import net.kyori.limbo.github.api.model.Label;
+import net.kyori.limbo.github.api.model.PullRequest;
 
 public interface Labels {
   static Collection<String> labels(final Issue issue) {

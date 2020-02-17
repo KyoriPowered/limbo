@@ -23,17 +23,16 @@
  */
 package net.kyori.limbo.discord.embed;
 
+import java.awt.Color;
+import java.util.regex.Pattern;
+import javax.inject.Singleton;
 import net.kyori.kassel.channel.message.embed.Embed;
+import net.kyori.limbo.xml.Xml;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.XMLException;
 import net.kyori.xml.node.Node;
 import net.kyori.xml.node.parser.Parser;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.awt.Color;
-import java.util.regex.Pattern;
-
-import javax.inject.Singleton;
 
 @Singleton
 public final class EmbedParser implements Parser<Embed> {
@@ -42,9 +41,9 @@ public final class EmbedParser implements Parser<Embed> {
   @Override
   public @NonNull Embed throwingParse(final @NonNull Node node) {
     final Embed.Builder builder = Embed.builder();
-    node.nodes("title").one().ifPresent(title -> builder.title(title.value()));
-    node.nodes("description").one().ifPresent(description -> builder.description(description.value()));
-    node.nodes("url").one().ifPresent(url -> builder.url(url.value()));
+    Xml.acceptOne(node, "title", builder::title);
+    Xml.acceptOne(node, "description", builder::description);
+    Xml.acceptOne(node, "url", builder::url);
     node.nodes("color").one().ifPresent(ThrowingConsumer.of(color -> {
       final String string = color.value();
       if(string.charAt(0) != '#') {
@@ -56,19 +55,19 @@ public final class EmbedParser implements Parser<Embed> {
       builder.color(new Color(Integer.parseInt(string.substring(1), 16)));
     }));
     node.nodes("author").one().ifPresent(author -> {
-      author.nodes("name").one().ifPresent(name -> builder.authorName(name.value()));
-      author.nodes("url").one().ifPresent(url -> builder.authorUrl(url.value()));
-      author.nodes("icon").one().ifPresent(icon -> builder.authorIcon(icon.value()));
+      Xml.acceptOne(author, "name", builder::authorName);
+      Xml.acceptOne(author, "url", builder::authorUrl);
+      Xml.acceptOne(author, "icon", builder::authorIcon);
     });
-    node.nodes("image").one().ifPresent(image -> builder.imageUrl(image.value()));
-    node.nodes("thumbnail").one().ifPresent(thumbnail -> builder.thumbnailUrl(thumbnail.value()));
+    Xml.acceptOne(node, "image", builder::imageUrl);
+    Xml.acceptOne(node, "thumbnail", builder::thumbnailUrl);
     node.nodes("field").forEach(field -> builder.field(
-      field.nodes("name").one().required().value(),
-      field.nodes("value").one().required().value()
+      Xml.requireOneString(field, "name"),
+      Xml.requireOneString(field, "value")
     ));
     node.nodes("footer").one().ifPresent(footer -> {
-      footer.nodes("text").one().ifPresent(text -> builder.footerText(text.value()));
-      footer.nodes("icon").one().ifPresent(icon -> builder.footerIcon(icon.value()));
+      Xml.acceptOne(footer, "text", builder::footerText);
+      Xml.acceptOne(footer, "icon", builder::footerIcon);
     });
     return builder.build();
   }

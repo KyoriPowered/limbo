@@ -23,6 +23,10 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.OptionalLong;
+import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
 import net.kyori.kassel.channel.message.emoji.CustomEmoji;
@@ -31,12 +35,6 @@ import net.kyori.kassel.snowflake.Snowflake;
 import net.kyori.kassel.snowflake.Snowflaked;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalLong;
-
-import javax.inject.Singleton;
 
 @Singleton
 /* package */ final class Configuration {

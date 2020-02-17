@@ -24,7 +24,6 @@
 package net.kyori.limbo.github.api.model;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 public final class PullRequest {
