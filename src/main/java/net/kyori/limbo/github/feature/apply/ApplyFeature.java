@@ -46,6 +46,7 @@ import net.kyori.limbo.github.api.model.User;
 import net.kyori.limbo.github.label.Labels;
 import net.kyori.limbo.github.repository.cache.RepositoryPermissionCache;
 import net.kyori.limbo.util.Tokens;
+import net.kyori.mu.function.MuPredicates;
 import net.kyori.mu.function.ThrowingConsumer;
 
 public final class ApplyFeature implements Listener {
@@ -93,7 +94,7 @@ public final class ApplyFeature implements Listener {
             .self(event.sender, this.selfUser)
             .get())
         )
-        .oldLabels(Labels.labels(event.issue, event.label == null ? Predicates.alwaysTrue() : Predicates.not(label -> event.label.name.equals(label))))
+        .oldLabels(Labels.labels(event.issue, event.label == null ? MuPredicates.alwaysTrue() : MuPredicates.not(label -> event.label.name.equals(label))))
         .newLabels(event.label != null ? event.label.name : null)
         .build();
       mac.collectApplicators(context.gatherApplicators(this.configuration, new SearchInstance(SearchScope.TITLE, event.issue.title)));
