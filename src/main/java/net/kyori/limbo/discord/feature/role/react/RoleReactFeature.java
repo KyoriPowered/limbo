@@ -40,6 +40,7 @@ import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.snowflake.Snowflaked;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.FunkyTown;
+import net.kyori.limbo.discord.feature.AbstractDiscordFeature;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
@@ -48,20 +49,14 @@ import net.kyori.mu.Maybe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RoleReactFeature implements Activatable, Listener {
+public final class RoleReactFeature extends AbstractDiscordFeature implements Activatable, Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(RoleReactFeature.class);
-  private final DiscordConfiguration discord;
   private final Configuration configuration;
 
   @Inject
   private RoleReactFeature(final DiscordConfiguration discord, final Configuration configuration) {
-    this.discord = discord;
+    super(discord);
     this.configuration = configuration;
-  }
-
-  @Override
-  public boolean active() {
-    return this.discord.isEnabled();
   }
 
   @Subscribe

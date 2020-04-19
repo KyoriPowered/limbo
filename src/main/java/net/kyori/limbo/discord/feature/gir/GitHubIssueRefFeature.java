@@ -72,12 +72,12 @@ public final class GitHubIssueRefFeature implements Activatable, Listener {
         message.embed()
           .map(embed -> {
             final Map<String, Object> tokens = ImmutableMap.<String, Object>builder()
-              .put(GitHubIssueRefTokens.AUTHOR, issue.user().login())
+              .put(IssueTokens.AUTHOR_USERNAME, issue.user().login())
               .put(IssueTokens.BODY, body(issue.body()))
               .put(IssueTokens.NUMBER, issue.number())
-              .put(GitHubIssueRefTokens.TAG, search.tag)
               .put(IssueTokens.TITLE, StringUtils.truncate(issue.title(), Embed.MAX_TITLE_LENGTH - search.tag.length() - 2))
               .put(IssueTokens.URL, issue.html_url())
+              .put(GitHubIssueRefTokens.TAG, search.tag)
               .build();
             return EmbedRenderer.render(embed, EmbedRenderer.Operators.of(string -> Tokens.format(string, tokens)));
           })

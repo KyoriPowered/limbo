@@ -37,25 +37,20 @@ import net.kyori.kassel.guild.role.RolePartial;
 import net.kyori.kassel.user.User;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.action.Action;
+import net.kyori.limbo.discord.feature.AbstractDiscordFeature;
 import net.kyori.limbo.discord.filter.RoleQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
 import net.kyori.mu.Maybe;
 
-public final class RolePingFeature implements Activatable, Listener {
-  private final DiscordConfiguration discord;
+public final class RolePingFeature extends AbstractDiscordFeature implements Activatable, Listener {
   private final Configuration configuration;
 
   @Inject
   private RolePingFeature(final DiscordConfiguration discord, final Configuration configuration) {
-    this.discord = discord;
+    super(discord);
     this.configuration = configuration;
-  }
-
-  @Override
-  public boolean active() {
-    return this.discord.isEnabled();
   }
 
   @Subscribe

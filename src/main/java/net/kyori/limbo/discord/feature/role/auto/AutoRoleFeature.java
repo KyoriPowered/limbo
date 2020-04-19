@@ -32,6 +32,7 @@ import net.kyori.kassel.guild.member.event.GuildMemberAddEvent;
 import net.kyori.kassel.user.User;
 import net.kyori.limbo.discord.DiscordConfiguration;
 import net.kyori.limbo.discord.FunkyTown;
+import net.kyori.limbo.discord.feature.AbstractDiscordFeature;
 import net.kyori.limbo.discord.filter.MemberQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
@@ -40,20 +41,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AutoRoleFeature implements Activatable, Listener {
+public final class AutoRoleFeature extends AbstractDiscordFeature implements Activatable, Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutoRoleFeature.class);
-  private final DiscordConfiguration discord;
   private final Configuration configuration;
 
   @Inject
   private AutoRoleFeature(final DiscordConfiguration discord, final Configuration configuration) {
-    this.discord = discord;
+    super(discord);
     this.configuration = configuration;
-  }
-
-  @Override
-  public boolean active() {
-    return this.discord.isEnabled();
   }
 
   @Subscribe

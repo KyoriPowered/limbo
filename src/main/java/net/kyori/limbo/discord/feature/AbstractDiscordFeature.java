@@ -21,12 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.limbo.git.issue;
+package net.kyori.limbo.discord.feature;
 
-public interface IssueTokens {
-  String AUTHOR_USERNAME = "author";
-  String BODY = "body";
-  String NUMBER = "number";
-  String TITLE = "title";
-  String URL = "url";
+import net.kyori.limbo.discord.DiscordConfiguration;
+import net.kyori.membrane.facet.Activatable;
+
+/**
+ * An abstract implementation of a feature for Discord.
+ */
+public abstract class AbstractDiscordFeature implements Activatable {
+  private final DiscordConfiguration discord;
+
+  protected AbstractDiscordFeature(final DiscordConfiguration discord) {
+    this.discord = discord;
+  }
+
+  @Override
+  public boolean active() {
+    return this.discord.isEnabled();
+  }
 }
