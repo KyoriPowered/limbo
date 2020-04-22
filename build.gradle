@@ -29,6 +29,10 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+test {
+  useJUnitPlatform()
+}
+
 license {
   header project.file('header.txt')
   include '**/*.java'
@@ -47,6 +51,7 @@ dependencies {
   compile 'com.google.guava:guava:23.6-jre'
   compile 'com.google.http-client:google-http-client:1.28.0'
   compile 'com.google.http-client:google-http-client-apache:1.28.0'
+  compile 'joda-time:joda-time:2.10.5'
   compile 'net.kyori:event-api:3.0.0'
   compile 'net.kyori:event-method-asm:3.0.0'
   compile 'net.kyori:fragment:1.0.1-SNAPSHOT'
@@ -57,6 +62,7 @@ dependencies {
   compile 'net.kyori:polar:1.0.1-SNAPSHOT'
   compile 'net.kyori:violet:2.0.0-SNAPSHOT'
   compile 'net.kyori:xml:1.0.0'
+  compile 'net.time4j:time4j-core:4.38'
   compile 'org.apache.commons:commons-text:1.2'
   compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
   compile 'org.springframework.boot:spring-boot-starter-undertow'

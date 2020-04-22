@@ -54,7 +54,7 @@ public final class AutoRoleProcessor implements Processor {
       .forEach(ThrowingConsumer.of(auto -> {
         final /* @Nullable */ Filter filter = this.filterParser.parse(auto.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
         final LongSet roles = new LongArraySet();
-        auto.nodes("role").map(this.longParser).forEach(roles::add);
+        auto.nodes("role").map(this.longParser).mapToLong(Long::longValue).forEach(roles::add);
         this.configuration.entries.add(new Configuration.Entry(filter, roles));
       }));
   }

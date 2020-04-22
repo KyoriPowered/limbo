@@ -27,8 +27,10 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import net.kyori.limbo.core.HearNoEvil;
 import net.kyori.limbo.discord.DiscordModule;
 import net.kyori.limbo.event.EventModule;
 import net.kyori.limbo.git.GitModule;
@@ -36,6 +38,7 @@ import net.kyori.limbo.github.GitHubModule;
 import net.kyori.limbo.http.HttpModule;
 import net.kyori.limbo.scheduler.SchedulerModule;
 import net.kyori.limbo.xml.XmlModule;
+import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.AbstractModule;
 import net.kyori.violet.DuplexBinder;
 import net.kyori.xml.XMLException;
@@ -43,6 +46,8 @@ import net.kyori.xml.document.factory.DocumentFactory;
 import net.kyori.xml.node.Node;
 
 public final class LimboModule extends AbstractModule {
+  private final Instant startTime = Instant.now();
+
   @Override
   protected void configure() {
     this.install(new EventModule());
@@ -53,6 +58,11 @@ public final class LimboModule extends AbstractModule {
 
     this.installDuplex(new DiscordModule());
     this.installDuplex(new GitHubModule());
+
+    final FacetBinder facets = new FacetBinder(this.binder());
+    facets.addBinding().to(HearNoEvil.class);
+
+    this.bind(Instant.class).annotatedWith(StartTime.class).toInstance(this.startTime);
   }
 
   private void installDuplex(final Module module) {
