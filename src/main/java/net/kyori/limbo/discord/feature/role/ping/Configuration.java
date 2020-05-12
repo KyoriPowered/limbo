@@ -36,6 +36,7 @@ import net.kyori.limbo.discord.action.Action;
 import net.kyori.mu.Maybe;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+@Deprecated
 @Singleton
 /* package */ final class Configuration {
   final List<Search> searches = new ArrayList<>();

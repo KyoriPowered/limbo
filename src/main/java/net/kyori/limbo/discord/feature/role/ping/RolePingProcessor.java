@@ -37,6 +37,7 @@ import net.kyori.xml.node.Node;
 import net.kyori.xml.node.flattener.BranchLeafNodeFlattener;
 import net.kyori.xml.node.parser.Parser;
 
+@Deprecated
 public final class RolePingProcessor implements Processor {
   private final Configuration configuration;
   private final Parser<Filter> filterParser;

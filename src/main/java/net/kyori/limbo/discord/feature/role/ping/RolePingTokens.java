@@ -23,6 +23,7 @@
  */
 package net.kyori.limbo.discord.feature.role.ping;
 
+@Deprecated
 /* package */ interface RolePingTokens {
   String MESSAGE = "message";
   String ROLE = "role";

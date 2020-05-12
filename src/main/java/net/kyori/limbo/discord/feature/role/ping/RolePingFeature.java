@@ -44,6 +44,7 @@ import net.kyori.limbo.util.Tokens;
 import net.kyori.membrane.facet.Activatable;
 import net.kyori.mu.Maybe;
 
+@Deprecated
 public final class RolePingFeature extends AbstractDiscordFeature implements Activatable, Listener {
   private final Configuration configuration;
 

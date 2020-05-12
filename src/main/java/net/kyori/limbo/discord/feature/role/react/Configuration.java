@@ -23,9 +23,10 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.LongSets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalLong;
 import javax.inject.Singleton;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.fragment.filter.FilterQuery;
@@ -40,29 +41,29 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /* package */ final class Configuration {
   final List<Reaction> reactions = new ArrayList<>();
 
-  @NonNull OptionalLong search(final FilterQuery query, final Snowflaked message, final Emoji emoji) {
+  @NonNull LongSet search(final FilterQuery query, final Snowflaked message, final Emoji emoji) {
     final String id = emoji instanceof CustomEmoji ? String.valueOf(((CustomEmoji) emoji).id()) : emoji.name();
     for(final Reaction reaction : this.reactions) {
       if(reaction.message == message.id() && reaction.emoji.equals(id)) {
         if(reaction.filter == null || reaction.filter.allowed(query)) {
-          return OptionalLong.of(reaction.role);
+          return reaction.roles;
         }
       }
     }
-    return OptionalLong.empty();
+    return LongSets.EMPTY_SET;
   }
 
   static class Reaction {
     final @Snowflake long message;
     final String emoji;
     final @Nullable Filter filter;
-    final @Snowflake long role;
+    final @Snowflake LongSet roles;
 
-    Reaction(final @Snowflake long message, final String emoji, final @Nullable Filter filter, final @Snowflake long role) {
+    Reaction(final @Snowflake long message, final String emoji, final @Nullable Filter filter, final @Snowflake LongSet roles) {
       this.message = message;
       this.emoji = emoji;
       this.filter = filter;
-      this.role = role;
+      this.roles = LongSets.unmodifiable(roles);
     }
   }
 }

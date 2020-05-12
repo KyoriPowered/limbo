@@ -28,6 +28,7 @@ import net.kyori.membrane.facet.FacetBinder;
 import net.kyori.violet.DuplexModule;
 import net.kyori.violet.SetBinder;
 
+@Deprecated
 public final class RolePingModule extends DuplexModule {
   @Override
   protected void configure() {

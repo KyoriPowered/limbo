@@ -23,11 +23,12 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalLong;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.message.emoji.Emoji;
@@ -86,9 +87,13 @@ public final class RoleReactFeature extends AbstractDiscordFeature implements Ac
       list.addAll(member.roles().all().collect(Collectors.toSet()));
       list.add(null); // @everyone
     })) {
-      final OptionalLong maybeRole = this.configuration.search(memberRole != null ? (RoleQuery) () -> memberRole : null, message, emoji);
-      if(maybeRole.isPresent()) {
-        guild.role(maybeRole.getAsLong()).ifJust(role -> consumer.accept(member.roles(), role));
+      final LongSet roles = this.configuration.search(memberRole != null ? (RoleQuery) () -> memberRole : null, message, emoji);
+      if(!roles.isEmpty()) {
+        LongStream.of(roles.toLongArray())
+          .mapToObj(guild::role)
+          .filter(Maybe::isJust)
+          .map(Maybe::orThrow)
+          .forEach(role -> consumer.accept(member.roles(), role));
         return;
       }
     }

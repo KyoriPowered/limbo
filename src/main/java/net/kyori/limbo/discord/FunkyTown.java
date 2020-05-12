@@ -23,10 +23,20 @@
  */
 package net.kyori.limbo.discord;
 
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.kassel.user.User;
+import net.kyori.xml.node.parser.Parser;
+import net.kyori.xml.node.stream.NodeStream;
 
 public interface FunkyTown {
   static String globalName(final User user) {
     return String.format("%s#%s", user.username(), user.discriminator());
+  }
+
+  static LongSet longs(final NodeStream nodes, final Parser<Long> parser) {
+    final LongSet longs = new LongArraySet();
+    nodes.map(parser).mapToLong(Long::longValue).forEach(longs::add);
+    return longs;
   }
 }

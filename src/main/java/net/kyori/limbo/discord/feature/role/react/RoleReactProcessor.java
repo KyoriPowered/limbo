@@ -23,9 +23,11 @@
  */
 package net.kyori.limbo.discord.feature.role.react;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
 import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
 import net.kyori.kassel.snowflake.Snowflake;
+import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
@@ -54,8 +56,8 @@ public final class RoleReactProcessor implements Processor {
         final @Snowflake long message = ping.nodes("message").one().map(this.longParser).required();
         final String emoji = ping.nodes("emoji").one().map(Node::value).required();
         final /* @Nullable */ Filter filter = this.filterParser.parse(ping.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
-        final @Snowflake long role = ping.nodes("role").one().map(this.longParser).required();
-        this.configuration.reactions.add(new Configuration.Reaction(message, emoji, filter, role));
+        final LongSet roles = FunkyTown.longs(ping.nodes("role"), this.longParser);
+        this.configuration.reactions.add(new Configuration.Reaction(message, emoji, filter, roles));
       }));
   }
 }

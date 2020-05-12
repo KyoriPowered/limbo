@@ -23,10 +23,10 @@
  */
 package net.kyori.limbo.discord.feature.role.auto;
 
-import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import javax.inject.Inject;
 import net.kyori.fragment.filter.Filter;
+import net.kyori.limbo.discord.FunkyTown;
 import net.kyori.limbo.xml.Processor;
 import net.kyori.mu.function.ThrowingConsumer;
 import net.kyori.xml.node.Node;
@@ -53,8 +53,7 @@ public final class AutoRoleProcessor implements Processor {
       .flatMap(new BranchLeafNodeFlattener("auto-roles", "auto-role"))
       .forEach(ThrowingConsumer.of(auto -> {
         final /* @Nullable */ Filter filter = this.filterParser.parse(auto.nodes("filter").flatMap(Node::nodes).one().optional()).orElse(null);
-        final LongSet roles = new LongArraySet();
-        auto.nodes("role").map(this.longParser).mapToLong(Long::longValue).forEach(roles::add);
+        final LongSet roles = FunkyTown.longs(auto.nodes("role"), this.longParser);
         this.configuration.entries.add(new Configuration.Entry(filter, roles));
       }));
   }
