@@ -131,8 +131,8 @@ public class BulkActions {
   }
 
   private void applyState() throws IOException {
-    final long close = this.countActions(Action.State.CLOSE);
-    final long open = this.countActions(Action.State.OPEN);
+    final long close = this.countStates(Action.State.CLOSE);
+    final long open = this.countStates(Action.State.OPEN);
     if(close > 0 || open > 0) {
       if(close > open) {
         this.issue.edit((IssuePartial.StatePartial) () -> Issue.State.CLOSED);
@@ -142,7 +142,7 @@ public class BulkActions {
     }
   }
 
-  private long countActions(final Action.State state) {
+  private long countStates(final Action.State state) {
     return this.actions.stream()
       .filter(action -> action.state() == state)
       .count();
@@ -152,12 +152,8 @@ public class BulkActions {
     if(this.source != null && this.source.locked) {
       this.issue.lock();
     } else {
-      final long lock = this.actions.stream()
-        .filter(action -> action.lock() == Action.Lock.LOCK)
-        .count();
-      final long unlock = this.actions.stream()
-        .filter(action -> action.lock() == Action.Lock.UNLOCK)
-        .count();
+      final long lock = this.countLocks(Action.Lock.LOCK);
+      final long unlock = this.countLocks(Action.Lock.UNLOCK);
       if(lock > 0 || unlock > 0) {
         if(lock > unlock) {
           this.issue.lock();
@@ -166,6 +162,12 @@ public class BulkActions {
         }
       }
     }
+  }
+
+  private long countLocks(final Action.Lock state) {
+    return this.actions.stream()
+      .filter(action -> action.lock() == state)
+      .count();
   }
 
   @Override

@@ -25,7 +25,12 @@ package net.kyori.limbo.discord;
 
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import java.util.function.Consumer;
+import java.util.stream.LongStream;
+import net.kyori.kassel.guild.Guild;
+import net.kyori.kassel.guild.role.Role;
 import net.kyori.kassel.user.User;
+import net.kyori.mu.Maybe;
 import net.kyori.xml.node.parser.Parser;
 import net.kyori.xml.node.stream.NodeStream;
 
@@ -38,5 +43,13 @@ public interface FunkyTown {
     final LongSet longs = new LongArraySet();
     nodes.map(parser).mapToLong(Long::longValue).forEach(longs::add);
     return longs;
+  }
+
+  static void forEachRole(final Guild guild, final LongSet roles, final Consumer<Role> consumer) {
+    LongStream.of(roles.toLongArray())
+      .mapToObj(guild::role)
+      .filter(Maybe::isJust)
+      .map(Maybe::orThrow)
+      .forEach(consumer);
   }
 }

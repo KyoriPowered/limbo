@@ -74,9 +74,9 @@ public interface Action extends FeatureDefinition {
     public String render(final Map<String, Object> tokens) {
       return this.render0(
         ImmutableMap.<String, Object>builder()
-        .putAll(this.tokens)
-        .putAll(tokens)
-        .build()
+          .putAll(this.tokens)
+          .putAll(tokens)
+          .build()
       );
     }
 

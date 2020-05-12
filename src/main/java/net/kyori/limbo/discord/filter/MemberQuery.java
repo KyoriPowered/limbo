@@ -23,12 +23,18 @@
  */
 package net.kyori.limbo.discord.filter;
 
+import net.kyori.kassel.guild.Guild;
 import net.kyori.kassel.guild.member.Member;
 import net.kyori.kassel.user.User;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface MemberQuery extends GuildQuery, UserQuery {
   @NonNull Member member();
+
+  @Override
+  default @NonNull Guild guild() {
+    return this.member().guild();
+  }
 
   @Override
   default @NonNull User user() {

@@ -23,7 +23,6 @@
  */
 package net.kyori.limbo.discord.feature.role.auto;
 
-import java.util.stream.LongStream;
 import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.guild.Guild;
@@ -36,8 +35,6 @@ import net.kyori.limbo.discord.feature.AbstractDiscordFeature;
 import net.kyori.limbo.discord.filter.MemberQuery;
 import net.kyori.limbo.event.Listener;
 import net.kyori.membrane.facet.Activatable;
-import net.kyori.mu.Maybe;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,26 +53,12 @@ public final class AutoRoleFeature extends AbstractDiscordFeature implements Act
     final Guild guild = event.guild();
     final Member member = event.member();
 
-    this.configuration.search(new MemberQuery() {
-      @Override
-      public @NonNull Guild guild() {
-        return guild;
-      }
-
-      @Override
-      public @NonNull Member member() {
-        return member;
-      }
-    }).ifJust(roles -> {
+    this.configuration.search((MemberQuery) () -> member).ifJust(roles -> {
       final User user = member.user();
-      LongStream.of(roles.toLongArray())
-        .mapToObj(guild::role)
-        .filter(Maybe::isJust)
-        .map(Maybe::orThrow)
-        .forEach(role -> {
-          LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(user), user.id(), role.name(), role.id());
-          member.roles().add(role);
-        });
+      FunkyTown.forEachRole(guild, roles, role -> {
+        LOGGER.info("Adding \"{}\" ({}) to role \"{}\" ({})", FunkyTown.globalName(user), user.id(), role.name(), role.id());
+        member.roles().add(role);
+      });
     });
   }
 }

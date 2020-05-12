@@ -78,11 +78,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
   @Override
   public void apply(final Issue issue, final @Nullable Map<String, Object> comment, final net.kyori.limbo.github.api.model.@Nullable Issue source) throws IOException {
-    if(!this.addLabels.isEmpty() || !this.removeLabels.isEmpty()) {
-      if(!this.removeLabels.isEmpty()) {
+    final boolean hasRemovals = !this.removeLabels.isEmpty();
+    if(!this.addLabels.isEmpty() || hasRemovals) {
+      if(hasRemovals) {
         issue.labels().set(Stream.concat(
           this.addLabels.stream(),
-          !this.removeLabels.isEmpty() ? MuStreams.of(issue.labels().all()).map(Label::name) : Stream.empty()
+          MuStreams.of(issue.labels().all()).map(Label::name)
         ).filter(label -> !this.removeLabels.contains(label)).collect(Collectors.toSet()));
       } else {
         issue.labels().add(this.addLabels);
@@ -92,18 +93,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
       issue.comments().post(() -> this.comment.render(comment));
     }
     if(this.state != null) {
-      switch(this.state) {
-        case CLOSE: issue.edit((IssuePartial.StatePartial) () -> Issue.State.CLOSED); break;
-        case OPEN: issue.edit((IssuePartial.StatePartial) () -> Issue.State.OPEN); break;
+      if(this.state == State.CLOSE) {
+        issue.edit((IssuePartial.StatePartial) () -> Issue.State.CLOSED);
+      } else if(this.state == State.OPEN) {
+        issue.edit((IssuePartial.StatePartial) () -> Issue.State.OPEN);
       }
     }
     if(source != null && source.locked) {
       issue.lock();
     } else {
       if(this.lock != null) {
-        switch(this.lock) {
-          case LOCK: issue.lock(); break;
-          case UNLOCK: issue.unlock(); break;
+        if(this.lock == Lock.LOCK) {
+          issue.lock();
+        } else if(this.lock == Lock.UNLOCK) {
+          issue.unlock();
         }
       }
     }

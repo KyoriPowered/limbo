@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 import javax.inject.Inject;
 import net.kyori.event.method.annotation.Subscribe;
 import net.kyori.kassel.channel.message.emoji.Emoji;
@@ -52,6 +51,10 @@ import org.slf4j.LoggerFactory;
 
 public final class RoleReactFeature extends AbstractDiscordFeature implements Activatable, Listener {
   private static final Logger LOGGER = LoggerFactory.getLogger(RoleReactFeature.class);
+  // @everyone
+  private static final Role EVERYONE = null;
+  private static final RoleQuery EVERYONE_QUERY = null;
+
   private final Configuration configuration;
 
   @Inject
@@ -85,17 +88,18 @@ public final class RoleReactFeature extends AbstractDiscordFeature implements Ac
   private void react(final Guild guild, final Member member, final Snowflaked message, final Emoji emoji, final BiConsumer<Member.Roles, Role> consumer) {
     for(final Role memberRole : Composer.<List<Role>>accept(new ArrayList<>(), list -> {
       list.addAll(member.roles().all().collect(Collectors.toSet()));
-      list.add(null); // @everyone
+      list.add(EVERYONE); // @everyone
     })) {
-      final LongSet roles = this.configuration.search(memberRole != null ? (RoleQuery) () -> memberRole : null, message, emoji);
+      final LongSet roles = this.configuration.search(queryFor(memberRole), message, emoji);
       if(!roles.isEmpty()) {
-        LongStream.of(roles.toLongArray())
-          .mapToObj(guild::role)
-          .filter(Maybe::isJust)
-          .map(Maybe::orThrow)
-          .forEach(role -> consumer.accept(member.roles(), role));
+        FunkyTown.forEachRole(guild, roles, role -> consumer.accept(member.roles(), role));
         return;
       }
     }
+  }
+
+  private static RoleQuery queryFor(final Role role) {
+    if(role == EVERYONE) return EVERYONE_QUERY;
+    return () -> role;
   }
 }
